@@ -135,8 +135,8 @@
           <div>已选中的值: {{ dailyworkday }}</div>
         </div>
         <br />
-        <button @click="replace">挂载触发器</button>
       </div>
+      <button @click="replace">挂载触发器</button>
     </div>
   </div>
 </template>
