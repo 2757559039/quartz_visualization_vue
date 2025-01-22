@@ -5,12 +5,18 @@ import JobIndex from '../components/JobIndex.vue'
 import AddJob from '../components/AddJob.vue'
 import TriggerIndex from '../components/TriggerIndex.vue'
 import onloadtrigger from '../components/onloadtrigger.vue'
+import test from '../components/test.vue'
 
 const routes = [
   {
     path: '/',
     name: 'Job',
     component: JobIndex
+  },
+  {
+    path: '/test',
+    name: 'test',
+    component: test
   },
   {
     path: '/job',
