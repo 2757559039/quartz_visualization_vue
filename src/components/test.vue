@@ -3,8 +3,8 @@
     <div class="jumpBox">
       <el-link :underline="false">前往触发器页面<el-icon><Link /></el-icon></el-link>
       <div class="modalButtonBox">
-        <el-button type="primary">添加任务</el-button>
-        <el-button type="primary">挂载触发器</el-button>
+        <el-button @click="jobModal" type="primary">添加任务</el-button>
+        <el-button @click="onloadModal" type="primary">挂载触发器</el-button>
       </div>
     </div>
 
@@ -123,7 +123,8 @@
       </div>
     </div>
     
-
+    <TriggerModal ref="triggerModal" />
+    <JobModal ref="jobModal" />
     <transition name="modal">
       <div v-if="showModal" class="modal-mask">
         <div class="modal-wrapper">
@@ -181,10 +182,14 @@
 import axios from "axios";
 import ReplaceTrigger from "../components/ReplaceTrigger.vue";
 import JobDetail from "../components/JobDetail.vue";
+import TriggerModal from './onloadtrigger.vue';
+import JobModal from './AddJob.vue';
 export default {
   components: {
     ReplaceTrigger,
     JobDetail,
+    TriggerModal,
+    JobModal,
   },
   data() {
   return {
@@ -337,6 +342,13 @@ export default {
   computed: {
   },
   methods: {
+    onloadModal() {
+      this.$refs.triggerModal.onloadModal();
+    },
+    jobModal() {
+      this.$refs.jobModal.jobModal();
+    },
+
     async getUsedJob() {
       // try {
       //   const response = await axios.post(
