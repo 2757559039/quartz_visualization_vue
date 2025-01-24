@@ -1,130 +1,130 @@
 <template>
-  <div v-if="isVisible" class="modal">
-    <div class="modal-content">
-      <span class="close" @click="closeModal">&times;</span>
-      <h2>任务配置</h2>
-      <div>
-        <div class="form-group">
-          <label>任务名</label>
-          <input v-model="jobName" />
-        </div>
-        <div class="form-group">
-          <label>任务分组</label>
-          <input v-model="jobGroup" />
-        </div>
-        <div class="form-group">
-          <label>任务类名</label>
-          <select v-model="jobClassName">
-            <option v-for="(name, index) in jobClassNameGroup" :key="index">
-              {{ name }}
-            </option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>任务描述</label>
-          <input v-model="jobDescription" />
-        </div>
-        <div class="form-group">
-          <label>选择触发器</label>
-          <select v-model="trigger">
-            <option>SimpleTrigger</option>
-            <option>CronTrigger</option>
-            <option>DailyTimeIntervalTrigger</option>
-            <option>CalendarIntervalTrigger</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>任务时间</label>
-          <el-date-picker
-            v-model="timeRange"
-            type="daterange"
-            format="YYYY/MM/DD"
-            value-format="YYYY-MM-DD"
-            range-separator="To"
-            start-placeholder="Start date"
-            end-placeholder="End date"
-            @change="getTimeRange"
+  <el-dialog v-model="isVisible" title="任务配置" width="50%" :before-close="closeModal">
+    <el-form label-width="120px">
+      <el-form-item label="任务名">
+        <el-input v-model="jobName" />
+      </el-form-item>
+      <el-form-item label="任务分组">
+        <el-input v-model="jobGroup" />
+      </el-form-item>
+      <el-form-item label="任务类名">
+        <el-select v-model="jobClassName">
+          <el-option
+            v-for="(name, index) in jobClassNameGroup"
+            :key="index"
+            :label="name"
+            :value="name"
           />
-        </div>
-        <div class="form-group">
-          <label>任务优先级</label>
-          <input type="number" v-model="priority" />
-        </div>
-        <div class="form-group">
-          <label>自定义JobDetail </label>
-          <select v-model="isCustomJobDetail">
-            <option>true</option>
-            <option>false</option>
-          </select>
-        </div>
-        <p v-if="isCustomJobDetail === 'true'">
-          <div class="form-group">
-            <label>JobDetail</label>
-            <select v-model="jobDetail">
-              <option v-for="(JobDetail, index) in JobDetails" :key="index">
-                {{ JobDetail }}
-              </option>
-            </select>
-          </div>
-        </p>
-        <div class="form-group">
-          <label>自定义触发器</label>
-          <select v-model="isCustomTrigger">
-            <option>true</option>
-            <option>false</option>
-          </select>
-        </div>
-        <div v-if="isCustomTrigger === 'true'" class="form-group">
-          <label>选择触发器实现类</label>
-          <select v-model="selecttrigger">
-            <option v-for="(trigger, index) in triggers" :key="index">
-              {{ trigger }}
-            </option>
-          </select>
-        </div>
-        <div v-if="isCustomTrigger === 'false'" class="form-group">
-          <label>触发器名</label>
-          <input v-model="triggername" />
-        </div>
-        <div v-if="isCustomTrigger === 'false'" class="form-group">
-          <label>触发器名组</label>
-          <input v-model="triggergroup" />
-        </div>
-        <div v-if="trigger === 'SimpleTrigger' && isCustomTrigger === 'false'" class="form-group">
-          <label>触发时间间隔</label>
-          <input v-model="simpletimesecond" placeholder="单位为秒" />
-        </div>
-        <div v-else-if="trigger === 'CronTrigger' && isCustomTrigger === 'false'" class="form-group">
-          <label>cron字段</label>
-          <input v-model="cronexpression" placeholder="请输入cron格式字段" />
-        </div>
-        <div v-else-if="trigger === 'CalendarIntervalTrigger' && isCustomTrigger === 'false'" class="form-group">
-          <label>触发器时间间隔单位</label>
-          <select v-model="calendartime">
-            <option>second</option>
-            <option>minute</option>
-            <option>hour</option>
-            <option>day</option>
-            <option>month</option>
-            <option>year</option>
-          </select>
-        </div>
-        <div v-else-if="trigger === 'DailyTimeIntervalTrigger' && isCustomTrigger === 'false'" class="form-group">
-          <label>触发器时间间隔单位</label>
-          <select v-model="dailytime">
-            <option>second</option>
-            <option>minute</option>
-            <option>hour</option>
-            <option>day</option>
-            <option>month</option>
-            <option>year</option>
-          </select>
-        </div>
-        <button @click="addjob">增加任务</button>
-        <button @click="addfreejob">增加空闲任务</button>
-      </div>
-    </div>
-  </div>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="任务描述">
+        <el-input v-model="jobDescription" />
+      </el-form-item>
+      <el-form-item label="选择触发器">
+        <el-select v-model="trigger">
+          <el-option label="SimpleTrigger" value="SimpleTrigger" />
+          <el-option label="CronTrigger" value="CronTrigger" />
+          <el-option label="DailyTimeIntervalTrigger" value="DailyTimeIntervalTrigger" />
+          <el-option label="CalendarIntervalTrigger" value="CalendarIntervalTrigger" />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="任务时间">
+        <el-date-picker
+          v-model="timeRange"
+          type="daterange"
+          format="YYYY/MM/DD"
+          value-format="YYYY-MM-DD"
+          range-separator="To"
+          start-placeholder="Start date"
+          end-placeholder="End date"
+          @change="getTimeRange"
+        />
+      </el-form-item>
+      <el-form-item label="任务优先级">
+        <el-input-number v-model="priority" :min="0" :max="999" />
+      </el-form-item>
+      <el-form-item label="自定义JobDetail">
+        <el-select v-model="isCustomJobDetail">
+          <el-option label="true" value="true" />
+          <el-option label="false" value="false" />
+        </el-select>
+      </el-form-item>
+      <el-form-item v-if="isCustomJobDetail === 'true'" label="JobDetail">
+        <el-select v-model="jobDetail">
+          <el-option
+            v-for="(JobDetail, index) in JobDetails"
+            :key="index"
+            :label="JobDetail"
+            :value="JobDetail"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="自定义触发器">
+        <el-select v-model="isCustomTrigger">
+          <el-option label="true" value="true" />
+          <el-option label="false" value="false" />
+        </el-select>
+      </el-form-item>
+      <el-form-item v-if="isCustomTrigger === 'true'" label="触发器实现类">
+        <el-select v-model="selecttrigger">
+          <el-option
+            v-for="(trigger, index) in triggers"
+            :key="index"
+            :label="trigger"
+            :value="trigger"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item v-if="isCustomTrigger === 'false'" label="触发器名">
+        <el-input v-model="triggername" />
+      </el-form-item>
+      <el-form-item v-if="isCustomTrigger === 'false'" label="触发器名组">
+        <el-input v-model="triggergroup" />
+      </el-form-item>
+      <el-form-item
+        v-if="trigger === 'SimpleTrigger' && isCustomTrigger === 'false'"
+        label="触发时间间隔"
+      >
+        <el-input v-model="simpletimesecond" placeholder="单位为秒" />
+      </el-form-item>
+      <el-form-item
+        v-else-if="trigger === 'CronTrigger' && isCustomTrigger === 'false'"
+        label="cron字段"
+      >
+        <el-input v-model="cronexpression" placeholder="请输入cron格式字段" />
+      </el-form-item>
+      <el-form-item
+        v-else-if="trigger === 'CalendarIntervalTrigger' && isCustomTrigger === 'false'"
+        label="触发器时间间隔单位"
+      >
+        <el-select v-model="calendartime">
+          <el-option label="second" value="second" />
+          <el-option label="minute" value="minute" />
+          <el-option label="hour" value="hour" />
+          <el-option label="day" value="day" />
+          <el-option label="month" value="month" />
+          <el-option label="year" value="year" />
+        </el-select>
+      </el-form-item>
+      <el-form-item
+        v-else-if="trigger === 'DailyTimeIntervalTrigger' && isCustomTrigger === 'false'"
+        label="触发器时间间隔单位"
+      >
+        <el-select v-model="dailytime">
+          <el-option label="second" value="second" />
+          <el-option label="minute" value="minute" />
+          <el-option label="hour" value="hour" />
+          <el-option label="day" value="day" />
+          <el-option label="month" value="month" />
+          <el-option label="year" value="year" />
+        </el-select>
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <el-button @click="addjob">增加任务</el-button>
+      <el-button @click="addfreejob">增加空闲任务</el-button>
+    </template>
+  </el-dialog>
 </template>
 
 <script>
@@ -417,14 +417,14 @@ export default {
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 10000;
 }
-
+:deep(.el-dialog),
 .modal-content {
   background-color: #fefefe;
   margin: auto;
   padding: 20px;
   border: 1px solid #888;
   width: 426px;
-  height: 650px;
+  /* height: 650px; */
   max-width: 800px;
   border-radius: 14px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -482,5 +482,11 @@ button {
 
 button:hover {
   background: linear-gradient(to right, rgb(53,204,255), rgb(4,114,182)); 
+}
+
+:deep(.el-input),
+:deep(.el-select),
+:deep(.el-date-editor){
+  width:300px;
 }
 </style>

@@ -1,66 +1,65 @@
 <template>
-  <div v-if="isVisible" class="modal">
-    <div class="modal-content">
-      <span class="close" @click="closeModal">&times;</span>
-      <h2>触发器挂载</h2>
-      <!-- 表单内容 -->
-      <div class="form-group">
-        <label>任务分组</label>
-        <select v-model="jobgroup" @change="select(jobgroup)">
-          <option v-for="(group, index) in jobgroups" :key="index">
-            {{ group }}
-          </option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>任务名</label>
-        <select v-model="job">
-          <option v-for="(job, index) in jobs" :key="index" :value="job">
-            {{ job.jobname }}
-          </option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label>触发器类型</label>
-        <select v-model="selecttrigger">
-          <option>SimpleTrigger</option>
-          <option>CronTrigger</option>
-          <option>DailyTimeIntervalTrigger</option>
-          <option>CalendarIntervalTrigger</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>任务优先级</label>
-        <input type="number" v-model="priority" />
-      </div>
-      <div class="form-group">
-        <label>自定义触发器</label>
-        <select v-model="isCustomTrigger">
-          <option>false</option>
-          <option>true</option>
-        </select>
-      </div>
-      <div v-if="this.isCustomTrigger === 'true'" class="form-group">
-        <label>自定义触发器</label>
-        <select v-model="this.trigger">
-          <option v-for="(trigger, index) in triggers" :key="index">
-            {{ trigger }}
-          </option>
-        </select>
-      </div>
-
-      <div v-if="isCustomTrigger === 'false'" class="form-group">
-        <label>触发器名称</label>
-        <input v-model="triggername" />
-      </div>
-      <div v-if="isCustomTrigger === 'false'" class="form-group">
-        <label>触发器分组</label>
-        <input v-model="triggergroup" />
-      </div>
-      <button @click="replace">挂载触发器</button>
-    </div>
-  </div>
+  <el-dialog v-model="isVisible" title="触发器挂载" width="50%" :before-close="closeModal">
+    <el-form label-width="120px">
+      <el-form-item label="任务分组">
+        <el-select v-model="jobgroup" @change="select(jobgroup)">
+          <el-option
+            v-for="(group, index) in jobgroups"
+            :key="index"
+            :label="group"
+            :value="group"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="任务名">
+        <el-select v-model="job">
+          <el-option
+            v-for="(job, index) in jobs"
+            :key="index"
+            :label="job.jobname"
+            :value="job"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="触发器类型">
+        <el-select v-model="selecttrigger">
+          <el-option label="SimpleTrigger" value="SimpleTrigger" />
+          <el-option label="CronTrigger" value="CronTrigger" />
+          <el-option label="DailyTimeIntervalTrigger" value="DailyTimeIntervalTrigger" />
+          <el-option label="CalendarIntervalTrigger" value="CalendarIntervalTrigger" />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="任务优先级">
+        <el-input-number v-model="priority" :min="0" :max="999" />
+      </el-form-item>
+      <el-form-item label="自定义触发器">
+        <el-select v-model="isCustomTrigger">
+          <el-option label="false" value="false" />
+          <el-option label="true" value="true" />
+        </el-select>
+      </el-form-item>
+      <el-form-item v-if="isCustomTrigger === 'true'" label="自定义触发器">
+        <el-select v-model="trigger">
+          <el-option
+            v-for="(trigger, index) in triggers"
+            :key="index"
+            :label="trigger"
+            :value="trigger"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item v-if="isCustomTrigger === 'false'" label="触发器名称">
+        <el-input v-model="triggername" />
+      </el-form-item>
+      <el-form-item v-if="isCustomTrigger === 'false'" label="触发器分组">
+        <el-input v-model="triggergroup" />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <el-button type="primary" @click="replace">挂载触发器</el-button>
+      <el-button @click="closeModal">取消</el-button>
+    </template>
+  </el-dialog>
 </template>
 
 <script>

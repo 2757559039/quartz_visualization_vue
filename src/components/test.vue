@@ -846,4 +846,13 @@ tbody tr:hover {
   transform: translateY(-2px); /* 轻微上移 */
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* 阴影加深 */
 }
+:deep(.el-dialog){
+  background-color: #fefefe;
+  border: 1px solid #888;
+  width: 426px;
+  /* height: 650px; */
+  border-radius: 14px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10001;
+}
 </style>
