@@ -4,14 +4,16 @@
       <span class="close" @click="closeModal">&times;</span>
       <h2>触发器挂载</h2>
       <!-- 表单内容 -->
-      <div>
-        <span>任务分组</span>
+      <div class="form-group">
+        <label>任务分组</label>
         <select v-model="jobgroup" @change="select(jobgroup)">
           <option v-for="(group, index) in jobgroups" :key="index">
             {{ group }}
           </option>
         </select>
-        <span>任务名</span>
+      </div>
+      <div class="form-group">
+        <label>任务名</label>
         <select v-model="job">
           <option v-for="(job, index) in jobs" :key="index" :value="job">
             {{ job.jobname }}
@@ -19,42 +21,44 @@
         </select>
       </div>
 
-      <div>
-        <span>触发器类型</span>
+      <div class="form-group">
+        <label>触发器类型</label>
         <select v-model="selecttrigger">
           <option>SimpleTrigger</option>
           <option>CronTrigger</option>
           <option>DailyTimeIntervalTrigger</option>
           <option>CalendarIntervalTrigger</option>
         </select>
-        <br />
-        <span>任务优先级</span>
+      </div>
+      <div class="form-group">
+        <label>任务优先级</label>
         <input type="number" v-model="priority" />
-        <br />
-        <span>是否使用自定义触发器</span>
+      </div>
+      <div class="form-group">
+        <label>自定义触发器</label>
         <select v-model="isCustomTrigger">
           <option>false</option>
           <option>true</option>
         </select>
-        <br />
-        <div v-if="this.isCustomTrigger === 'true'">
-          <span>自定义触发器</span>
-          <select v-model="this.trigger">
-            <option v-for="(trigger, index) in triggers" :key="index">
-              {{ trigger }}
-            </option>
-          </select>
-        </div>
-
-        <div v-if="isCustomTrigger === 'false'">
-          <span>触发器名称</span>
-          <input v-model="triggername" />
-          <br />
-          <span>触发器分组</span>
-          <input v-model="triggergroup" />
-        </div>
-        <button @click="replace">挂载触发器</button>
       </div>
+      <div v-if="this.isCustomTrigger === 'true'" class="form-group">
+        <label>自定义触发器</label>
+        <select v-model="this.trigger">
+          <option v-for="(trigger, index) in triggers" :key="index">
+            {{ trigger }}
+          </option>
+        </select>
+      </div>
+
+      <div v-if="isCustomTrigger === 'false'" class="form-group">
+        <label>触发器名称</label>
+        <input v-model="triggername" />
+      </div>
+      <div v-if="isCustomTrigger === 'false'" class="form-group">
+        <label>触发器分组</label>
+        <input v-model="triggergroup" />
+      </div>
+      <button @click="replace">挂载触发器</button>
     </div>
   </div>
 </template>
@@ -141,9 +145,12 @@ export default {
   margin: auto;
   padding: 20px;
   border: 1px solid #888;
-  width: 80%;
+  width: 400px;
+  height: 500px;
   max-width: 600px;
   z-index: 10001;
+  border-radius: 14px;
+
 }
 
 .close {
@@ -158,5 +165,44 @@ export default {
   color: black;
   text-decoration: none;
   cursor: pointer;
+}
+
+h2 {
+  margin-top: 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.form-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  min-width: 120px; /* 确保标签有足够的宽度 */
+  margin-right: 10px;
+  text-align: right; /* 标签右对齐 */
+}
+
+select,
+input {
+  flex: 1; /* 让输入框占据剩余空间 */
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+button {
+  background: linear-gradient(to left, rgb(53,204,255), rgb(4,114,182)); 
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: linear-gradient(to right, rgb(53,204,255), rgb(4,114,182)); 
 }
 </style>

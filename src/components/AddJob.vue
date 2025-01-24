@@ -4,156 +4,121 @@
       <span class="close" @click="closeModal">&times;</span>
       <h2>任务配置</h2>
       <div>
-        <span>任务名</span>
-        <input v-model="jobName" />
-        <br />
-        <span>任务分组</span>
-        <input v-model="jobGroup" />
-        <br />
-        <span>任务类名</span>
-        <select v-model="jobClassName">
-          <option v-for="(name, index) in jobClassNameGroup" :key="index">
-            {{ name }}
-          </option>
-        </select>
-        <br />
-        <span>任务描述</span>
-        <input v-model="jobDescription" />
-        <br />
-        <span>选择触发器</span>
-        <select v-model="trigger">
-          <option>SimpleTrigger</option>
-          <option>CronTrigger</option>
-          <option>DailyTimeIntervalTrigger</option>
-          <option>CalendarIntervalTrigger</option>
-        </select>
-        <br />
-        <span>任务时间</span>
-        <br />
-        <el-date-picker
-          v-model="timeRange"
-          type="daterange"
-          format="YYYY/MM/DD"
-          value-format="YYYY-MM-DD"
-          range-separator="To"
-          start-placeholder="Start date"
-          end-placeholder="End date"
-          @change="getTimeRange"
-        />
-        <br />
-        <span>任务优先级</span>
-        <input type="number" v-model="priority" />
-        <br />
-        <span>是否使用自定义JobDetail </span>
-        <select v-model="isCustomJobDetail">
-          <option>true</option>
-          <option>false</option>
-        </select>
-        <br />
-        <p v-if="isCustomJobDetail === 'true'">
-          <span>JobDetail</span>
-          <select v-model="jobDetail">
-            <option v-for="(JobDetail, index) in JobDetails" :key="index">
-              {{ JobDetail }}
+        <div class="form-group">
+          <label>任务名</label>
+          <input v-model="jobName" />
+        </div>
+        <div class="form-group">
+          <label>任务分组</label>
+          <input v-model="jobGroup" />
+        </div>
+        <div class="form-group">
+          <label>任务类名</label>
+          <select v-model="jobClassName">
+            <option v-for="(name, index) in jobClassNameGroup" :key="index">
+              {{ name }}
             </option>
           </select>
+        </div>
+        <div class="form-group">
+          <label>任务描述</label>
+          <input v-model="jobDescription" />
+        </div>
+        <div class="form-group">
+          <label>选择触发器</label>
+          <select v-model="trigger">
+            <option>SimpleTrigger</option>
+            <option>CronTrigger</option>
+            <option>DailyTimeIntervalTrigger</option>
+            <option>CalendarIntervalTrigger</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>任务时间</label>
+          <el-date-picker
+            v-model="timeRange"
+            type="daterange"
+            format="YYYY/MM/DD"
+            value-format="YYYY-MM-DD"
+            range-separator="To"
+            start-placeholder="Start date"
+            end-placeholder="End date"
+            @change="getTimeRange"
+          />
+        </div>
+        <div class="form-group">
+          <label>任务优先级</label>
+          <input type="number" v-model="priority" />
+        </div>
+        <div class="form-group">
+          <label>自定义JobDetail </label>
+          <select v-model="isCustomJobDetail">
+            <option>true</option>
+            <option>false</option>
+          </select>
+        </div>
+        <p v-if="isCustomJobDetail === 'true'">
+          <div class="form-group">
+            <label>JobDetail</label>
+            <select v-model="jobDetail">
+              <option v-for="(JobDetail, index) in JobDetails" :key="index">
+                {{ JobDetail }}
+              </option>
+            </select>
+          </div>
         </p>
-        <div>
-          <span>是否使用自定义触发器</span>
+        <div class="form-group">
+          <label>自定义触发器</label>
           <select v-model="isCustomTrigger">
             <option>true</option>
             <option>false</option>
           </select>
-          <br />
-
-          <div v-if="isCustomTrigger === 'true'">
-            <span>选择触发器实现类</span>
-            <select v-model="selecttrigger">
-              <option v-for="(trigger, index) in triggers" :key="index">
-                {{ trigger }}
-              </option>
-            </select>
-          </div>
-          <div v-if="isCustomTrigger === 'false'">
-            <span>触发器名</span>
-            <input v-model="triggername" />
-            <br />
-            <span>触发器名组</span>
-            <input v-model="triggergroup" />
-          </div>
-
-          <div v-if="trigger === 'SimpleTrigger' && isCustomTrigger === 'false'">
-            <span>触发时间间隔</span>
-            <input v-model="simpletimesecond" placeholder="单位为秒" />
-            <br />
-            <span>触发器执行次数</span>
-            <input v-model="repeatcount" />
-          </div>
-
-          <div v-else-if="trigger === 'CronTrigger' && isCustomTrigger === 'false'">
-            <span>cron字段</span>
-            <input v-model="cronexpression" placeholder="请输入cron格式字段" />
-          </div>
-
-          <div
-            v-else-if="
-              trigger === 'CalendarIntervalTrigger' && isCustomTrigger === 'false'
-            "
-          >
-            <span>触发器时间间隔单位</span>
-            <select v-model="calendartime">
-              <option>second</option>
-              <option>minute</option>
-              <option>hour</option>
-              <option>day</option>
-              <option>month</option>
-              <option>year</option>
-            </select>
-            <br />
-            <span>触发器间隔次数</span>
-            <input v-model="calendarnum" />
-            <br />
-            <span>是否使用夏令时</span>
-            <select v-model="preserveHourOfDayAcrossDaylightSavings">
-              <option>true</option>
-              <option>false</option>
-            </select>
-            <span>设置当小时不存在时是否跳过这一天</span>
-            <select v-model="skipDayIfHourDoesNotExist">
-              <option>true</option>
-              <option>false</option>
-            </select>
-            <br />
-            <span>设置时区</span>
-            <input v-model="timezone" />
-          </div>
-
-          <div
-            v-else-if="
-              trigger === 'DailyTimeIntervalTrigger' && isCustomTrigger === 'false'
-            "
-          >
-            <span>触发器时间间隔单位</span>
-            <select v-model="dailytime">
-              <option>second</option>
-              <option>minute</option>
-              <option>hour</option>
-              <option>day</option>
-              <option>month</option>
-              <option>year</option>
-            </select>
-            <br />
-            <span>触发器间隔次数</span>
-            <input v-model="dailynum" />
-            <br />
-            <span>总执行次数</span>
-            <input v-model="dailyrepeatcount" />
-            <br />
-            <label v-for="(option, index) in options" :key="index">
-              <input type="checkbox" :value="option" v-model="dailyworkday" />
-              {{ option }}
-            </label>
-          </div>
+        </div>
+        <div v-if="isCustomTrigger === 'true'" class="form-group">
+          <label>选择触发器实现类</label>
+          <select v-model="selecttrigger">
+            <option v-for="(trigger, index) in triggers" :key="index">
+              {{ trigger }}
+            </option>
+          </select>
+        </div>
+        <div v-if="isCustomTrigger === 'false'" class="form-group">
+          <label>触发器名</label>
+          <input v-model="triggername" />
+        </div>
+        <div v-if="isCustomTrigger === 'false'" class="form-group">
+          <label>触发器名组</label>
+          <input v-model="triggergroup" />
+        </div>
+        <div v-if="trigger === 'SimpleTrigger' && isCustomTrigger === 'false'" class="form-group">
+          <label>触发时间间隔</label>
+          <input v-model="simpletimesecond" placeholder="单位为秒" />
+        </div>
+        <div v-else-if="trigger === 'CronTrigger' && isCustomTrigger === 'false'" class="form-group">
+          <label>cron字段</label>
+          <input v-model="cronexpression" placeholder="请输入cron格式字段" />
+        </div>
+        <div v-else-if="trigger === 'CalendarIntervalTrigger' && isCustomTrigger === 'false'" class="form-group">
+          <label>触发器时间间隔单位</label>
+          <select v-model="calendartime">
+            <option>second</option>
+            <option>minute</option>
+            <option>hour</option>
+            <option>day</option>
+            <option>month</option>
+            <option>year</option>
+          </select>
+        </div>
+        <div v-else-if="trigger === 'DailyTimeIntervalTrigger' && isCustomTrigger === 'false'" class="form-group">
+          <label>触发器时间间隔单位</label>
+          <select v-model="dailytime">
+            <option>second</option>
+            <option>minute</option>
+            <option>hour</option>
+            <option>day</option>
+            <option>month</option>
+            <option>year</option>
+          </select>
         </div>
         <button @click="addjob">增加任务</button>
         <button @click="addfreejob">增加空闲任务</button>
@@ -458,9 +423,10 @@ export default {
   margin: auto;
   padding: 20px;
   border: 1px solid #888;
-  width: 80%;
+  width: 426px;
+  height: 650px;
   max-width: 800px;
-  border-radius: 8px;
+  border-radius: 14px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   z-index: 10001;
 }
@@ -485,18 +451,28 @@ h2 {
   color: #333;
 }
 
+.form-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  min-width: 120px; /* 确保标签有足够的宽度 */
+  margin-right: 10px;
+  text-align: right; /* 标签右对齐 */
+}
+
 select,
 input {
-  width: 100%;
+  flex: 1; /* 让输入框占据剩余空间 */
   padding: 8px;
-  margin-top: 8px;
-  margin-bottom: 16px;
   border: 1px solid #ccc;
   border-radius: 4px;
 }
 
 button {
-  background-color: #007bff;
+  background: linear-gradient(to left, rgb(53,204,255), rgb(4,114,182)); 
   color: white;
   padding: 10px 15px;
   border: none;
@@ -505,6 +481,6 @@ button {
 }
 
 button:hover {
-  background-color: #0056b3;
+  background: linear-gradient(to right, rgb(53,204,255), rgb(4,114,182)); 
 }
 </style>

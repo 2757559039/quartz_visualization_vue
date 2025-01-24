@@ -210,7 +210,7 @@ export default {
         job_state: 'PAUSED'
       },
       {
-        id: '1',
+        id: 'abcsssd',
         jobname: 'Job-001',
         jobgroup: 'Group-A',
         jobclassname: 'Class-A',
@@ -813,7 +813,7 @@ tbody tr:hover {
   -webkit-transform: scale(1.1);
   transform: scale(1.1);
 }
-
+/* 上2按钮 */
 :deep(.modalButtonBox button){
   background: linear-gradient(to left, rgb(53,204,255), rgb(4,114,182)); /* 从浅蓝色到深蓝色 */
   border: none;
@@ -833,7 +833,7 @@ tbody tr:hover {
   transform: translateY(-2px); /* 轻微上移 */
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* 阴影加深 */
 }
-
+/* 下三按钮 */
 :deep(.jobbtn){
   background-color: rgb(255,255,255);
   color: rgb(0,119,194);
