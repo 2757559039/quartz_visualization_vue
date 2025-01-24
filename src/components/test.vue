@@ -3,17 +3,17 @@
     <div class="jumpBox">
       <el-link :underline="false">前往触发器页面<el-icon><Link /></el-icon></el-link>
       <div class="modalButtonBox">
-        <el-button @click="jobModal" type="primary">添加任务</el-button>
-        <el-button @click="onloadModal" type="primary">挂载触发器</el-button>
+        <el-button @click="jobModal" type="primary" class="addbtn">添加任务</el-button>
+        <el-button @click="onloadModal" type="primary" class="addbtn">挂载触发器</el-button>
       </div>
     </div>
 
     <div class="topbox">
       <p class="title">任务管理</p>
       <div class="Button3Box">
-        <el-button type="success" @click="resumeAllJob()">恢复所有任务</el-button>
-        <el-button type="warning"  @click="pauseAllJob()">停止所有任务</el-button>
-        <el-button type="danger" @click="deleteAllJob()">删除所有任务</el-button>
+        <el-button type="success" @click="resumeAllJob()" class="jobbtn">恢复所有任务</el-button>
+        <el-button type="warning"  @click="pauseAllJob()" class="jobbtn">停止所有任务</el-button>
+        <el-button type="danger" @click="deleteAllJob()" class="jobbtn">删除所有任务</el-button>
       </div>
     </div>
 
@@ -812,5 +812,38 @@ tbody tr:hover {
 .modal-leave-active .modal-container {
   -webkit-transform: scale(1.1);
   transform: scale(1.1);
+}
+
+:deep(.modalButtonBox button){
+  background: linear-gradient(to left, rgb(53,204,255), rgb(4,114,182)); /* 从浅蓝色到深蓝色 */
+  border: none;
+  color: rgb(227,255,255);
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin-left:20px;
+  margin-right:0;
+  cursor: pointer;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 阴影 */
+}
+:deep(.modalButtonBox button:hover) {
+  background: linear-gradient(to right, rgb(53,204,255), rgb(4,114,182)); /* 鼠标悬停时颜色反转 */
+  transform: translateY(-2px); /* 轻微上移 */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* 阴影加深 */
+}
+
+:deep(.jobbtn){
+  background-color: rgb(255,255,255);
+  color: rgb(0,119,194);
+  border: 1px solid rgb(0, 119, 194);
+  border-radius: 8px;
+}
+:deep(.jobbtn:hover){
+  background-color: rgb(233,245,255);
+  color: rgb(0,0,0);
+  transform: translateY(-2px); /* 轻微上移 */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* 阴影加深 */
 }
 </style>
