@@ -12,9 +12,9 @@
     <div class="topbox">
       <p class="title">任务管理</p>
       <div class="Button3Box">
-        <el-button type="success" @click="resumeAllJob()" class="jobbtn">恢复所有任务</el-button>
-        <el-button type="warning"  @click="pauseAllJob()" class="jobbtn">停止所有任务</el-button>
-        <el-button type="danger" @click="deleteAllJob()" class="jobbtn">删除所有任务</el-button>
+        <el-button type="success" @click="showConfirm('resumeAllJob')" class="jobbtn">恢复所有任务</el-button>
+        <el-button type="warning" @click="showConfirm('pauseAllJob')" class="jobbtn">停止所有任务</el-button>
+        <el-button type="danger" @click="showConfirm('deleteAllJob')" class="jobbtn">删除所有任务</el-button>
       </div>
     </div>
 
@@ -477,7 +477,29 @@ export default {
       // 关闭弹窗
       this.showupload = false;
     },
-
+    //二级弹窗
+    showConfirm(action) {
+    this.$confirm(`确定要${action === 'resumeAllJob' ? '恢复所有任务' : action === 'pauseAllJob' ? '停止所有任务' : '删除所有任务'}吗？`, '确认操作', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    }).then(() => {
+      // 用户点击“确定”按钮
+      if (action === 'resumeAllJob') {
+        this.resumeAllJob();
+      } else if (action === 'pauseAllJob') {
+        this.pauseAllJob();
+      } else if (action === 'deleteAllJob') {
+        this.deleteAllJob();
+      }
+    }).catch(() => {
+      // 用户点击“取消”按钮
+      this.$message({
+        type: 'info',
+        message: '操作已取消',
+      });
+    });
+  },
     async resumeAllJob() {
       try {
         const response = await axios.post(
