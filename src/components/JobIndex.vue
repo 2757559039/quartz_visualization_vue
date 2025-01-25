@@ -103,10 +103,10 @@
             <template #default="scope">
               <div>
                 <div class="button3Box"> 
-                  <el-button type="success" @click="startNow(scope.row.id)" size="small" circle><el-icon :size="24"><Refresh /></el-icon></el-button>
-                  <el-button type="success" @click="resumeJob(scope.row.id)" size="small" circle><el-icon :size="24"><VideoPlay /></el-icon></el-button>
-                <el-button type="warning" @click="pauseJob(scope.row.id)" size="small" circle><el-icon :size="24"><VideoPause /></el-icon></el-button>
-                <el-button type="danger" @click="deleteJob(scope.row.id)" size="small" circle><el-icon :size="18"><Delete /></el-icon></el-button>
+                  <el-button type="success" @click="startNow(scope.row)" size="small" circle><el-icon :size="24"><Refresh /></el-icon></el-button>
+                  <el-button type="success" @click="resumeJob(scope.row)" size="small" circle><el-icon :size="24"><VideoPlay /></el-icon></el-button>
+                <el-button type="warning" @click="pauseJob(scope.row)" size="small" circle><el-icon :size="24"><VideoPause /></el-icon></el-button>
+                <el-button type="danger" @click="deleteJob(scope.row)" size="small" circle><el-icon :size="18"><Delete /></el-icon></el-button>
                 </div>
                 <div class="button2Box"> 
                   <el-button type="info" @click="replacetrigger(scope.row)">替换触发器</el-button>
@@ -353,9 +353,7 @@ export default {
         const response = await axios.post(
           "http://114.132.71.250:8002/task/Select/jobgroupall"
         );
-        console.log(response);
         this.groups = response.data.data;
-
         // 重置表单
       } catch (error) {
         // 处理网络错误或其他错误
@@ -367,13 +365,13 @@ export default {
     async select(selectGroup) {
     },
 
-    async startNow (index) {
+    async startNow (row) {
       try {
         const response = await axios.post(
-          "http://114.132.71.250:8002/task/Start/resume?name=" +
-            this.Jobs[index].jobname +
+          "http://114.132.71.250:8002/task/Start/resumeNow?name=" +
+          row.jobname +
             "&group=" +
-            this.Jobs[index].jobgroup
+          row.jobgroup
         );
         console.log(response);
 
@@ -385,13 +383,13 @@ export default {
       }
       this.getUsedJob();
     },
-    async resumeJob(index) {
+    async resumeJob(row) {
       try {
         const response = await axios.post(
           "http://114.132.71.250:8002/task/Start/resume?name=" +
-            this.Jobs[index].jobname +
+          this.Jobs[index].jobname +
             "&group=" +
-            this.Jobs[index].jobgroup
+          this.Jobs[index].jobgroup
         );
         console.log(response);
 
@@ -403,12 +401,12 @@ export default {
       }
       this.getUsedJob();
     },
-    async pauseJob(index) {
+    async pauseJob(row) {
       try {
         const response = await axios.post(
           "http://114.132.71.250:8002/task/Pause/job?jobname=" +
-            this.Jobs[index].jobname +
-            "&jobgroup=" +
+          this.Jobs[index].jobname +
+            "&group=" +
             this.Jobs[index].jobgroup
         );
         console.log(response);
@@ -421,11 +419,11 @@ export default {
       }
       this.getUsedJob();
     },
-    async deleteJob(index) {
+    async deleteJob(row) {
       try {
         const response = await axios.post(
           "http://114.132.71.250:8002/task/Delete/job?name=" +
-            this.Jobs[index].jobname +
+          this.Jobs[index].jobname +
             "&group=" +
             this.Jobs[index].jobgroup
         );
