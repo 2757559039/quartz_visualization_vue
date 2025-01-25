@@ -28,16 +28,22 @@
           <el-option label="CalendarIntervalTrigger" value="CalendarIntervalTrigger" />
         </el-select>
       </el-form-item>
-      <el-form-item label="任务时间">
+      <el-form-item label="开始任务时间">
         <el-date-picker
-          v-model="timeRange"
-          type="daterange"
+          v-model="startTime"
+          type="date"
           format="YYYY/MM/DD"
           value-format="YYYY-MM-DD"
-          range-separator="To"
-          start-placeholder="Start date"
-          end-placeholder="End date"
-          @change="getTimeRange"
+          placeholder="选择开始日期"
+        />
+      </el-form-item>
+      <el-form-item label="结束任务时间">
+        <el-date-picker
+          v-model="endTime"
+          type="date"
+          format="YYYY/MM/DD"
+          value-format="YYYY-MM-DD"
+          placeholder="选择结束日期"
         />
       </el-form-item>
       <el-form-item label="任务优先级">
@@ -50,7 +56,6 @@
           inactive-value="false"
           style="position: absolute;left: -120px"
         />
-        <!-- abc-120在我这里显示没问题 -->
         <el-select
           v-model="jobDetail"
           :disabled="isCustomJobDetail === 'false'"
@@ -144,9 +149,8 @@ export default {
       jobClassName: "",
       jobClassNameGroup: [],
       jobDescription: "",
-      timeRange: [],
-      startTime: ref(""),
-      endTime: ref(""),
+      startTime: "",
+      endTime: "",
       priority: 5,
       selecttrigger: "",
       trigger: "",
@@ -201,12 +205,6 @@ export default {
         console.error("请求失败，请检查网络连接");
       }
     },
-    getTimeRange() {
-      if (this.timeRange !== null) {
-        this.startTime = this.timeRange[0];
-        this.endTime = this.timeRange[1];
-      }
-    },
     checkBaseInfo() {
       let tip = "";
       if (this.jobName === "" || this.jobGroup === "") {
@@ -218,7 +216,7 @@ export default {
       if (this.priority > 999 || this.priority < 0) {
         tip = tip + "优先级范围为0~999\n";
       }
-      if (this.timeRange === null || this.startTime === "" || this.endTime === "") {
+      if (this.startTime === "" || this.endTime === "") {
         tip = tip + "任务时间不能为空\n";
       }
       if (this.trigger === "") {
