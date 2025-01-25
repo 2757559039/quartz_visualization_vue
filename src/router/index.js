@@ -19,8 +19,8 @@ const routes = [
     component: test
   },
   {
-    path: '/job',
-    name: 'JobDetail',
+    path: '/JobIndex',
+    name: 'JobIndex',
     component: JobIndex
   },
   {
