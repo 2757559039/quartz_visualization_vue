@@ -479,10 +479,10 @@ export default {
     },
     //二级弹窗
     showConfirm(action) {
-    this.$confirm(`确定要${action === 'resumeAllJob' ? '恢复所有任务' : action === 'pauseAllJob' ? '停止所有任务' : '删除所有任务'}吗？`, '确认操作', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning',
+      ElMessageBox.confirm(`确定要${action === 'resumeAllJob' ? '恢复所有任务' : action === 'pauseAllJob' ? '停止所有任务' : '删除所有任务'}吗？`, '确认操作', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
     }).then(() => {
       // 用户点击“确定”按钮
       if (action === 'resumeAllJob') {
@@ -494,10 +494,7 @@ export default {
       }
     }).catch(() => {
       // 用户点击“取消”按钮
-      this.$message({
-        type: 'info',
-        message: '操作已取消',
-      });
+      console.log('取消操作');
     });
   },
     async resumeAllJob() {
