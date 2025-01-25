@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="jumpBox">
-      <el-link :underline="false">前往触发器页面<el-icon><Link /></el-icon></el-link>
+      <el-link :underline="false" @click="Go('JobIndex')">前往任务管理页面<el-icon><Link /></el-icon></el-link>
       <div class="modalButtonBox">
         <el-button type="primary">添加任务</el-button>
         <el-button type="primary">挂载触发器</el-button>
@@ -9,7 +9,7 @@
     </div>
 
     <div class="topbox">
-      <p class="title">任务管理</p>
+      <p class="title">触发器管理</p>
       <div class="Button3Box">
         <el-button type="success" @click="resumeAllJob()">恢复所有任务</el-button>
         <el-button type="warning"  @click="pauseAllJob()">停止所有任务</el-button>
@@ -132,107 +132,6 @@ export default {
   data() {
     return {
       Jobs: [
-        {
-          jobname: 'Job1',
-          jobgroup: 'GroupA',
-          jobclassname: 'ClassName1',
-          priority: 5,
-          triggername: 'Trigger1',
-          triggergroup: 'TriggerGroupA',
-          triggers_state: 'PAUSED',
-          job_state: 'PAUSED'
-        },
-        {
-          jobname: 'Job2',
-          jobgroup: 'GroupB',
-          jobclassname: 'ClassName2',
-          priority: 3,
-          triggername: 'Trigger2',
-          triggergroup: 'TriggerGroupB',
-          triggers_state: 'ACTIVE',
-          job_state: 'ACTIVE'
-        },
-        {
-          jobname: 'Job1',
-          jobgroup: 'GroupA',
-          jobclassname: 'ClassName1',
-          priority: 5,
-          triggername: 'Trigger1',
-          triggergroup: 'TriggerGroupA',
-          triggers_state: 'PAUSED',
-          job_state: 'PAUSED'
-        },
-        {
-          jobname: 'Job2',
-          jobgroup: 'GroupB',
-          jobclassname: 'ClassName2',
-          priority: 3,
-          triggername: 'Trigger2',
-          triggergroup: 'TriggerGroupB',
-          triggers_state: 'ACTIVE',
-          job_state: 'ACTIVE'
-        },
-        {
-          jobname: 'Job1',
-          jobgroup: 'GroupA',
-          jobclassname: 'ClassName1',
-          priority: 5,
-          triggername: 'Trigger1',
-          triggergroup: 'TriggerGroupA',
-          triggers_state: 'PAUSED',
-          job_state: 'PAUSED'
-        },
-        {
-          jobname: 'Job2',
-          jobgroup: 'GroupB',
-          jobclassname: 'ClassName2',
-          priority: 3,
-          triggername: 'Trigger2',
-          triggergroup: 'TriggerGroupB',
-          triggers_state: 'ACTIVE',
-          job_state: 'ACTIVE'
-        },
-        {
-          jobname: 'Job1',
-          jobgroup: 'GroupA',
-          jobclassname: 'ClassName1',
-          priority: 5,
-          triggername: 'Trigger1',
-          triggergroup: 'TriggerGroupA',
-          triggers_state: 'PAUSED',
-          job_state: 'PAUSED'
-        },
-        {
-          jobname: 'Job2',
-          jobgroup: 'GroupB',
-          jobclassname: 'ClassName2',
-          priority: 3,
-          triggername: 'Trigger2',
-          triggergroup: 'TriggerGroupB',
-          triggers_state: 'ACTIVE',
-          job_state: 'ACTIVE'
-        },
-        {
-          jobname: 'Job1',
-          jobgroup: 'GroupA',
-          jobclassname: 'ClassName1',
-          priority: 5,
-          triggername: 'Trigger1',
-          triggergroup: 'TriggerGroupA',
-          triggers_state: 'PAUSED',
-          job_state: 'PAUSED'
-        },
-        {
-          jobname: 'Job2',
-          jobgroup: 'GroupB',
-          jobclassname: 'ClassName2',
-          priority: 3,
-          triggername: 'Trigger2',
-          triggergroup: 'TriggerGroupB',
-          triggers_state: 'ACTIVE',
-          job_state: 'ACTIVE'
-        },
-        // 添加更多条目以充分测试样式
       ],
       groups: ['ALL', 'GroupA', 'GroupB', 'GroupC'],
       selectedJob: {},
@@ -253,6 +152,9 @@ export default {
     },
   },
   methods: {
+    Go(address) {
+      this.$router.push({ path: '/'+address });
+    },
     async getUsedJob() {
       try {
         const response = await axios.post(
@@ -550,7 +452,7 @@ export default {
 
 .JobBox {
   width: 1515px;
-  /* height: 750px; */
+  height: 750px;
   color: #000;
   margin: 0;
   border-radius: 5px;
@@ -620,13 +522,13 @@ export default {
 
 .modal-mask {
   position: fixed;
-  z-index: 9998;
+  z-index: 3;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
-  display: table;
+  /* display: table; */
   transition: opacity 0.3s ease;
 }
 

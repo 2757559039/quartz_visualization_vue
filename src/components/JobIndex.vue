@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="jumpBox">
-      <el-link :underline="false">前往触发器页面<el-icon><Link /></el-icon></el-link>
+      <el-link :underline="false" @click="Go('TriggerIndex')">前往触发器管理页面<el-icon><Link /></el-icon></el-link>
       <div class="modalButtonBox">
         <el-button @click="jobModal" type="primary" class="addbtn">添加任务</el-button>
         <el-button @click="onloadModal" type="primary" class="addbtn">挂载触发器</el-button>
@@ -188,144 +188,7 @@ export default {
   },
   data() {
   return {
-    Jobs: [
-      {
-        id: '1',
-        jobname: 'Job-001',
-        jobgroup: 'Group-A',
-        jobclassname: 'Class-A',
-        description: 'This is a description for Job-001.',
-        type: 'Type-A',
-        priority: 'High',
-        startime: '2023-04-01T08:00:00Z',
-        endtime: '2023-04-01T17:00:00Z',
-        triggername: 'Trigger-001',
-        triggergroup: 'TriggerGroup-A',
-        triggers_state: 'PAUSED',
-        job_state: 'PAUSED'
-      },
-      {
-        id: '1',
-        jobname: 'Job-001',
-        jobgroup: 'Group-A',
-        jobclassname: 'Class-A',
-        description: 'This is a description for Job-001.',
-        type: 'Type-A',
-        priority: 'High',
-        startime: '2023-04-01T08:00:00Z',
-        endtime: '2023-04-01T17:00:00Z',
-        triggername: 'Trigger-001',
-        triggergroup: 'TriggerGroup-A',
-        triggers_state: 'PAUSED',
-        job_state: 'PAUSED'
-      },
-      {
-        id: '1',
-        jobname: 'Job-001',
-        jobgroup: 'Group-A',
-        jobclassname: 'Class-A',
-        description: 'This is a description for Job-001.',
-        type: 'Type-A',
-        priority: 'High',
-        startime: '2023-04-01T08:00:00Z',
-        endtime: '2023-04-01T17:00:00Z',
-        triggername: 'Trigger-001',
-        triggergroup: 'TriggerGroup-A',
-        triggers_state: 'PAUSED',
-        job_state: 'PAUSED'
-      },
-      {
-        id: '1',
-        jobname: 'Job-001',
-        jobgroup: 'Group-A',
-        jobclassname: 'Class-A',
-        description: 'This is a description for Job-001.',
-        type: 'Type-A',
-        priority: 'High',
-        startime: '2023-04-01T08:00:00Z',
-        endtime: '2023-04-01T17:00:00Z',
-        triggername: 'Trigger-001',
-        triggergroup: 'TriggerGroup-A',
-        triggers_state: 'PAUSED',
-        job_state: 'PAUSED'
-      },
-      {
-        id: '1',
-        jobname: 'Job-001',
-        jobgroup: 'Group-A',
-        jobclassname: 'Class-A',
-        description: 'This is a description for Job-001.',
-        type: 'Type-A',
-        priority: 'High',
-        startime: '2023-04-01T08:00:00Z',
-        endtime: '2023-04-01T17:00:00Z',
-        triggername: 'Trigger-001',
-        triggergroup: 'TriggerGroup-A',
-        triggers_state: 'PAUSED',
-        job_state: 'PAUSED'
-      },
-      {
-        id: '1',
-        jobname: 'Job-001',
-        jobgroup: 'Group-A',
-        jobclassname: 'Class-A',
-        description: 'This is a description for Job-001.',
-        type: 'Type-A',
-        priority: 'High',
-        startime: '2023-04-01T08:00:00Z',
-        endtime: '2023-04-01T17:00:00Z',
-        triggername: 'Trigger-001',
-        triggergroup: 'TriggerGroup-A',
-        triggers_state: 'PAUSED',
-        job_state: 'PAUSED'
-      },
-      {
-        id: '1',
-        jobname: 'Job-001',
-        jobgroup: 'Group-A',
-        jobclassname: 'Class-A',
-        description: 'This is a description for Job-001.',
-        type: 'Type-A',
-        priority: 'High',
-        startime: '2023-04-01T08:00:00Z',
-        endtime: '2023-04-01T17:00:00Z',
-        triggername: 'Trigger-001',
-        triggergroup: 'TriggerGroup-A',
-        triggers_state: 'PAUSED',
-        job_state: 'PAUSED'
-      },
-      {
-        id: '1',
-        jobname: 'Job-001',
-        jobgroup: 'Group-A',
-        jobclassname: 'Class-A',
-        description: 'This is a description for Job-001.',
-        type: 'Type-A',
-        priority: 'High',
-        startime: '2023-04-01T08:00:00Z',
-        endtime: '2023-04-01T17:00:00Z',
-        triggername: 'Trigger-001',
-        triggergroup: 'TriggerGroup-A',
-        triggers_state: 'PAUSED',
-        job_state: 'PAUSED'
-      },
-      {
-        id: '2',
-        jobname: 'Job-002',
-        jobgroup: 'Group-B',
-        jobclassname: 'Class-B',
-        description: 'This is a description for Job-002.',
-        type: 'Type-B',
-        priority: 'Medium',
-        startime: '2023-04-02T09:00:00Z',
-        endtime: '2023-04-02T18:00:00Z',
-        triggername: 'Trigger-002',
-        triggergroup: 'TriggerGroup-B',
-        triggers_state: 'RUNNING',
-        job_state: 'RUNNING'
-      },
-      // Add more job objects as needed...
-    ],
+    Jobs: [],
     groups: ['Group-A', 'Group-B', 'Group-C'],
     selectedJob: {},
     selectGroup: "ALL",
@@ -338,6 +201,10 @@ export default {
   computed: {
   },
   methods: {
+
+    Go(address){
+      this.$router.push({ path: '/'+address });
+    },
     onloadModal() {
       this.$refs.triggerModal.onloadModal();
     },
@@ -398,9 +265,9 @@ export default {
       try {
         const response = await axios.post(
           "http://114.132.71.250:8002/task/Start/resume?name=" +
-          this.Jobs[index].jobname +
+          row.jobname +
             "&group=" +
-          this.Jobs[index].jobgroup
+          row.jobgroup
         );
         console.log(response);
 
@@ -416,9 +283,9 @@ export default {
       try {
         const response = await axios.post(
           "http://114.132.71.250:8002/task/Pause/job?jobname=" +
-          this.Jobs[index].jobname +
-            "&group=" +
-            this.Jobs[index].jobgroup
+          row.jobname +
+            "&jobgroup=" +
+          row.jobgroup
         );
         console.log(response);
 
@@ -434,9 +301,9 @@ export default {
       try {
         const response = await axios.post(
           "http://114.132.71.250:8002/task/Delete/job?name=" +
-          this.Jobs[index].jobname +
+          row.jobname +
             "&group=" +
-            this.Jobs[index].jobgroup
+          row.jobgroup
         );
         console.log(response);
 
