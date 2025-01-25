@@ -43,14 +43,19 @@
       <el-form-item label="任务优先级">
         <el-input-number v-model="priority" :min="0" :max="999" />
       </el-form-item>
-      <el-form-item label="自定义JobDetail">
-        <el-select v-model="isCustomJobDetail">
-          <el-option label="true" value="true" />
-          <el-option label="false" value="false" />
-        </el-select>
-      </el-form-item>
-      <el-form-item v-if="isCustomJobDetail === 'true'" label="JobDetail">
-        <el-select v-model="jobDetail">
+      <el-form-item label="JobDetail">
+        <el-switch
+          v-model="isCustomJobDetail"
+          active-value="true"
+          inactive-value="false"
+          style="position: absolute;left: -120px"
+        />
+        <!-- abc-120在我这里显示没问题 -->
+        <el-select
+          v-model="jobDetail"
+          :disabled="isCustomJobDetail === 'false'"
+          style="flex: 1"
+        >
           <el-option
             v-for="(JobDetail, index) in JobDetails"
             :key="index"
@@ -171,9 +176,7 @@ export default {
   methods: {
     async getTrigger() {
       try {
-        const response = await axios.post(
-          "http://114.132.71.250:8002/task/Reflect/triggerclass"
-        );
+        const response = await axios.post("http://114.132.71.250:8002/task/Reflect/triggerclass");
         console.log(response);
         this.triggers = response.data.data;
       } catch (error) {
@@ -182,9 +185,7 @@ export default {
     },
     async getJob() {
       try {
-        const response = await axios.post(
-          "http://114.132.71.250:8002/task/Reflect/jobclass"
-        );
+        const response = await axios.post("http://114.132.71.250:8002/task/Reflect/jobclass");
         console.log(response);
         this.jobClassNameGroup = response.data.data;
       } catch (error) {
@@ -193,9 +194,7 @@ export default {
     },
     async getJobDetail() {
       try {
-        const response = await axios.post(
-          "http://114.132.71.250:8002/task/Reflect/jobdetailclass"
-        );
+        const response = await axios.post("http://114.132.71.250:8002/task/Reflect/jobdetailclass");
         console.log(response);
         this.JobDetails = response.data.data;
       } catch (error) {
@@ -349,10 +348,7 @@ export default {
       if (this.checkBaseInfo() === 'true' && this.checkTrigger() === 'true') {
         this.builInfo();
         console.log(this.Info);
-        const response = await axios.post(
-          "http://114.132.71.250:8002/task/Add/job",
-          this.Info
-        );
+        const response = await axios.post("http://114.132.71.250:8002/task/Add/job", this.Info);
         console.log(response);
         this.Info = {};
         this.closeModal();
