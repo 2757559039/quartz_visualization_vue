@@ -1,50 +1,99 @@
 <template>
   <div class="container">
-    <div>
-      <input v-model="selectedJObName" placeholder="请输入触发器名" />
-      <button>搜索</button>
+    <div class="jumpBox">
+      <el-link :underline="false">前往触发器页面<el-icon><Link /></el-icon></el-link>
+      <div class="modalButtonBox">
+        <el-button type="primary">添加任务</el-button>
+        <el-button type="primary">挂载触发器</el-button>
+      </div>
     </div>
-    <router-link to="/Job">前往任务页面</router-link>
-    <div>
-      <select v-model="selectGroup" @change="select(selectGroup)">
-        <option>ALL</option>
-        <option v-for="(group, index) in groups" :key="index">
-          {{ group }}
-        </option>
-      </select>
+
+    <div class="topbox">
+      <p class="title">任务管理</p>
+      <div class="Button3Box">
+        <el-button type="success" @click="resumeAllJob()">恢复所有任务</el-button>
+        <el-button type="warning"  @click="pauseAllJob()">停止所有任务</el-button>
+        <el-button type="danger" @click="deleteAllJob()">删除所有任务</el-button>
+      </div>
     </div>
-    <div class="JobBox">
-      <table>
-        <thead>
-          <tr>
-            <th>任务名</th>
-            <th>任务分组</th>
-            <th>任务类名</th>
-            <th>触发器名</th>
-            <th>触发器分组</th>
-            <th>触发器状态</th>
-            <th>任务状态</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(job, index) in filteredJobs" :key="index">
-            <td>{{ job.jobname }}</td>
-            <td>{{ job.jobgroup }}</td>
-            <td>{{ job.jobclassname }}</td>
-            <td>{{ job.triggername }}</td>
-            <td>{{ job.triggergroup }}</td>
-            <td>{{ job.triggers_state }}</td>
-            <td class="buttonBox">
-              <!-- 增删改查启停 -->
-              <button @click="resumeJob(index)">恢复触发器</button>
-              <button @click="pauseJob(index)">停止触发器</button>
-              <button @click="deleteJob(index)">删除触发器</button>
-              <button @click="replacetrigger(index)">更改触发器参数</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+
+    <div class="conterBox"> 
+      <p class="selectedtitle">条件筛选</p>
+      <div class="selectBox"> 
+        <div style="display: flex; flex-direction: column; align-items: center;"> 
+          <el-select v-model="selectGroup" class="select" @change="select">
+            <el-option v-for="item in groups" :key="item" :label="'任务分组: ' + item" :value="item"/>
+          </el-select>
+        </div>
+
+        <div style="display: flex; flex-direction: column; align-items: center;"> 
+          <el-select v-model="selectGroup" class="select" @change="select">
+            <el-option v-for="item in groups" :key="item" :label="'任务分组: ' + item" :value="item"/>
+          </el-select>
+        </div>
+
+        <div style="display: flex; flex-direction: column; align-items: center;"> 
+          <el-select v-model="selectGroup" class="select" @change="select">
+            <el-option v-for="item in groups" :key="item" :label="'任务分组: ' + item" :value="item"/>
+          </el-select>
+        </div>
+
+        <div style="display: flex; flex-direction: column; align-items: center;"> 
+          <el-select v-model="selectGroup" class="select" @change="select">
+            <el-option v-for="item in groups" :key="item" :label="'任务分组: ' + item" :value="item"/>
+          </el-select>
+        </div>
+
+        <div style="display: flex; flex-direction: column; align-items: center;"> 
+          <el-select v-model="selectGroup" class="select" @change="select">
+            <el-option v-for="item in groups" :key="item" :label="'任务分组: ' + item" :value="item"/>
+          </el-select>
+        </div>
+        
+        <div class="inputnox" >
+          <el-input v-model="selected" class="input1" placeholder="Type something">
+            <template #prefix>
+              <el-icon class="el-input__icon"><search /></el-icon>
+            </template>
+          </el-input>
+          <el-button type="primary">
+            <el-icon style="vertical-align: middle">
+              <Search />
+            </el-icon>
+          </el-button>
+        </div>
+      </div>
+
+      <div class="box"> 
+        <el-table :data="Jobs" :border="parentBorder" max-height="750" class="JobBox">
+          <el-table-column label="任务名" prop="jobname" min-width="90"/>
+          <el-table-column label="任务分组" sortable prop="jobgroup" min-width="110" />
+          <el-table-column label="任务类名" prop="jobclassname" min-width="100"/>
+          <el-table-column label="优先级" sortable prop="priority" min-width="80" />
+          <el-table-column label="触发器名" prop="triggername" min-width="90"/>
+          <el-table-column label="触发器分组" sortable prop="triggergroup" min-width="120"/>
+          <el-table-column label="触发器状态" sortable prop="triggers_state" min-width="120"/>
+          <el-table-column label="任务状态" sortable prop="job_state" min-width="110"/>
+          <el-table-column label="任务操作" min-width="151">
+            <template #default="scope">
+              <div>
+                <div class="button3Box"> 
+                  <el-button type="success" @click="resumeJob(scope.row)" circle>ON</el-button>
+                <el-button type="warning" @click="pauseJob(scope.row)" circle>OFF</el-button>
+                <el-button type="danger" :icon="Delete" circle @click="deleteJob(scope.row)">  
+                  <el-icon>
+                    <Delete />
+                  </el-icon>
+                </el-button>
+                </div>
+                <div class="button2Box"> 
+                  <el-button type="info" @click="replacetrigger(scope.row)">更改触发器参数</el-button>
+                </div>
+              </div>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
     <transition name="modal">
       <div v-if="showModal" class="modal-mask">
         <div class="modal-wrapper">
@@ -72,6 +121,7 @@
       </div>
     </transition>
   </div>
+  </div>
 </template>
     
   <script>
@@ -81,14 +131,117 @@ export default {
   components: { updateTrigger },
   data() {
     return {
-      Jobs: [],
-      groups: [],
+      Jobs: [
+        {
+          jobname: 'Job1',
+          jobgroup: 'GroupA',
+          jobclassname: 'ClassName1',
+          priority: 5,
+          triggername: 'Trigger1',
+          triggergroup: 'TriggerGroupA',
+          triggers_state: 'PAUSED',
+          job_state: 'PAUSED'
+        },
+        {
+          jobname: 'Job2',
+          jobgroup: 'GroupB',
+          jobclassname: 'ClassName2',
+          priority: 3,
+          triggername: 'Trigger2',
+          triggergroup: 'TriggerGroupB',
+          triggers_state: 'ACTIVE',
+          job_state: 'ACTIVE'
+        },
+        {
+          jobname: 'Job1',
+          jobgroup: 'GroupA',
+          jobclassname: 'ClassName1',
+          priority: 5,
+          triggername: 'Trigger1',
+          triggergroup: 'TriggerGroupA',
+          triggers_state: 'PAUSED',
+          job_state: 'PAUSED'
+        },
+        {
+          jobname: 'Job2',
+          jobgroup: 'GroupB',
+          jobclassname: 'ClassName2',
+          priority: 3,
+          triggername: 'Trigger2',
+          triggergroup: 'TriggerGroupB',
+          triggers_state: 'ACTIVE',
+          job_state: 'ACTIVE'
+        },
+        {
+          jobname: 'Job1',
+          jobgroup: 'GroupA',
+          jobclassname: 'ClassName1',
+          priority: 5,
+          triggername: 'Trigger1',
+          triggergroup: 'TriggerGroupA',
+          triggers_state: 'PAUSED',
+          job_state: 'PAUSED'
+        },
+        {
+          jobname: 'Job2',
+          jobgroup: 'GroupB',
+          jobclassname: 'ClassName2',
+          priority: 3,
+          triggername: 'Trigger2',
+          triggergroup: 'TriggerGroupB',
+          triggers_state: 'ACTIVE',
+          job_state: 'ACTIVE'
+        },
+        {
+          jobname: 'Job1',
+          jobgroup: 'GroupA',
+          jobclassname: 'ClassName1',
+          priority: 5,
+          triggername: 'Trigger1',
+          triggergroup: 'TriggerGroupA',
+          triggers_state: 'PAUSED',
+          job_state: 'PAUSED'
+        },
+        {
+          jobname: 'Job2',
+          jobgroup: 'GroupB',
+          jobclassname: 'ClassName2',
+          priority: 3,
+          triggername: 'Trigger2',
+          triggergroup: 'TriggerGroupB',
+          triggers_state: 'ACTIVE',
+          job_state: 'ACTIVE'
+        },
+        {
+          jobname: 'Job1',
+          jobgroup: 'GroupA',
+          jobclassname: 'ClassName1',
+          priority: 5,
+          triggername: 'Trigger1',
+          triggergroup: 'TriggerGroupA',
+          triggers_state: 'PAUSED',
+          job_state: 'PAUSED'
+        },
+        {
+          jobname: 'Job2',
+          jobgroup: 'GroupB',
+          jobclassname: 'ClassName2',
+          priority: 3,
+          triggername: 'Trigger2',
+          triggergroup: 'TriggerGroupB',
+          triggers_state: 'ACTIVE',
+          job_state: 'ACTIVE'
+        },
+        // 添加更多条目以充分测试样式
+      ],
+      groups: ['ALL', 'GroupA', 'GroupB', 'GroupC'],
       selectedJob: {},
       selectGroup: "ALL",
       selectedJObName: "",
       showModal: false,
     };
   },
+
   computed: {
     // 计算属性：根据 selectGroup 的值过滤 Jobs 数组
     filteredJobs() {
@@ -131,23 +284,50 @@ export default {
       }
     },
 
-    async select(selectGroup) {
-      // if(selectGroup === "ALL"){
-      //   this.getUsedJob();
-      //   return;
-      // }
-      // try {
-      //   const response = await axios.post(
-      //     "http://114.132.71.250:8002/task/Select/FINDjobBYgroup?group="+selectGroup
-      //   );
-      //   console.log(response);
-      //   this.Jobs = response.data.data;
-      //   // 重置表单
-      // } catch (error) {
-      //   // 处理网络错误或其他错误
-      //   this.errorMessage = "请求失败，请检查网络连接";
-      //   console.error;
-      // }
+    async resumeAllJob() {
+      try {
+        const response = await axios.post(
+          "http://114.132.71.250:8002/task/Start/resumeall"
+        );
+        console.log(response);
+
+        // 重置表单
+      } catch (error) {
+        // 处理网络错误或其他错误
+        this.errorMessage = "请求失败，请检查网络连接";
+        console.error;
+      }
+      this.getUsedJob();
+    },
+    async pauseAllJob() {
+      try {
+        const response = await axios.post(
+          "http://114.132.71.250:8002/task/Pause/alljob"
+        );
+        console.log(response);
+
+        // 重置表单
+      } catch (error) {
+        // 处理网络错误或其他错误
+        this.errorMessage = "请求失败，请检查网络连接";
+        console.error;
+      }
+      this.getUsedJob();
+    },
+    async deleteAllJob() {
+      try {
+        const response = await axios.post(
+          "http://114.132.71.250:8002/task/Delete/alljob"
+        );
+        console.log(response);
+
+        // 重置表单
+      } catch (error) {
+        // 处理网络错误或其他错误
+        this.errorMessage = "请求失败，请检查网络连接";
+        console.error;
+      }
+      this.getUsedJob();
     },
 
     async resumeJob(index) {
@@ -205,9 +385,9 @@ export default {
       this.getUsedJob();
     },
 
-    replacetrigger(index) {
+    replacetrigger(row) {
       // 设置要恢复的作业信息
-      this.selectedJob = this.Jobs[index];
+      this.selectedJob = row;
       this.showModal = true;
     },
     closeModal() {
@@ -225,40 +405,210 @@ export default {
   
   <style scoped>
 .container {
-  width: 100%;
+  width: 80%;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  margin-left: 10%;
+  /* display : flex;
+    flex-direction: column;
+    align-items: center; */
   overflow: auto;
+  background: rgb(255, 255, 255);
+}
+
+.jumpBox {
+  width: auto;
+  height: 50px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgb(255, 255, 255);
+  margin-top: 20px;
+  padding-left: 40px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #000;
+  margin-bottom: 10px;
+}
+
+:deep(.el-link__inner) {
+  color: rgb(64, 158, 255);
+  font-size: 24px;
+}
+
+.modalButtonBox{
+    padding-top: 10px;
+    display: flex;
+    justify-content: flex-end; /* 将所有子元素对齐到右侧 */
+}
+
+.modalButtonBox button{
+  width: 150px;
+    height: 40px;
+    margin-right: 10px;
+    background-color: rgb(64, 158, 255);
+    font-size: 20px;
+}
+
+.topbox{
+  width: auto;
+  height: 50px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgb(255, 255, 255);
+  margin-top: 20px;
+  padding-left: 40px;
+  /* padding-bottom: 10px; */
+  margin-bottom: 50px;
+}
+
+.title{
+    font-size: 36px;
+    font-weight: bold;
+    color: #000;
+    margin: 0;
+}
+
+.Button3Box{
+  display: flex;
+  /* justify-content: flex-end; */
+  gap: 10px;
+  margin: 0;
+}
+
+.Button3Box button{
+  width: 150px;
+  height: 50px;
+  padding: 0;
+  font-size: 20px;
+}
+
+.conterBox{
+  border-left: 1px solid #000;
+  border-right: 1px solid #000;
+  border-top: 1px solid #000;
+  border-bottom: 1px solid #000;
+  border-radius: 5px;
+  padding-top: 10px;
+  margin-bottom: 30px;
+}
+
+.inputnox{
+  display: flex; 
+  justify-content: center;
+}
+
+.input1{
+  width: 300px;
+  height: 40px;
+  font-size: 24px;
+}
+
+.inputnox button{
+  margin-left: 10px;
+  width: 80px;
+  height: 40px;
+}
+
+.selectedtitle{
+  font-size: 28px;
+  display: flex;
+  justify-content: flex-start;
+  margin: 0;
+  margin-left: 40px;
+}
+
+.selectBox{
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  font-size: 20px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.select{
+  width: 200px;
+  height: 40px;
+}
+
+:deep(.select .el-select__wrapper){
+  height: 40px;
+}
+
+
+.box {
+  /* width: 1517px; */
+  width: auto;
+  color: #000;
+  margin: 0;
+  border-radius: 5px;
+  /* padding-left: 2px;
+  padding-right: 2px; */
 }
 
 .JobBox {
-  width: 100%;
-  max-width: 1200px; /* 根据实际情况调整 */
-  margin: 0 auto;
+  width: 1515px;
+  /* height: 750px; */
+  color: #000;
+  margin: 0;
+  border-radius: 5px;
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed; /* 固定表格布局 */
+:deep(.JobBox .cell) {
+  height: auto;
+  color: #000;
+  font-size: 16px;
+  padding: 0;
+  display: flex;
+  justify-content: center;
 }
 
-th,
-td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  /* width: 20%; */
-  word-wrap: break-word; /* 长单词或URL地址将自动换行到下一行 */
-  white-space: normal; /* 允许文本自动换行 */
-  overflow: hidden;
-  text-overflow: ellipsis; /* 当内容超出时显示省略号 */
+:deep(.JobBox .caret-wrapper){
+  width: 0px;
+  margin-top: 6px;
 }
 
-th {
-  background-color: #f4f4f4;
-  font-weight: bold;
+:deep(.JobBox .el-table__cell){
+  border-top: 1px solid #000;
 }
 
-td.buttonBox {
-  white-space: normal; /* 按钮需要可以换行 */
+:deep(.JobBox .el-scrollbar__view) {
+
+  width: 1499px;
+}
+
+:deep(.JobBox .el-table__header-wrapper) {
+  width: 1499px;
+}
+
+:deep(.JobBox .el-table__body) {
+  width: 1499px;
+}
+
+:deep(.JobBox .el-table__empty-text) {
+  color: #000;
+  background: rgb(255, 255, 255);
+}
+
+.button3Box{
+}
+
+.button2Box{
+  width: 127px;
+  margin-top: 8px;
+}
+
+.button2Box button{
+  width: 127px;
+  height: 40px;
+}
+
+
+.buttonBox {
+  width: 200px;
+  /* white-space: normal; */
 }
 
 .button-item {
@@ -267,9 +617,6 @@ td.buttonBox {
   min-width: 80px;
 }
 
-tbody tr:hover {
-  background-color: #f1f1f1;
-}
 
 .modal-mask {
   position: fixed;

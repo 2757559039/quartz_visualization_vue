@@ -1,106 +1,152 @@
 <template>
-  <div>
-    <span>触发器类型</span>
-    <select v-model="selecttrigger">
-        <option>SimpleTrigger</option>
-        <option>CronTrigger</option>
-        <option>DailyTimeIntervalTrigger</option>
-        <option>CalendarIntervalTrigger</option>
-      </select>
-    <br />
-    <span>任务优先级</span>
-    <input type="number" v-model="priority" />
-    <br />
-    <span>是否使用自定义触发器</span>
-    <select v-model="isCustomTrigger">
-        <option>false</option>
-        <option>true</option>
-      </select>
-    <br />
-    <div v-if="this.isCustomTrigger === 'true'">
-      <span>自定义触发器</span>
-    <select v-model="this.trigger">
-      <option v-for="(trigger, index) in triggers" :key="index">{{ trigger }}</option>
-    </select>
+  <div class="container">
+    <div class="box">
+      <div class="typeselect">
+          <p>触发器类型选择</p>
+          <div class="title">
+          <span>触发器类型: </span>
+          <el-select v-model="selecttrigger" placeholder="Select">
+            <el-option :label="'SimpleTrigger'" :value="'SimpleTrigger'"/>
+            <el-option :label="'CronTrigger'" :value="'CronTrigger'"/>
+            <el-option :label="'DailyTimeIntervalTrigger'" :value="'DailyTimeIntervalTrigger'"/>
+            <el-option :label="'CalendarIntervalTrigger'" :value="'CalendarIntervalTrigger'"/>
+          </el-select>
+        </div>
+        <div class="title">
+          <span>任务优先级: </span>
+          <el-input v-model="priority" placeholder="Please input" @input="filterInput" maxlength="3"/>
+        </div>
+        <div class="title">
+          <span>是否使用自定义触发器: </span>
+          <el-switch v-model="isCustomTrigger"/>
+        </div>
+        <div class="title">
+          <span>自定义触发器: </span>
+          <el-select v-model="value" :disabled="!isCustomTrigger" placeholder="Select">
+            <el-option
+              v-for="(trigger, index) in triggers"
+              :key="index"
+              :label="trigger"
+              :value="trigger"
+            />
+          </el-select>
+        </div>
+        
+      </div>
+
+      <div class="fg"></div>
+
+      <div class="triggerdetail">
+        <p>触发器详情</p>
+        <div v-if="isCustomTrigger === false" class="detailbox">
+          <div class="detail">
+            <span>触发器名称</span>
+            <el-input v-model="triggername" placeholder="请输入触发器名称" />
+          </div>
+
+          <div class="detail">
+            <span>触发器分组</span>
+            <el-input v-model="triggergroup" placeholder="请输入触发器分组" />
+          </div>
+
+          <div class="detail">
+            <span>设置时区</span>
+            <el-input v-model="timezone" placeholder="请设置时区" />            
+          </div>
+          
+
+        <div v-show="selecttrigger === 'SimpleTrigger' && this.isCustomTrigger === false " class="detailbox">
+          <div class="detail">
+            <span>触发时间间隔</span>
+            <el-input v-model="priority" placeholder="单位为秒" />            
+          </div>
+          <div class="detail">
+            <span>触发器执行次数</span>
+            <el-input v-model="priority"/>
+          </div>
+        </div>
+
+        <div v-show="selecttrigger === 'CronTrigger' && this.isCustomTrigger === false" class="detailbox">
+          <div class="detail">
+            <span>cron字段</span>
+            <el-input v-model="cronexpression" placeholder="请输入cron格式字段" />            
+          </div>
+        </div>
+
+        <div v-show="selecttrigger === 'CalendarIntervalTrigger' && this.isCustomTrigger === false" class="detailbox">
+          <div class="detail">
+            <span>触发器时间间隔单位</span>
+            <el-select v-model="calendartime" placeholder="Select">
+              <el-option :label="'秒钟'" :value="'second'"/>
+              <el-option :label="'分钟'" :value="'minute'"/>
+              <el-option :label="'小时'" :value="'hour'"/>
+              <el-option :label="'天'" :value="'day'"/>
+              <el-option :label="'月'" :value="'month'"/>
+              <el-option :label="'年'" :value="'year'"/>
+            </el-select>
+          </div>
+
+          <div class="detail">
+            <span>触发器间隔次数</span>
+            <el-input v-model="calendarnum"/>            
+          </div>
+          <div class="detail">
+            <span>是否使用夏令时</span>
+            <el-switch v-model="preserveHourOfDayAcrossDaylightSavings"/>            
+          </div>
+          <div class="detail">
+            <span>设置当小时不存在时是否跳过这一天</span>
+            <el-switch v-model="skipDayIfHourDoesNotExist"/>            
+          </div>
+        </div>
+
+        <div v-show="selecttrigger === 'DailyTimeIntervalTrigger' && this.isCustomTrigger === false" class="detailbox">
+          <div class="detail">
+            <span>触发器时间间隔单位</span>
+            <el-select v-model="dailytime" placeholder="Select">
+              <el-option :label="'秒钟'" :value="'second'"/>
+              <el-option :label="'分钟'" :value="'minute'"/>
+              <el-option :label="'小时'" :value="'hour'"/>
+              <el-option :label="'天'" :value="'day'"/>
+              <el-option :label="'月'" :value="'month'"/>
+              <el-option :label="'年'" :value="'year'"/>
+            </el-select>
+          </div>
+          <div class="detail">
+            <span>触发器间隔次数</span>
+            <el-input v-model="dailynum"/>
+          </div>
+          <div class="detail">
+            <span>总执行次数</span>
+            <el-input v-model="dailyrepeatcount"/>
+          </div>
+          <div class="detail1">
+            <span>执行日选择(星期)</span>
+            <div> 
+              <el-checkbox v-model="all" label="all" @change="checkall">每一天</el-checkbox>
+              <el-checkbox v-model="workday" label="workday" @change="checkworkday">工作日</el-checkbox>
+              <el-checkbox v-model="weekend" label="weekend" @change="checkweekend">周末</el-checkbox>
+              <el-checkbox-group v-model="dailyworkday" @change="checkday">
+                <el-checkbox label=1>星期一</el-checkbox>
+                <el-checkbox label=2>星期二</el-checkbox>
+                <el-checkbox label=3>星期三</el-checkbox>
+                <el-checkbox label=4>星期四</el-checkbox>
+                <el-checkbox label=5>星期五</el-checkbox>
+                <el-checkbox label=6>星期六</el-checkbox>
+                <el-checkbox label=7>星期日</el-checkbox>
+              </el-checkbox-group>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     </div>
 
-    <div v-if="isCustomTrigger === 'false'">
-      <span>触发器名称</span>
-      <input v-model="triggername" />
-      <br />
-      <span>触发器分组</span>
-      <input v-model="triggergroup" />
-
-    <div v-show="selecttrigger === 'SimpleTrigger' && this.isCustomTrigger === 'false' ">
-      <span>触发时间间隔</span>
-      <input v-model="simpletimesecond" placeholder="单位为秒" />
-      <br />
-      <span>触发器执行次数</span>
-      <input v-model="repeatcount" />
+    <div class="buttonbox">
+      <el-button @click="replace">更改触发器</el-button>
+      <el-button @click="back">返回</el-button>
     </div>
 
-    <div v-show="selecttrigger === 'CronTrigger' && this.isCustomTrigger === 'false'">
-      <span>cron字段</span>
-      <input v-model="cronexpression" placeholder="请输入cron格式字段" />
-    </div>
-
-    <div v-show="selecttrigger === 'CalendarIntervalTrigger' && this.isCustomTrigger === 'false'">
-      <span>触发器时间间隔单位</span>
-      <select v-model="calendartime">
-        <option>second</option>
-          <option>minute</option>
-          <option>hour</option>
-          <option>day</option>
-          <option>month</option>
-          <option>year</option>
-      </select>
-      <br />
-      <span>触发器间隔次数</span>
-      <input v-model="calendarnum" />
-      <br />
-      <span>是否使用夏令时</span>
-      <select v-model="preserveHourOfDayAcrossDaylightSavings">
-        <option>true</option>
-        <option>false</option>
-      </select>
-      <span>设置当小时不存在时是否跳过这一天</span>
-      <select v-model="skipDayIfHourDoesNotExist">
-        <option>true</option>
-        <option>false</option>
-      </select>
-      <br />
-      <span>设置时区</span>
-      <input v-model="timezone" />
-    </div>
-
-    <div v-show="selecttrigger === 'DailyTimeIntervalTrigger' && this.isCustomTrigger === 'false'">
-      <span>触发器时间间隔单位</span>
-      <select v-model="dailytime">
-        <option>second</option>
-          <option>minute</option>
-          <option>hour</option>
-          <option>day</option>
-          <option>month</option>
-          <option>year</option>
-      </select>
-      <br />
-      <span>触发器间隔次数</span>
-      <input v-model="dailynum" />
-      <br />
-      <span>总执行次数</span>
-      <input v-model="dailyrepeatcount" />
-      <br />
-      <label v-for="(option, index) in options" :key="index">
-        <input type="checkbox" :value="option" v-model="dailyworkday" />
-        {{ option }}
-      </label>
-
-      <div>已选中的值: {{ dailyworkday }}</div>
-      
-    </div>
-    <br />
-    <button @click="replace">更改触发器</button>
-  </div>
   </div>
 </template>
   
@@ -122,9 +168,9 @@ export default {
 
       priority: "", // 任务优先级
 
-      selecttrigger: "",
+      selecttrigger: "DailyTimeIntervalTrigger",
       // 是否使用自定义触发器的选项
-      isCustomTrigger: "false",
+      isCustomTrigger: false,
 
       // 触发器名称和组名
       triggername: "",
@@ -149,12 +195,81 @@ export default {
       dailynum: "", // 间隔次数
       dailyrepeatcount: "", // 总执行次数
       dailyworkday: [], // 工作日选择, 数组因为是多选框
-      options: ["1", "2", "3", "4", "5", "6", "7", "workday", "weekend", "all"], // 可选工作日
-
+      all: false,
+      workday: false,
+      weekend: false,
       Info:{},
     };
   },
+  watch: {
+    jobinfo: {
+      immediate: true,
+      handler(newVal) {
+        if (newVal) {
+          this.selecttrigger = newVal.selecttrigger || "DailyTimeIntervalTrigger";
+          this.priority = newVal.priority || "";
+          this.isCustomTrigger = newVal.isCustomTrigger || false;
+          this.triggers = newVal.triggers || [];
+          this.value = newVal.value || "";
+        }
+      }
+    }
+  },
   methods: {
+    filterInput(value) {
+      // 使用正则表达式替换所有非数字字符为空字符串
+      this.priority = value.replace(/\D/g, '');
+    },
+    checkall(){
+      if(this.all){
+        this.dailyworkday = ["1","2","3","4","5","6","7"];
+        this.workday = true;
+        this.weekend = true;
+      }else{
+        this.dailyworkday = [];
+        this.workday = false;
+        this.weekend = false;
+      }
+    },
+    checkworkday(){
+      if(this.workday){
+        this.dailyworkday.push("1","2","3","4","5");
+        this.dailyworkday = [...new Set(this.dailyworkday)];
+        if(this.dailyworkday.includes("1") && this.dailyworkday.includes("2") && this.dailyworkday.includes("3") && this.dailyworkday.includes("4") && this.dailyworkday.includes("5") && this.dailyworkday.includes("6") && this.dailyworkday.includes("7")){
+          this.all = true;
+        }
+      }else{
+        this.dailyworkday = [];
+      }
+    },
+    checkweekend(){
+      if(this.weekend){
+        this.dailyworkday.push("6","7");
+        this.dailyworkday = [...new Set(this.dailyworkday)];
+        if(this.dailyworkday.includes("1") && this.dailyworkday.includes("2") && this.dailyworkday.includes("3") && this.dailyworkday.includes("4") && this.dailyworkday.includes("5") && this.dailyworkday.includes("6") && this.dailyworkday.includes("7")){
+          this.all = true;
+        }
+      }else{
+        this.dailyworkday = [];
+      }
+    },
+    checkday(){
+      this.all = false;
+      this.workday = false;
+      this.weekend = false;
+      if(this.dailyworkday.includes("1") && this.dailyworkday.includes("2") && this.dailyworkday.includes("3") && this.dailyworkday.includes("4") && this.dailyworkday.includes("5")){
+        this.workday = true;
+      }
+      if(this.dailyworkday.includes("6") && this.dailyworkday.includes("7")){
+        this.weekend = true;
+      }
+      if(this.dailyworkday.length === 7){
+        this.all = true;
+      }
+    },
+    back(){
+        this.$emit('close');
+      },
     async getTrigger() {
       try {
          const response = await axios.post("http://114.132.71.250:8002/task/Reflect/triggerclass");
@@ -290,4 +405,114 @@ export default {
 </script>
   
 <style scoped>
+.container {
+  width: 750px;
+  height: 510px;
+  padding: 10px;
+  flex-direction: column;
+  display: flex;
+  z-index: 500;
+}
+
+.fg{
+  border-left: 1px solid #000;
+}
+
+.box {
+  display: flex;
+  flex-direction: row;
+  height: 510px;
+}
+
+.box p {
+  font-size: 24px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.typeselect {
+  width: 350px;
+  margin-right: 14.5px;
+}
+
+.title{
+  width: 350px;
+  height: 32px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 20px;
+  margin-top: 20px;
+}
+
+.typeselect .el-select{
+  width: 210px;
+}
+
+.typeselect .el-input{
+  width: 210px;
+}
+
+.triggerdetail {
+  margin-left: 14.5px;
+  width: 350px;
+}
+
+.detailbox{
+  width: 350px;
+  height: 32px;
+  font-size: 20px;
+  margin-top: 20px;
+}
+
+.detailbox .el-select{
+  width: 100px;
+}
+
+.detailbox .el-input{
+  width: 200px;
+}
+
+.detail{
+  width: 350px;
+  height: 32px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 20px;
+  margin-top: 10px;
+}
+
+.detail1{
+  width: 350px;
+  height: 32px;
+  font-size: 20px;
+  margin-top: 10px;
+}
+
+.detail1 .el-checkbox{
+  --el-checkbox-font-size: 20px;
+  margin-top: 10px;
+  margin-right: 10px;
+}
+
+.detail1 .el-checkbox__label{
+  font-size: 20px;
+}
+
+.buttonbox{
+  column-gap:0;
+  gap: 0px;
+  margin-top: 20px;
+  flex-direction: column;
+  display: flex;
+}
+
+.buttonbox button{
+  width: 600px !important;
+  font-size: 24px;
+  width: 128px;
+  height: 60px;
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-bottom: 20px;
+}
 </style>

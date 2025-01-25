@@ -294,7 +294,8 @@ export default {
     console.log(this.jobinfo);
     this.triggername = this.jobinfo.triggername;
     this.triggergroup = this.jobinfo.triggergroup;
-    this.selecttrigger = this.jobinfo.type.slice(0, -4);
+    this.priority = this.jobinfo.priority;
+    this.selecttrigger = this.jobinfo.type;//.slice(0, -4);
   },
 };
 </script>

@@ -1,364 +1,269 @@
 <template>
   <div class="container">
-    <div class="jumpBox">
-      <el-link :underline="false">前往触发器页面<el-icon><Link /></el-icon></el-link>
-      <div class="modalButtonBox">
-        <el-button type="primary">添加任务</el-button>
-        <el-button type="primary">挂载触发器</el-button>
-      </div>
-    </div>
-
-    <div class="topbox">
-      <p class="title">任务管理</p>
-      <div class="Button3Box">
-        <el-button type="success" @click="resumeAllJob()">恢复所有任务</el-button>
-        <el-button type="warning"  @click="pauseAllJob()">停止所有任务</el-button>
-        <el-button type="danger" @click="deleteAllJob()">删除所有任务</el-button>
-      </div>
-    </div>
-
-    <div class="conterBox"> 
-      <p class="selectedtitle">条件筛选</p>
-      <div class="selectBox"> 
-        <div style="display: flex; flex-direction: column; align-items: center;"> 
-          <el-select v-model="selectGroup" class="select" @change="select">
-            <el-option v-for="item in groups" :key="item" :label="'任务分组: ' + item" :value="item"/>
+    <div class="box">
+      <div class="typeselect">
+          <p>触发器类型选择</p>
+        <div class="title"> 
+          <span>触发器类型: </span>
+          <el-select v-model="selecttrigger" placeholder="Select">
+            <el-option :label="'SimpleTrigger'" :value="'SimpleTrigger'"/>
+            <el-option :label="'CronTrigger'" :value="'CronTrigger'"/>
+            <el-option :label="'DailyTimeIntervalTrigger'" :value="'DailyTimeIntervalTrigger'"/>
+            <el-option :label="'CalendarIntervalTrigger'" :value="'CalendarIntervalTrigger'"/>
           </el-select>
         </div>
-
-        <div style="display: flex; flex-direction: column; align-items: center;"> 
-          <el-select v-model="selectGroup" class="select" @change="select">
-            <el-option v-for="item in groups" :key="item" :label="'任务分组: ' + item" :value="item"/>
-          </el-select>
+        <div class="title">
+          <span>任务优先级: </span>
+          <el-input v-model="priority" placeholder="Please input" @input="filterInput" maxlength="3"/>
         </div>
-
-        <div style="display: flex; flex-direction: column; align-items: center;"> 
-          <el-select v-model="selectGroup" class="select" @change="select">
-            <el-option v-for="item in groups" :key="item" :label="'任务分组: ' + item" :value="item"/>
-          </el-select>
+        <div class="title">
+          <span>是否使用自定义触发器: </span>
+          <el-switch v-model="isCustomTrigger"/>
         </div>
-
-        <div style="display: flex; flex-direction: column; align-items: center;"> 
-          <el-select v-model="selectGroup" class="select" @change="select">
-            <el-option v-for="item in groups" :key="item" :label="'任务分组: ' + item" :value="item"/>
-          </el-select>
-        </div>
-
-        <div style="display: flex; flex-direction: column; align-items: center;"> 
-          <el-select v-model="selectGroup" class="select" @change="select">
-            <el-option v-for="item in groups" :key="item" :label="'任务分组: ' + item" :value="item"/>
+        
+        <div class="title">
+          <span>自定义触发器: </span>
+          <el-select v-model="value" :disabled="!isCustomTrigger" placeholder="Select">
+            <el-option
+              v-for="(trigger, index) in triggers"
+              :key="index"
+              :label="trigger"
+              :value="trigger"
+            />
           </el-select>
         </div>
         
-        <div class="inputnox" >
-          <el-input v-model="selected" class="input1" placeholder="Type something">
-            <template #prefix>
-              <el-icon class="el-input__icon"><search /></el-icon>
-            </template>
-          </el-input>
-          <el-button type="primary">
-            <el-icon style="vertical-align: middle">
-              <Search />
-            </el-icon>
-          </el-button>
-        </div>
       </div>
 
-      <div class="box"> 
-        <el-table :data="Jobs" :border="parentBorder" max-height="800" class="JobBox">
-          <el-table-column type="expand">
-            <template #default="props">
-              <el-table :data="[props.row]" :border="childBorder" class="detail">
-                <el-table-column label="任务ID" prop="id" />
-                <el-table-column label="任务名" prop="jobname" />
-                <el-table-column label="任务分组" prop="jobgroup" />
-                <el-table-column label="任务类名" prop="jobclassname" />
-                <el-table-column label="任务描述" prop="description" />
-                <el-table-column label="任务类型" prop="type" />
-                <el-table-column label="优先级" prop="priority" />
-                <el-table-column label="开始时间" prop="startime" />
-                <el-table-column label="结束时间" prop="endtime" />
-                <el-table-column label="触发器名" prop="triggername" />
-                <el-table-column label="触发器分组" prop="triggergroup" />
-                <el-table-column label="触发器状态" prop="triggers_state" />
-                <el-table-column label="任务状态" prop="job_state" />
-              </el-table>  
-            </template>
-          </el-table-column>
-          <el-table-column label="ID" sortable prop="id" min-width="60" />
-          <el-table-column label="任务名" prop="jobname" min-width="90"/>
-          <el-table-column label="任务分组" sortable prop="jobgroup" min-width="110" />
-          <el-table-column label="任务类名" prop="jobclassname" min-width="100"/>
-          <el-table-column label="任务描述" prop="description" min-width="100"/>
-          <el-table-column label="任务类型" prop="type" min-width="100"/>
-          <el-table-column label="优先级" sortable prop="priority" min-width="80" />
-          <el-table-column label="开始时间" sortable prop="startime" min-width="110"/>
-          <el-table-column label="结束时间" sortable prop="endtime" min-width="110"/>
-          <el-table-column label="触发器名" prop="triggername" min-width="90"/>
-          <el-table-column label="触发器分组" sortable prop="triggergroup" min-width="120"/>
-          <el-table-column label="触发器状态" sortable prop="triggers_state" min-width="120"/>
-          <el-table-column label="任务状态" sortable prop="job_state" min-width="110"/>
-          <el-table-column label="任务操作" min-width="151">
-            <template #default="scope">
-              <div>
-                <div class="button3Box"> 
-                  <el-button type="success" @click="resumeJob(scope.row.id)" circle>ON</el-button>
-                <el-button type="warning" @click="pauseJob(scope.row.id)" circle>OFF</el-button>
-                <el-button type="danger" :icon="Delete" circle @click="deleteJob(scope.row.id)">  
-                  <el-icon>
-                    <Delete />
-                  </el-icon>
-                </el-button>
-                </div>
-                <div class="button2Box"> 
-                  <el-button type="info" @click="replacetrigger(scope.row.id)">替换触发器</el-button>
-                </div>
-                <div class="button2Box"> 
-                  <el-button type="info" @click="updatejob(scope.row.id)">修改任务详情</el-button>
-                </div>
-              </div>
-            </template>
-          </el-table-column>
-        </el-table>
+      <div class="fg"></div>
+
+      <div class="triggerdetail">
+        <p>触发器详情</p>
+        <div v-if="isCustomTrigger === false" class="detailbox">
+          <div class="detail">
+            <span>触发器名称</span>
+            <el-input v-model="triggername" placeholder="请输入触发器名称" />
+          </div>
+
+          <div class="detail">
+            <span>触发器分组</span>
+            <el-input v-model="triggergroup" placeholder="请输入触发器分组" />
+          </div>
+
+          <div class="detail">
+            <span>设置时区</span>
+            <el-input v-model="timezone" placeholder="请设置时区" />            
+          </div>
+          
+
+        <div v-show="selecttrigger === 'SimpleTrigger' && this.isCustomTrigger === false " class="detailbox">
+          <div class="detail">
+            <span>触发时间间隔</span>
+            <el-input v-model="priority" placeholder="单位为秒" />            
+          </div>
+          <div class="detail">
+            <span>触发器执行次数</span>
+            <el-input v-model="priority"/>
+          </div>
+        </div>
+
+        <div v-show="selecttrigger === 'CronTrigger' && this.isCustomTrigger === false" class="detailbox">
+          <div class="detail">
+            <span>cron字段</span>
+            <el-input v-model="cronexpression" placeholder="请输入cron格式字段" />            
+          </div>
+        </div>
+
+        <div v-show="selecttrigger === 'CalendarIntervalTrigger' && this.isCustomTrigger === false" class="detailbox">
+          <div class="detail">
+            <span>触发器时间间隔单位</span>
+            <el-select v-model="calendartime" placeholder="Select">
+              <el-option :label="'秒钟'" :value="'second'"/>
+              <el-option :label="'分钟'" :value="'minute'"/>
+              <el-option :label="'小时'" :value="'hour'"/>
+              <el-option :label="'天'" :value="'day'"/>
+              <el-option :label="'月'" :value="'month'"/>
+              <el-option :label="'年'" :value="'year'"/>
+            </el-select>
+          </div>
+
+          <div class="detail">
+            <span>触发器间隔次数</span>
+            <el-input v-model="calendarnum"/>            
+          </div>
+          <div class="detail">
+            <span>是否使用夏令时</span>
+            <el-switch v-model="preserveHourOfDayAcrossDaylightSavings"/>            
+          </div>
+          <div class="detail">
+            <span>设置当小时不存在时是否跳过这一天</span>
+            <el-switch v-model="skipDayIfHourDoesNotExist"/>            
+          </div>
+        </div>
+
+        <div v-show="selecttrigger === 'DailyTimeIntervalTrigger' && this.isCustomTrigger === false" class="detailbox">
+          <div class="detail">
+            <span>触发器时间间隔单位</span>
+            <el-select v-model="dailytime" placeholder="Select">
+              <el-option :label="'秒钟'" :value="'second'"/>
+              <el-option :label="'分钟'" :value="'minute'"/>
+              <el-option :label="'小时'" :value="'hour'"/>
+              <el-option :label="'天'" :value="'day'"/>
+              <el-option :label="'月'" :value="'month'"/>
+              <el-option :label="'年'" :value="'year'"/>
+            </el-select>
+          </div>
+          <div class="detail">
+            <span>触发器间隔次数</span>
+            <el-input v-model="dailynum"/>
+          </div>
+          <div class="detail">
+            <span>总执行次数</span>
+            <el-input v-model="dailyrepeatcount"/>
+          </div>
+          <div class="detail1">
+            <span>执行日选择(星期)</span>
+            <div> 
+              <el-checkbox v-model="all" label="all" @change="checkall">每一天</el-checkbox>
+              <el-checkbox v-model="workday" label="workday" @change="checkworkday">工作日</el-checkbox>
+              <el-checkbox v-model="weekend" label="weekend" @change="checkweekend">周末</el-checkbox>
+              <el-checkbox-group v-model="dailyworkday" @change="checkday">
+                <el-checkbox label=1>星期一</el-checkbox>
+                <el-checkbox label=2>星期二</el-checkbox>
+                <el-checkbox label=3>星期三</el-checkbox>
+                <el-checkbox label=4>星期四</el-checkbox>
+                <el-checkbox label=5>星期五</el-checkbox>
+                <el-checkbox label=6>星期六</el-checkbox>
+                <el-checkbox label=7>星期日</el-checkbox>
+              </el-checkbox-group>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-    
+    </div>
 
-    <transition name="modal">
-      <div v-if="showModal" class="modal-mask">
-        <div class="modal-wrapper">
-          <div class="modal-container">
-            <div class="modal-header">
-              <slot name="header">Resume Job Confirmation</slot>
-            </div>
+    <div class="buttonbox">
+      <el-button @click="replace">更改触发器</el-button>
+      <el-button @click="back">返回</el-button>
+    </div>
 
-            <div class="modal-body">
-              <ReplaceTrigger
-                :jobinfo="selectedJob"
-                v-if="showModal"
-                @close="closeModal"
-              ></ReplaceTrigger>
-            </div>
-
-            <div class="modal-footer">
-              <button class="modal-default-button" @click="closeModal">
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </transition>
-    <transition name="modal">
-      <div v-if="showjobDetail" class="modal-mask">
-        <div class="modal-wrapper">
-          <div class="modal-container">
-            <div class="modal-header">
-              <slot name="header">JobDetail</slot>
-            </div>
-
-            <div class="modal-body">
-              <JobDetail
-                :jobinfo="selectedJob"
-                v-if="showjobDetail"
-                @close="closeshowjobDetail"
-              ></JobDetail>
-            </div>
-
-            <div class="modal-footer">
-              <button class="modal-default-button" @click="closeshowjobDetail">
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </transition>
   </div>
 </template>
-    
-  <script>
-import axios from "axios";
-import ReplaceTrigger from "../components/ReplaceTrigger.vue";
-import JobDetail from "../components/JobDetail.vue";
+  
+<script>
+import axios from 'axios';
 export default {
-  components: {
-    ReplaceTrigger,
-    JobDetail,
+  props: {
+    jobinfo: {
+      type: Object,
+      required: true,
+      // 默认值是一个空对象，避免直接修改父组件传递的对象
+      default: () => ({}),
+    },
   },
   data() {
-  return {
-    Jobs: [
-      {
-        id: '1',
-        jobname: 'Job-001',
-        jobgroup: 'Group-A',
-        jobclassname: 'Class-A',
-        description: 'This is a description for Job-001.',
-        type: 'Type-A',
-        priority: 'High',
-        startime: '2023-04-01T08:00:00Z',
-        endtime: '2023-04-01T17:00:00Z',
-        triggername: 'Trigger-001',
-        triggergroup: 'TriggerGroup-A',
-        triggers_state: 'PAUSED',
-        job_state: 'PAUSED'
-      },
-      {
-        id: '1',
-        jobname: 'Job-001',
-        jobgroup: 'Group-A',
-        jobclassname: 'Class-A',
-        description: 'This is a description for Job-001.',
-        type: 'Type-A',
-        priority: 'High',
-        startime: '2023-04-01T08:00:00Z',
-        endtime: '2023-04-01T17:00:00Z',
-        triggername: 'Trigger-001',
-        triggergroup: 'TriggerGroup-A',
-        triggers_state: 'PAUSED',
-        job_state: 'PAUSED'
-      },
-      {
-        id: '1',
-        jobname: 'Job-001',
-        jobgroup: 'Group-A',
-        jobclassname: 'Class-A',
-        description: 'This is a description for Job-001.',
-        type: 'Type-A',
-        priority: 'High',
-        startime: '2023-04-01T08:00:00Z',
-        endtime: '2023-04-01T17:00:00Z',
-        triggername: 'Trigger-001',
-        triggergroup: 'TriggerGroup-A',
-        triggers_state: 'PAUSED',
-        job_state: 'PAUSED'
-      },
-      {
-        id: '1',
-        jobname: 'Job-001',
-        jobgroup: 'Group-A',
-        jobclassname: 'Class-A',
-        description: 'This is a description for Job-001.',
-        type: 'Type-A',
-        priority: 'High',
-        startime: '2023-04-01T08:00:00Z',
-        endtime: '2023-04-01T17:00:00Z',
-        triggername: 'Trigger-001',
-        triggergroup: 'TriggerGroup-A',
-        triggers_state: 'PAUSED',
-        job_state: 'PAUSED'
-      },
-      {
-        id: '1',
-        jobname: 'Job-001',
-        jobgroup: 'Group-A',
-        jobclassname: 'Class-A',
-        description: 'This is a description for Job-001.',
-        type: 'Type-A',
-        priority: 'High',
-        startime: '2023-04-01T08:00:00Z',
-        endtime: '2023-04-01T17:00:00Z',
-        triggername: 'Trigger-001',
-        triggergroup: 'TriggerGroup-A',
-        triggers_state: 'PAUSED',
-        job_state: 'PAUSED'
-      },
-      {
-        id: '1',
-        jobname: 'Job-001',
-        jobgroup: 'Group-A',
-        jobclassname: 'Class-A',
-        description: 'This is a description for Job-001.',
-        type: 'Type-A',
-        priority: 'High',
-        startime: '2023-04-01T08:00:00Z',
-        endtime: '2023-04-01T17:00:00Z',
-        triggername: 'Trigger-001',
-        triggergroup: 'TriggerGroup-A',
-        triggers_state: 'PAUSED',
-        job_state: 'PAUSED'
-      },
-      {
-        id: '1',
-        jobname: 'Job-001',
-        jobgroup: 'Group-A',
-        jobclassname: 'Class-A',
-        description: 'This is a description for Job-001.',
-        type: 'Type-A',
-        priority: 'High',
-        startime: '2023-04-01T08:00:00Z',
-        endtime: '2023-04-01T17:00:00Z',
-        triggername: 'Trigger-001',
-        triggergroup: 'TriggerGroup-A',
-        triggers_state: 'PAUSED',
-        job_state: 'PAUSED'
-      },
-      {
-        id: '1',
-        jobname: 'Job-001',
-        jobgroup: 'Group-A',
-        jobclassname: 'Class-A',
-        description: 'This is a description for Job-001.',
-        type: 'Type-A',
-        priority: 'High',
-        startime: '2023-04-01T08:00:00Z',
-        endtime: '2023-04-01T17:00:00Z',
-        triggername: 'Trigger-001',
-        triggergroup: 'TriggerGroup-A',
-        triggers_state: 'PAUSED',
-        job_state: 'PAUSED'
-      },
-      {
-        id: '2',
-        jobname: 'Job-002',
-        jobgroup: 'Group-B',
-        jobclassname: 'Class-B',
-        description: 'This is a description for Job-002.',
-        type: 'Type-B',
-        priority: 'Medium',
-        startime: '2023-04-02T09:00:00Z',
-        endtime: '2023-04-02T18:00:00Z',
-        triggername: 'Trigger-002',
-        triggergroup: 'TriggerGroup-B',
-        triggers_state: 'RUNNING',
-        job_state: 'RUNNING'
-      },
-      // Add more job objects as needed...
-    ],
-    groups: ['Group-A', 'Group-B', 'Group-C'],
-    selectedJob: {},
-    selectGroup: "ALL",
-    selected: "",
-    showModal: false,
-    showjobDetail: false,
-  };
-},
-  computed: {
+    return {
+      oldtriggername:"",
+      oldtriggergroup:"",
+
+      priority: "", // 任务优先级
+
+      selecttrigger: "",
+      // 是否使用自定义触发器的选项
+      isCustomTrigger: false,
+
+      // 触发器名称和组名
+      triggername: "",
+      triggergroup: "",
+
+      // SimpleTrigger 特定属性
+      simpletimesecond: "", // 时间间隔秒数
+      repeatcount: "", // 执行次数
+
+      // CronTrigger 特定属性
+      cronexpression: "", // cron 表达式
+
+      // CalendarIntervalTrigger 特定属性
+      calendartime: "second", // 默认时间单位为秒
+      calendarnum: "", // 间隔次数
+      preserveHourOfDayAcrossDaylightSavings: "false",
+      skipDayIfHourDoesNotExist: "false",
+      timezone: "Asia/Shanghai", // 时区
+
+      // DailyTimeIntervalTrigger 特定属性
+      dailytime: "second", // 默认时间单位为秒
+      dailynum: "", // 间隔次数
+      dailyrepeatcount: "", // 总执行次数
+      dailyworkday: [], // 工作日选择, 数组因为是多选框
+      all: false,
+      workday: false,
+      weekend: false,
+      Info:{},
+    };
+  },
+  watch: {
   },
   methods: {
-    async getUsedJob() {
-      // try {
-      //   const response = await axios.post(
-      //     "http://114.132.71.250:8002/task/Select/jobs"
-      //   );
-      //   console.log(response);
-      //   this.Jobs = response.data.data;
-
-      //   // 重置表单
-      // } catch (error) {
-      //   // 处理网络错误或其他错误
-      //   this.errorMessage = "请求失败，请检查网络连接";
-      //   console.error;
-      // }
+    filterInput(value) {
+      // 使用正则表达式替换所有非数字字符为空字符串
+      this.priority = value.replace(/\D/g, '');
     },
-    async getGroups() {
+    checkall(){
+      if(this.all){
+        this.dailyworkday = ["1","2","3","4","5","6","7"];
+        this.workday = true;
+        this.weekend = true;
+      }else{
+        this.dailyworkday = [];
+        this.workday = false;
+        this.weekend = false;
+      }
+    },
+    checkworkday(){
+      if(this.workday){
+        this.dailyworkday.push("1","2","3","4","5");
+        this.dailyworkday = [...new Set(this.dailyworkday)];
+        if(this.dailyworkday.includes("1") && this.dailyworkday.includes("2") && this.dailyworkday.includes("3") && this.dailyworkday.includes("4") && this.dailyworkday.includes("5") && this.dailyworkday.includes("6") && this.dailyworkday.includes("7")){
+          this.all = true;
+        }
+      }else{
+        this.dailyworkday = [];
+      }
+    },
+    checkweekend(){
+      if(this.weekend){
+        this.dailyworkday.push("6","7");
+        this.dailyworkday = [...new Set(this.dailyworkday)];
+        if(this.dailyworkday.includes("1") && this.dailyworkday.includes("2") && this.dailyworkday.includes("3") && this.dailyworkday.includes("4") && this.dailyworkday.includes("5") && this.dailyworkday.includes("6") && this.dailyworkday.includes("7")){
+          this.all = true;
+        }
+      }else{
+        this.dailyworkday = [];
+      }
+    },
+    checkday(){
+      this.all = false;
+      this.workday = false;
+      this.weekend = false;
+      if(this.dailyworkday.includes("1") && this.dailyworkday.includes("2") && this.dailyworkday.includes("3") && this.dailyworkday.includes("4") && this.dailyworkday.includes("5")){
+        this.workday = true;
+      }
+      if(this.dailyworkday.includes("6") && this.dailyworkday.includes("7")){
+        this.weekend = true;
+      }
+      if(this.dailyworkday.length === 7){
+        this.all = true;
+      }
+    },
+    back(){
+        this.$emit('close');
+      },
+    async getTrigger() {
       try {
-        const response = await axios.post(
-          "http://114.132.71.250:8002/task/Select/jobgroupall"
-        );
+         const response = await axios.post("http://114.132.71.250:8002/task/Reflect/triggerclass");
         console.log(response);
-        this.groups = response.data.data;
+        this.triggers = response.data.data;
 
         // 重置表单
       } catch (error) {
@@ -367,89 +272,16 @@ export default {
         console.error;
       }
     },
+    async replace(){
+      console.log(this.oldtriggername);
+      console.log(this.oldtriggergroup);
 
-    async select(selectGroup) {
-    },
-
-    async resumeJob(index) {
-      try {
+      if(this.checkTrigger()){
+        this.builInfo();
+        console.log(this.Info);
+        try {
         const response = await axios.post(
-          "http://114.132.71.250:8002/task/Start/resume?name=" +
-            this.Jobs[index].jobname +
-            "&group=" +
-            this.Jobs[index].jobgroup
-        );
-        console.log(response);
-
-        // 重置表单
-      } catch (error) {
-        // 处理网络错误或其他错误
-        this.errorMessage = "请求失败，请检查网络连接";
-        console.error;
-      }
-      this.getUsedJob();
-    },
-    async pauseJob(index) {
-      try {
-        const response = await axios.post(
-          "http://114.132.71.250:8002/task/Pause/job?jobname=" +
-            this.Jobs[index].jobname +
-            "&jobgroup=" +
-            this.Jobs[index].jobgroup
-        );
-        console.log(response);
-
-        // 重置表单
-      } catch (error) {
-        // 处理网络错误或其他错误
-        this.errorMessage = "请求失败，请检查网络连接";
-        console.error;
-      }
-      this.getUsedJob();
-    },
-    async deleteJob(index) {
-      try {
-        const response = await axios.post(
-          "http://114.132.71.250:8002/task/Delete/job?name=" +
-            this.Jobs[index].jobname +
-            "&group=" +
-            this.Jobs[index].jobgroup
-        );
-        console.log(response);
-
-        // 重置表单
-      } catch (error) {
-        // 处理网络错误或其他错误
-        this.errorMessage = "请求失败，请检查网络连接";
-        console.error;
-      }
-      this.getUsedJob();
-    },
-
-    replacetrigger(index) {
-      // 设置要恢复的作业信息
-      this.selectedJob = this.Jobs[index];
-      this.showModal = true;
-    },
-    closeModal() {
-      // 关闭弹窗
-      this.showModal = false;
-    },
-
-    updatejob(index) {
-      // 设置要恢复的作业信息
-      this.selectedJob = this.Jobs[index];
-      this.showjobDetail = true;
-    },
-    closeshowjobDetail() {
-      // 关闭弹窗
-      this.showjobDetail = false;
-    },
-
-    async resumeAllJob() {
-      try {
-        const response = await axios.post(
-          "http://114.132.71.250:8002/task/Start/resumeall"
+          "http://114.132.71.250:8002/task/Update/updateTrigger?oldtriggername=" +this.oldtriggername+"&oldtriggergroup="+this.oldtriggergroup,this.Info
         );
         console.log(response);
 
@@ -459,346 +291,216 @@ export default {
         this.errorMessage = "请求失败，请检查网络连接";
         console.error;
       }
-      this.getUsedJob();
-    },
-    async pauseAllJob() {
-      try {
-        const response = await axios.post(
-          "http://114.132.71.250:8002/task/Pause/alljob"
-        );
-        console.log(response);
-
-        // 重置表单
-      } catch (error) {
-        // 处理网络错误或其他错误
-        this.errorMessage = "请求失败，请检查网络连接";
-        console.error;
       }
-      this.getUsedJob();
-    },
-    async deleteAllJob() {
-      try {
-        const response = await axios.post(
-          "http://114.132.71.250:8002/task/Delete/alljob"
-        );
-        console.log(response);
+      // const 一个设计 jobinfo
 
-        // 重置表单
-      } catch (error) {
-        // 处理网络错误或其他错误
-        this.errorMessage = "请求失败，请检查网络连接";
-        console.error;
-      }
-      this.getUsedJob();
+      
     },
+    async checkTrigger(){
+      console.log(this.isCustomTrigger);
+      if (this.priority > 999 || this.priority < 0) {
+        tip = tip + "优先级范围为0~999\n";
+      }
+      if(this.isCustomTrigger === "true"){
+        return true;
+      }else if(this.selecttrigger === "SimpleTrigger"){
+        if( !(
+            (this.simpletimesecond === "" && this.repeatcount === "") ||
+            (this.simpletimesecond !== "" && this.repeatcount !== "")
+          )){
+          alert("SimpleTrigger的时间间隔秒数或执行次数不能为空");
+          return false;
+        }
+      }else if(this.selecttrigger === "CronTrigger"){
+        if (this.cronexpression !== "") {
+          const response = await axios.post(
+            "http://114.132.71.250:8002/task/Util/cron-check?cron=" +
+              this.cronexpression
+          );
+          if (response.data.message === "cron表达式格式错误！") {
+            alert("cron表达式不合法");
+            return false;
+          }
+        }
+      }else if(this.selecttrigger === "CalendarIntervalTrigger"){
+        if (
+          !(
+            (this.calendarnum === "" && this.timezone === "") ||
+            (this.calendarnum !== "" && this.timezone !== "")
+          )
+        ) {
+          alert("请输入完整参数或请清空输入使用默认参数");
+          return false;
+        }
+      }else if(this.selecttrigger === "DailyTimeIntervalTrigger"){
+        if (
+          !(
+            (this.dailynum === "" &&
+              this.dailyrepeatcount === "" &&
+              this.dailyworkday.length === 0) ||
+            (this.dailynum !== "" &&
+              this.dailyrepeatcount !== "" &&
+              this.dailyworkday.length !== 0)
+          )
+        ) {
+          alert("请输入完整参数或请清空输入使用默认参数");
+          return false;
+        }
+      }
+      return true;
+    },
+
+    builInfo(){
+      this.Info.triggername = this.triggername;
+      this.Info.triggergroup = this.triggergroup;
+
+      this.Info.priority = this.priority;
+      this.Info.type = this.selecttrigger;
+      this.Info.isCustomTrigger = this.isCustomTrigger;
+      if(this.isCustomTrigger === "true"){
+        this.Info.trigger = this.selecttrigger;
+      }else{
+        this.Info.triggername = this.triggername;
+        this.Info.triggergroup = this.triggergroup;
+        if(this.selecttrigger === "SimpleTrigger"){
+          this.Info.simpletimesecond = this.simpletimesecond;
+          this.Info.repeatcount = this.repeatcount;
+      }else if(this.selecttrigger === "CronTrigger"){
+          this.Info.cronexpression = this.cronexpression;
+      }else if(this.selecttrigger === "CalendarIntervalTrigger"){
+          this.Info.calendartime = this.calendartime;
+          this.Info.calendarnum = this.calendarnum;
+          this.Info.preserveHourOfDayAcrossDaylightSavings = this.preserveHourOfDayAcrossDaylightSavings;
+          this.Info.skipDayIfHourDoesNotExist = this.skipDayIfHourDoesNotExist;
+          this.Info.timezone = this.timezone;
+      }else if(this.selecttrigger === "DailyTimeIntervalTrigger"){
+          this.Info.dailytime = this.dailytime;
+          this.Info.dailynum = this.dailynum;
+          this.Info.dailyrepeatcount = this.dailyrepeatcount;
+          this.Info.dailyworkday = this.dailyworkday;
+      }
+    }
   },
+},
   created() {
-    this.getUsedJob();
-    this.getGroups();
+    this.getTrigger();
+    console.log(this.jobinfo);
+    this.oldtriggername = this.jobinfo.triggername;
+    this.oldtriggergroup = this.jobinfo.triggergroup;
+    this.triggername = this.jobinfo.triggername;
+    this.triggergroup = this.jobinfo.triggergroup;
   },
 };
 </script>
   
-  <style scoped>
+<style scoped>
 .container {
-  width: 80%;
-  height: auto;
-  margin: 0;
-  padding: 0;
-  margin-left: 10%;
-  /* display : flex;
-    flex-direction: column;
-    align-items: center; */
-  overflow: auto;
-  background: rgb(255, 255, 255);
-}
-
-.jumpBox {
-  width: auto;
-  height: 50px;
+  width: 750px;
+  /* height: 450px; */
+  padding: 10px;
+  flex-direction: column;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: rgb(255, 255, 255);
-  margin-top: 20px;
-  padding-left: 40px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #000;
-  margin-bottom: 10px;
 }
 
-.topbox{
-  width: auto;
-  height: 50px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: rgb(255, 255, 255);
-  margin-top: 20px;
-  padding-left: 40px;
-  /* padding-bottom: 10px; */
-  margin-bottom: 50px;
-}
-
-.title{
-    font-size: 36px;
-    font-weight: bold;
-    color: #000;
-    margin: 0;
-}
-
-.conterBox{
+.fg{
   border-left: 1px solid #000;
-  border-right: 1px solid #000;
-  border-top: 1px solid #000;
-  border-bottom: 1px solid #000;
-  border-radius: 5px;
-  padding-top: 10px;
-  margin-bottom: 30px;
 }
 
-.inputnox{
-  display: flex; 
-  justify-content: center;
+.box {
+  display: flex;
+  flex-direction: row;
+  height: 510px;
 }
 
-.input1{
-  width: 300px;
-  height: 40px;
+.box p {
   font-size: 24px;
-}
-
-.inputnox button{
-  margin-left: 10px;
-  width: 80px;
-  height: 40px;
-}
-
-.selectedtitle{
-  font-size: 28px;
-  display: flex;
-  justify-content: flex-start;
-  margin: 0;
-  margin-left: 40px;
-}
-
-.selectBox{
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  font-size: 20px;
   margin-top: 10px;
   margin-bottom: 10px;
 }
 
-.select{
-  width: 200px;
-  height: 40px;
+.typeselect {
+  width: 350px;
+  margin-right: 14.5px;
 }
 
-:deep(.select .el-select__wrapper){
-  height: 40px;
-}
-
-
-.modalButtonBox{
-    padding-top: 10px;
-    display: flex;
-    justify-content: flex-end; /* 将所有子元素对齐到右侧 */
-}
-
-.modalButtonBox button{
-  width: 150px;
-    height: 40px;
-    margin-right: 10px;
-    background-color: rgb(64, 158, 255);
-    font-size: 20px;
-}
-
-.Button3Box{
+.title{
+  width: 350px;
+  height: 32px;
   display: flex;
-  /* justify-content: flex-end; */
-  gap: 10px;
-  margin: 0;
+  justify-content: space-between;
+  font-size: 20px;
+  margin-top: 20px;
 }
 
-.Button3Box button{
-  width: 150px;
-  height: 50px;
-  padding: 0;
+.typeselect .el-select{
+  width: 210px;
+}
+
+.typeselect .el-input{
+  width: 210px;
+}
+
+.triggerdetail {
+  margin-left: 14.5px;
+  width: 350px;
+}
+
+.detailbox{
+  width: 350px;
+  height: 32px;
+  font-size: 20px;
+  margin-top: 20px;
+}
+
+.detailbox .el-select{
+  width: 100px;
+}
+
+.detailbox .el-input{
+  width: 200px;
+}
+
+.detail{
+  width: 350px;
+  height: 32px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 20px;
+  margin-top: 10px;
+}
+
+.detail1{
+  width: 350px;
+  height: 32px;
+  font-size: 20px;
+  margin-top: 10px;
+}
+
+.detail1 .el-checkbox{
+  --el-checkbox-font-size: 20px;
+  margin-top: 10px;
+  margin-right: 10px;
+}
+
+.detail1 .el-checkbox__label{
   font-size: 20px;
 }
 
-:deep(.el-link__inner) {
-  color: rgb(64, 158, 255);
-  font-size: 24px;
-}
-
-.box {
-  /* width: 1517px; */
-  width: auto;
-  color: #000;
-  margin: 0;
-  border-radius: 5px;
-  /* padding-left: 2px;
-  padding-right: 2px; */
-}
-
-.JobBox {
-  width: 1515px;
-  height: 750px;
-  color: #000;
-  margin: 0;
-  border-radius: 5px;
-}
-
-:deep(.JobBox .cell) {
-  height: auto;
-  color: #000;
-  font-size: 16px;
-  padding: 0;
+.buttonbox{
+  column-gap:0;
+  gap: 0px;
+  margin-top: 20px;
+  flex-direction: column;
   display: flex;
-  justify-content: center;
 }
 
-:deep(.JobBox .caret-wrapper){
-  width: 0px;
-  margin-top: 6px;
-}
-
-:deep(.JobBox .el-table__cell){
-  border-top: 0.5px solid #000;
-  border-bottom: 0.5px solid #000;
-}
-
-:deep(.JobBox .el-scrollbar__view) {
-
-  width: 1499px;
-}
-
-:deep(.JobBox .el-table__header-wrapper) {
-  width: 1515px;
-}
-
-:deep(.JobBox .el-table__body) {
-  width: 1513px;
-}
-
-:deep(.JobBox .el-table__empty-text) {
-  color: #000;
-  background: rgb(255, 255, 255);
-}
-
-.button3Box{
-}
-
-.button2Box{
-  width: 127px;
-  margin-top: 8px;
-}
-
-.button2Box button{
-  width: 127px;
-  height: 40px;
-}
-
-.detail {
-  width: 1499px;
-  color: #000;
-  margin: 0;
-}
-
-:deep(.detail .el-table__cell) {
-  color: #000;
-  font-size: 16px;
-  border-top: 0px solid #000 !important;
-}
-
-:deep(.detail .el-scrollbar__view) {
-  width: 1495px;
-}
-
-:deep(.detail .el-table__header-wrapper) {
-  width: 1499px;
-}
-
-:deep(.detail .el-table__body) {
-  width: 1497px;
-}
-
-:deep(.JobBox .el-table__empty-text) {
-  color: #000;
-  background: rgb(255, 255, 255);
-}
-
-
-.buttonBox {
-  width: 200px;
-  /* white-space: normal; */
-}
-
-.button-item {
-  display: block;
-  margin: 2px 0;
-  min-width: 80px;
-}
-
-tbody tr:hover {
-  background-color: #f1f1f1;
-}
-
-.modal-mask {
-  position: fixed;
-  z-index: 9998;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: table;
-  transition: opacity 0.3s ease;
-}
-
-.modal-wrapper {
-  display: table-cell;
-  vertical-align: middle;
-}
-
-.modal-container {
-  width: 500px;
-  margin: 0px auto;
-  padding: 20px 30px;
-  background-color: #fff;
-  border-radius: 2px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
-  transition: all 0.3s ease;
-  font-family: Helvetica, Arial, sans-serif;
-}
-
-.modal-header h3 {
-  margin-top: 0;
-  color: #42b983;
-}
-
-.modal-body {
-  margin: 20px 0;
-}
-
-.modal-default-button {
-  float: right;
-}
-
-.modal-enter {
-  opacity: 0;
-}
-
-.modal-leave-active {
-  opacity: 0;
-}
-
-.modal-enter .modal-container,
-.modal-leave-active .modal-container {
-  -webkit-transform: scale(1.1);
-  transform: scale(1.1);
+.buttonbox button{
+  width: 600px !important;
+  font-size: 24px;
+  width: 128px;
+  height: 60px;
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-bottom: 20px;
 }
 </style>

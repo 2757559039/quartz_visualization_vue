@@ -306,7 +306,7 @@ export default {
         tip = tip + "你未开启自定义的触发器,请选择输入触发器名及触发器分组\n";
       }
       if (tip !== "") alert(tip);
-      return tip === "";
+      return tip === "" ? "true" : tip;
     },
 
     async checkTrigger() {
@@ -358,7 +358,7 @@ export default {
           return false;
         }
       }
-      return true;
+      return 'true';
     },
 
     builInfo() {
@@ -418,7 +418,7 @@ export default {
     },
 
     async addjob() {
-      if (this.checkBaseInfo() === true && this.checkTrigger() === true) {
+      if (this.checkBaseInfo() === 'true' && this.checkTrigger() === 'true') {
         this.builInfo();
         console.log(this.Info);
         const response = await axios.post(

@@ -27,6 +27,7 @@
       </select>
     </p>
     <el-button type="primary" @click="update">更新任务属性</el-button>
+    <el-button @click="back">返回</el-button>
   </div>
 </template>
   
@@ -63,6 +64,10 @@ export default {
     };
   },
   methods: {
+
+    back(){
+        this.$emit('close');
+      },
     async getJob() {
       try {
         const response = await axios.post(
