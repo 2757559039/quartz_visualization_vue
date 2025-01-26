@@ -28,29 +28,39 @@
           <el-option label="CalendarIntervalTrigger" value="CalendarIntervalTrigger" />
         </el-select>
       </el-form-item>
-      <el-form-item label="任务时间">
+      <el-form-item label="开始任务时间">
         <el-date-picker
-          v-model="timeRange"
-          type="daterange"
+          v-model="startTime"
+          type="date"
           format="YYYY/MM/DD"
           value-format="YYYY-MM-DD"
-          range-separator="To"
-          start-placeholder="Start date"
-          end-placeholder="End date"
-          @change="getTimeRange"
+          placeholder="选择开始日期"
+        />
+      </el-form-item>
+      <el-form-item label="结束任务时间">
+        <el-date-picker
+          v-model="endTime"
+          type="date"
+          format="YYYY/MM/DD"
+          value-format="YYYY-MM-DD"
+          placeholder="选择结束日期"
         />
       </el-form-item>
       <el-form-item label="任务优先级">
         <el-input-number v-model="priority" :min="0" :max="999" />
       </el-form-item>
-      <el-form-item label="自定义JobDetail">
-        <el-select v-model="isCustomJobDetail">
-          <el-option label="true" value="true" />
-          <el-option label="false" value="false" />
-        </el-select>
-      </el-form-item>
-      <el-form-item v-if="isCustomJobDetail === 'true'" label="JobDetail">
-        <el-select v-model="jobDetail">
+      <el-form-item label="JobDetail">
+        <el-switch
+          v-model="isCustomJobDetail"
+          active-value="true"
+          inactive-value="false"
+          style="position: absolute;left: -120px"
+        />
+        <el-select
+          v-model="jobDetail"
+          :disabled="isCustomJobDetail === 'false'"
+          style="flex: 1"
+        >
           <el-option
             v-for="(JobDetail, index) in JobDetails"
             :key="index"
@@ -139,9 +149,8 @@ export default {
       jobClassName: "",
       jobClassNameGroup: [],
       jobDescription: "",
-      timeRange: [],
-      startTime: ref(""),
-      endTime: ref(""),
+      startTime: "",
+      endTime: "",
       priority: 5,
       selecttrigger: "",
       trigger: "",
@@ -171,9 +180,7 @@ export default {
   methods: {
     async getTrigger() {
       try {
-        const response = await axios.post(
-          "http://114.132.71.250:8002/task/Reflect/triggerclass"
-        );
+        const response = await axios.post("http://114.132.71.250:8002/task/Reflect/triggerclass");
         console.log(response);
         this.triggers = response.data.data;
       } catch (error) {
@@ -182,9 +189,7 @@ export default {
     },
     async getJob() {
       try {
-        const response = await axios.post(
-          "http://114.132.71.250:8002/task/Reflect/jobclass"
-        );
+        const response = await axios.post("http://114.132.71.250:8002/task/Reflect/jobclass");
         console.log(response);
         this.jobClassNameGroup = response.data.data;
       } catch (error) {
@@ -193,19 +198,11 @@ export default {
     },
     async getJobDetail() {
       try {
-        const response = await axios.post(
-          "http://114.132.71.250:8002/task/Reflect/jobdetailclass"
-        );
+        const response = await axios.post("http://114.132.71.250:8002/task/Reflect/jobdetailclass");
         console.log(response);
         this.JobDetails = response.data.data;
       } catch (error) {
         console.error("请求失败，请检查网络连接");
-      }
-    },
-    getTimeRange() {
-      if (this.timeRange !== null) {
-        this.startTime = this.timeRange[0];
-        this.endTime = this.timeRange[1];
       }
     },
     checkBaseInfo() {
@@ -219,7 +216,7 @@ export default {
       if (this.priority > 999 || this.priority < 0) {
         tip = tip + "优先级范围为0~999\n";
       }
-      if (this.timeRange === null || this.startTime === "" || this.endTime === "") {
+      if (this.startTime === "" || this.endTime === "") {
         tip = tip + "任务时间不能为空\n";
       }
       if (this.trigger === "") {
@@ -349,10 +346,7 @@ export default {
       if (this.checkBaseInfo() === 'true' && this.checkTrigger() === 'true') {
         this.builInfo();
         console.log(this.Info);
-        const response = await axios.post(
-          "http://114.132.71.250:8002/task/Add/job",
-          this.Info
-        );
+        const response = await axios.post("http://114.132.71.250:8002/task/Add/job", this.Info);
         console.log(response);
         this.Info = {};
         this.closeModal();
