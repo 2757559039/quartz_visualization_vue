@@ -5,12 +5,6 @@
     <span>触发器分组:{{ triggergroup }}</span>
     <br />
     <span>触发器类型:{{ selecttrigger }}</span>
-    <!-- <select v-model="selecttrigger">
-      <option>SimpleTrigger</option>
-      <option>CronTrigger</option>
-      <option>DailyTimeIntervalTrigger</option>
-      <option>CalendarIntervalTrigger</option>
-    </select> -->
     <br />
     <span>任务优先级</span>
     <input type="number" v-model="priority" />
@@ -31,11 +25,7 @@
     </div>
 
     <div v-if="isCustomTrigger === 'false'">
-      <div
-        v-show="
-          selecttrigger === 'SimpleTrigger' && this.isCustomTrigger === 'false'
-        "
-      >
+      <div v-show="selecttrigger === 'SimpleTrigger' && this.isCustomTrigger === 'false'">
         <span>触发时间间隔</span>
         <input v-model="simpletimesecond" placeholder="单位为秒" />
         <br />
