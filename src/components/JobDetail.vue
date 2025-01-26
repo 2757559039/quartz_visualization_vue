@@ -1,33 +1,43 @@
 <template>
-  <div>
-    <span>任务名:{{ jobName }}</span>
-    <br />
-    <span>任务分组:{{ jobGroup }}</span>
-    <br />
-    <span>任务类名</span>
-    <select v-model="jobClassName">
-      <option v-for="(name, index) in jobClassNameGroup" :key="index">
-        {{ name }}
-      </option>
-    </select>
-    <br />
-    <span>任务描述</span>
-    <input v-model="jobDescription" />
-    <br />
-    <span>是否使用自定义JobDetail </span>
-    <select v-model="isCustomJobDetail">
-      <option>true</option>
-      <option>false</option>
-    </select>
-    <br>
-    <p v-if="isCustomJobDetail === 'true'">
-      <span>JobDetail</span>
-      <select v-model="jobDetail">
-        <option v-for="(JobDetail, index) in JobDetails" :key="index">{{JobDetail}}</option>
-      </select>
-    </p>
-    <el-button type="primary" @click="update">更新任务属性</el-button>
-    <el-button @click="back">返回</el-button>
+  <div class="container">
+      <div class="detail">
+          <span>任务名:</span>
+          <span>{{ jobName }}</span>
+      </div>
+    
+      <div class="detail">
+          <span>任务分组:</span>
+          <span>{{ jobGroup }}</span>
+      </div>
+      <div class="detail">
+          <span>任务类名:</span>
+          <el-select v-model="jobClassName">
+              <el-option v-for="(item,index) in jobClassNameGroup" :key="index" :label="item" :value="item"/>
+          </el-select>
+      </div>
+      <div class="detail1">
+          <span>任务描述:</span>
+          <el-input
+              v-model="jobDescription"
+              :rows="2"
+              type="textarea"
+              placeholder="Please input"
+          />
+      </div>
+      <div class="detail">
+          <span>是否使用自定义JobDetail </span>
+          <el-switch v-model="isCustomJobDetail" />
+      </div>
+      <div class="detail1">
+          <span>请选择自定义的jobDetail</span>
+          <el-select v-model="jobDetail" :disabled = "!isCustomJobDetail">
+              <el-option v-for="(item,index) in JobDetails" :key="index" :label="item" :value="item"/>
+          </el-select>
+      </div>
+      <div class="detail1">
+          <el-button type="primary" @click="update">更新任务属性</el-button>
+          <el-button @click="back">返回</el-button>
+      </div>
   </div>
 </template>
   
@@ -112,6 +122,7 @@ export default {
             jobDetail:this.jobDetail
           }
         });
+        console.log(response);
       } catch (error) {
         // 处理网络错误或其他错误
         this.errorMessage = "请求失败，请检查网络连接";
@@ -134,4 +145,42 @@ export default {
 </script>
   
 <style scoped>
+.container{
+  width: 300px;
+}
+
+.container span{
+  font-size: 20px;
+}
+
+.detail{
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+:deep(.detail .el-select){
+  width: 200px;
+}
+
+.detail1{
+  margin-bottom: 20px;
+}
+
+:deep(.detail1 .el-textarea){
+  width: 320px;
+  margin-top: 10px;
+  font-size: 16px;
+}
+:deep(.detail1 .el-select){
+  width: 320px;
+  margin-top: 10px;
+}
+
+.detail1 button{
+  width: 320px;
+  height: 40px;
+  margin-bottom: 10px;
+  margin-left: 0;
+}
 </style>
