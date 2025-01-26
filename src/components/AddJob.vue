@@ -156,6 +156,9 @@
               <el-checkbox label="6">星期六</el-checkbox>
               <el-checkbox label="7">星期日</el-checkbox>
             </el-checkbox-group>
+            <el-checkbox v-model="allDays" label="每一天" @change="setAllDays" />
+            <el-checkbox v-model="workDays" label="工作日" @change="setWorkDays" />
+            <el-checkbox v-model="weekendDays" label="周末" @change="setWeekendDays" />
           </el-form-item>
 
           <!-- CalendarIntervalTrigger -->
@@ -237,6 +240,9 @@ export default {
       dailynum: "",
       dailyrepeatcount: "",
       dailyworkday: [],
+      allDays: false,
+      workDays: false,
+      weekendDays: false,
       options: ["1", "2", "3", "4", "5", "6", "7", "workday", "weekend", "all"],
       Info: {},
       isVisible: false,
@@ -453,6 +459,33 @@ export default {
     },
     closeModal() {
       this.isVisible = false;
+    },
+    setAllDays() {
+      if (this.allDays) {
+        this.dailyworkday = ["1", "2", "3", "4", "5", "6", "7"];
+        this.workDays = false;
+        this.weekendDays = false;
+      } else {
+        this.dailyworkday = [];
+      }
+    },
+    setWorkDays() {
+      if (this.workDays) {
+        this.dailyworkday = ["1", "2", "3", "4", "5"];
+        this.allDays = false;
+        this.weekendDays = false;
+      } else {
+        this.dailyworkday = [];
+      }
+    },
+    setWeekendDays() {
+      if (this.weekendDays) {
+        this.dailyworkday = ["6", "7"];
+        this.allDays = false;
+        this.workDays = false;
+      } else {
+        this.dailyworkday = [];
+      }
     },
   },
   created() {
