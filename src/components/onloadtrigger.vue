@@ -32,11 +32,16 @@
       <el-form-item label="任务优先级">
         <el-input-number v-model="priority" :min="0" :max="999" />
       </el-form-item>
-      <el-form-item label="自定义触发器">
-        <el-select v-model="isCustomTrigger">
-          <el-option label="false" value="false" />
-          <el-option label="true" value="true" />
-        </el-select>
+      <el-form-item class="zdycfq">
+        <el-switch
+          v-model="isCustomTrigger"
+          active-value="true"
+          inactive-value="false"
+          inline-prompt
+          style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
+          active-text="自定义触发器"
+          inactive-text="自定义触发器"
+        />
       </el-form-item>
       <el-form-item v-if="isCustomTrigger === 'true'" label="自定义触发器">
         <el-select v-model="trigger">
@@ -203,5 +208,10 @@ button {
 
 button:hover {
   background: linear-gradient(to right, rgb(53,204,255), rgb(4,114,182)); 
+}
+:deep(.zdycfq .el-switch__core){
+  width: 300px;
+  height: 30px;
+  position: absolute;left: -80px
 }
 </style>

@@ -100,6 +100,8 @@
           <el-form-item v-if="isCustomTrigger === 'false'" label="触发器名组">
             <el-input v-model="triggergroup" />
           </el-form-item>
+
+          <!-- SimpleTrigger -->
           <el-form-item
             v-if="trigger === 'SimpleTrigger' && isCustomTrigger === 'false'"
             label="触发时间间隔"
@@ -107,13 +109,58 @@
             <el-input v-model="simpletimesecond" placeholder="单位为秒" />
           </el-form-item>
           <el-form-item
-            v-else-if="trigger === 'CronTrigger' && isCustomTrigger === 'false'"
+            v-if="trigger === 'SimpleTrigger' && isCustomTrigger === 'false'"
+            label="触发器执行次数"
+          >
+            <el-input v-model="repeatcount" placeholder="请输入执行次数" />
+          </el-form-item>
+
+          <!-- CronTrigger -->
+          <el-form-item
+            v-if="trigger === 'CronTrigger' && isCustomTrigger === 'false'"
             label="cron字段"
           >
             <el-input v-model="cronexpression" placeholder="请输入cron格式字段" />
           </el-form-item>
+
+          <!-- DailyTimeIntervalTrigger -->
           <el-form-item
-            v-else-if="trigger === 'CalendarIntervalTrigger' && isCustomTrigger === 'false'"
+            v-if="trigger === 'DailyTimeIntervalTrigger' && isCustomTrigger === 'false'"
+            label="触发器时间间隔单位"
+          >
+            <el-select v-model="dailytime">
+              <el-option label="second" value="second" />
+              <el-option label="minute" value="minute" />
+              <el-option label="hour" value="hour" />
+              <el-option label="day" value="day" />
+              <el-option label="month" value="month" />
+              <el-option label="year" value="year" />
+            </el-select>
+          </el-form-item>
+          <el-form-item
+            v-if="trigger === 'DailyTimeIntervalTrigger' && isCustomTrigger === 'false'"
+            label="总执行次数"
+          >
+            <el-input v-model="dailyrepeatcount" placeholder="请输入总执行次数" />
+          </el-form-item>
+          <el-form-item
+            v-if="trigger === 'DailyTimeIntervalTrigger' && isCustomTrigger === 'false'"
+            label="执行日选择(星期)"
+          >
+            <el-checkbox-group v-model="dailyworkday">
+              <el-checkbox label="1">星期一</el-checkbox>
+              <el-checkbox label="2">星期二</el-checkbox>
+              <el-checkbox label="3">星期三</el-checkbox>
+              <el-checkbox label="4">星期四</el-checkbox>
+              <el-checkbox label="5">星期五</el-checkbox>
+              <el-checkbox label="6">星期六</el-checkbox>
+              <el-checkbox label="7">星期日</el-checkbox>
+            </el-checkbox-group>
+          </el-form-item>
+
+          <!-- CalendarIntervalTrigger -->
+          <el-form-item
+            v-if="trigger === 'CalendarIntervalTrigger' && isCustomTrigger === 'false'"
             label="触发器时间间隔单位"
           >
             <el-select v-model="calendartime">
@@ -126,17 +173,22 @@
             </el-select>
           </el-form-item>
           <el-form-item
-            v-else-if="trigger === 'DailyTimeIntervalTrigger' && isCustomTrigger === 'false'"
-            label="触发器时间间隔单位"
+            v-if="trigger === 'CalendarIntervalTrigger' && isCustomTrigger === 'false'"
+            label="触发器间隔次数"
           >
-            <el-select v-model="dailytime">
-              <el-option label="second" value="second" />
-              <el-option label="minute" value="minute" />
-              <el-option label="hour" value="hour" />
-              <el-option label="day" value="day" />
-              <el-option label="month" value="month" />
-              <el-option label="year" value="year" />
-            </el-select>
+            <el-input v-model="calendarnum" placeholder="请输入间隔次数" />
+          </el-form-item>
+          <el-form-item
+            v-if="trigger === 'CalendarIntervalTrigger' && isCustomTrigger === 'false'"
+            label="是否使用夏令时"
+          >
+            <el-switch v-model="preserveHourOfDayAcrossDaylightSavings" />
+          </el-form-item>
+          <el-form-item
+            v-if="trigger === 'CalendarIntervalTrigger' && isCustomTrigger === 'false'"
+            label="设置当小时不存在时是否跳过这一天"
+          >
+            <el-switch v-model="skipDayIfHourDoesNotExist" />
           </el-form-item>
         </el-col>
       </el-row>
@@ -178,8 +230,8 @@ export default {
       cronexpression: "",
       calendartime: "second",
       calendarnum: "",
-      preserveHourOfDayAcrossDaylightSavings: "false",
-      skipDayIfHourDoesNotExist: "false",
+      preserveHourOfDayAcrossDaylightSavings: false,
+      skipDayIfHourDoesNotExist: false,
       timezone: "Asia/Shanghai",
       dailytime: "second",
       dailynum: "",
