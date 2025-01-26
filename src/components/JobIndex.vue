@@ -744,7 +744,7 @@ export default {
 :deep(.el-dialog){
   background-color: #fefefe;
   border: 1px solid #888;
-  width: 426px;
+  width: 750px;
   /* height: 650px; */
   border-radius: 14px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
