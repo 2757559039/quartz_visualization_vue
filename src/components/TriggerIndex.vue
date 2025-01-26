@@ -5,6 +5,7 @@
       <div class="modalButtonBox">
         <el-button @click="jobModal" type="primary" class="addbtn">添加任务</el-button>
         <el-button @click="onloadModal" type="primary" class="addbtn">挂载触发器</el-button>
+        <el-button type="primary" @click="upload">上传类</el-button>
       </div>
     </div>
 
@@ -122,6 +123,19 @@
         </div>
       </div>
     </transition>
+    <transition name="modal">
+      <div v-if="showupload" class="modal-mask">
+        <div class="modal-wrapper">
+          <div class="modal-container1">
+
+            <div class="modal-body1">
+              <UpLoad v-if="showupload"
+              @close="closeshowupload"></UpLoad>
+          </div>
+            </div>
+          </div>
+        </div>
+    </transition>
   </div>
   </div>
 </template>
@@ -130,12 +144,14 @@
 import axios from "axios";
 import updateTrigger from "../components/updateTrigger.vue";
 import TriggerModal from './onloadtrigger.vue';
+import UpLoad from "./upload.vue";
 import JobModal from './AddJob.vue';
 export default {
   components: { 
     updateTrigger,
     TriggerModal,
     JobModal,
+    UpLoad,
    },
   data() {
     return {
@@ -146,6 +162,7 @@ export default {
       selectGroup: "ALL",
       selectedJObName: "",
       showModal: false,
+      showupload: false,
     };
   },
 
@@ -165,6 +182,13 @@ export default {
     },
     jobModal() {
       this.$refs.jobModal.jobModal();
+    },
+    upload() {
+      this.showupload = true;
+    },
+    closeshowupload() {
+      // 关闭弹窗
+      this.showupload = false;
     },
     Go(address) {
       this.$router.push({ path: '/'+address });
