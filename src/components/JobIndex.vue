@@ -707,8 +707,8 @@ export default {
 }
 
 .modal-body {
-  width: 950px;
-  height: 680px;
+  width: 400px;
+  height: 500px;
   margin: 20px 0;
 }
 
