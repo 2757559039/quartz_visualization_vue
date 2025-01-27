@@ -305,8 +305,12 @@ export default {
       ) {
         tip = tip + "你未开启自定义的触发器,请选择输入触发器名及触发器分组\n";
       }
-      if (tip !== "") alert(tip);
-      return tip === "" ? "true" : tip;
+      if (tip !== "") {
+        alert(tip);
+        return 'false';
+      };
+      console.log('yes');
+      return "true";
     },
     async checkTrigger() {
       if (this.isCustomTrigger === "true") {
@@ -356,7 +360,8 @@ export default {
           return false;
         }
       }
-      return 'true';
+      console.log('yes');
+      return "true";
     },
     builInfo() {
       this.Info.jobname = this.jobName;
@@ -414,7 +419,15 @@ export default {
       }
     },
     async addjob() {
-      if (this.checkBaseInfo() === 'true' && this.checkTrigger() === 'true') {
+      console.log(this.Info);
+      const if1 = this.checkBaseInfo() === "true";
+      const if2 = await this.checkTrigger() === "true";
+      console.log(this.checkBaseInfo());
+      console.log(this.checkTrigger().PromiseResult);
+      console.log(if1, if2);
+      if (if1 && if2) {
+        console.log('yes');
+        console.log(this.Info);
         this.builInfo();
         console.log(this.Info);
         const response = await axios.post("http://114.132.71.250:8002/task/Add/job", this.Info);
