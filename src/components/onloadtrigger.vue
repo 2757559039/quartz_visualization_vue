@@ -32,11 +32,16 @@
       <el-form-item label="任务优先级">
         <el-input-number v-model="priority" :min="0" :max="999" />
       </el-form-item>
-      <el-form-item label="自定义触发器">
-        <el-select v-model="isCustomTrigger">
-          <el-option label="false" value="false" />
-          <el-option label="true" value="true" />
-        </el-select>
+      <el-form-item class="zdycfq">
+        <el-switch
+          v-model="isCustomTrigger"
+          active-value="true"
+          inactive-value="false"
+          inline-prompt
+          style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
+          active-text="自定义触发器"
+          inactive-text="自定义触发器"
+        />
       </el-form-item>
       <el-form-item v-if="isCustomTrigger === 'true'" label="自定义触发器">
         <el-select v-model="trigger">
@@ -53,6 +58,99 @@
       </el-form-item>
       <el-form-item v-if="isCustomTrigger === 'false'" label="触发器分组">
         <el-input v-model="triggergroup" />
+      </el-form-item>
+
+      <!-- SimpleTrigger -->
+      <el-form-item
+        v-if="selecttrigger === 'SimpleTrigger' && isCustomTrigger === 'false'"
+        label="触发时间间隔"
+      >
+        <el-input v-model="simpletimesecond" placeholder="单位为秒" />
+      </el-form-item>
+      <el-form-item
+        v-if="selecttrigger === 'SimpleTrigger' && isCustomTrigger === 'false'"
+        label="触发器执行次数"
+      >
+        <el-input v-model="repeatcount" placeholder="请输入执行次数" />
+      </el-form-item>
+
+      <!-- CronTrigger -->
+      <el-form-item
+        v-if="selecttrigger === 'CronTrigger' && isCustomTrigger === 'false'"
+        label="cron字段"
+      >
+        <el-input v-model="cronexpression" placeholder="请输入cron格式字段" />
+      </el-form-item>
+
+      <!-- DailyTimeIntervalTrigger -->
+      <el-form-item
+        v-if="selecttrigger === 'DailyTimeIntervalTrigger' && isCustomTrigger === 'false'"
+        label="触发器时间间隔单位"
+      >
+        <el-select v-model="dailytime">
+          <el-option label="second" value="second" />
+          <el-option label="minute" value="minute" />
+          <el-option label="hour" value="hour" />
+          <el-option label="day" value="day" />
+          <el-option label="month" value="month" />
+          <el-option label="year" value="year" />
+        </el-select>
+      </el-form-item>
+      <el-form-item
+        v-if="selecttrigger === 'DailyTimeIntervalTrigger' && isCustomTrigger === 'false'"
+        label="总执行次数"
+      >
+        <el-input v-model="dailyrepeatcount" placeholder="请输入总执行次数" />
+      </el-form-item>
+      <el-form-item
+        v-if="selecttrigger === 'DailyTimeIntervalTrigger' && isCustomTrigger === 'false'"
+        label="执行日选择(星期)"
+      >
+        <el-checkbox-group v-model="dailyworkday">
+          <el-checkbox label="1">星期一</el-checkbox>
+          <el-checkbox label="2">星期二</el-checkbox>
+          <el-checkbox label="3">星期三</el-checkbox>
+          <el-checkbox label="4">星期四</el-checkbox>
+          <el-checkbox label="5">星期五</el-checkbox>
+          <el-checkbox label="6">星期六</el-checkbox>
+          <el-checkbox label="7">星期日</el-checkbox>
+        </el-checkbox-group>
+        <el-checkbox v-model="allDays" label="每一天" @change="setAllDays" />
+        <el-checkbox v-model="workDays" label="工作日" @change="setWorkDays" />
+        <el-checkbox v-model="weekendDays" label="周末" @change="setWeekendDays" />
+      </el-form-item>
+
+      <!-- CalendarIntervalTrigger -->
+      <el-form-item
+        v-if="selecttrigger === 'CalendarIntervalTrigger' && isCustomTrigger === 'false'"
+        label="触发器时间间隔单位"
+      >
+        <el-select v-model="calendartime">
+          <el-option label="second" value="second" />
+          <el-option label="minute" value="minute" />
+          <el-option label="hour" value="hour" />
+          <el-option label="day" value="day" />
+          <el-option label="month" value="month" />
+          <el-option label="year" value="year" />
+        </el-select>
+      </el-form-item>
+      <el-form-item
+        v-if="selecttrigger === 'CalendarIntervalTrigger' && isCustomTrigger === 'false'"
+        label="触发器间隔次数"
+      >
+        <el-input v-model="calendarnum" placeholder="请输入间隔次数" />
+      </el-form-item>
+      <el-form-item
+        v-if="selecttrigger === 'CalendarIntervalTrigger' && isCustomTrigger === 'false'"
+        label="是否使用夏令时"
+      >
+        <el-switch v-model="preserveHourOfDayAcrossDaylightSavings" />
+      </el-form-item>
+      <el-form-item
+        v-if="selecttrigger === 'CalendarIntervalTrigger' && isCustomTrigger === 'false'"
+        label="设置当小时不存在时是否跳过这一天"
+      >
+        <el-switch v-model="skipDayIfHourDoesNotExist" />
       </el-form-item>
     </el-form>
     <template #footer>
@@ -77,7 +175,22 @@ export default {
       isCustomTrigger: "false",
       triggername: "",
       triggergroup: "",
-      triggers: []
+      triggers: [],
+      simpletimesecond: "",
+      repeatcount: "",
+      cronexpression: "",
+      calendartime: "second",
+      calendarnum: "",
+      preserveHourOfDayAcrossDaylightSavings: false,
+      skipDayIfHourDoesNotExist: false,
+      timezone: "Asia/Shanghai",
+      dailytime: "second",
+      dailynum: "",
+      dailyrepeatcount: "",
+      dailyworkday: [],
+      allDays: false,
+      workDays: false,
+      weekendDays: false,
     };
   },
   methods: {
@@ -116,12 +229,39 @@ export default {
     async replace() {
       // 处理挂载触发器逻辑
       console.log("挂载触发器");
-    }
+    },
+    setAllDays() {
+      if (this.allDays) {
+        this.dailyworkday = ["1", "2", "3", "4", "5", "6", "7"];
+        this.workDays = false;
+        this.weekendDays = false;
+      } else {
+        this.dailyworkday = [];
+      }
+    },
+    setWorkDays() {
+      if (this.workDays) {
+        this.dailyworkday = ["1", "2", "3", "4", "5"];
+        this.allDays = false;
+        this.weekendDays = false;
+      } else {
+        this.dailyworkday = [];
+      }
+    },
+    setWeekendDays() {
+      if (this.weekendDays) {
+        this.dailyworkday = ["6", "7"];
+        this.allDays = false;
+        this.workDays = false;
+      } else {
+        this.dailyworkday = [];
+      }
+    },
   },
   created() {
     this.getTrigger();
     this.getjobgroups();
-  }
+  },
 };
 </script>
 
@@ -149,7 +289,6 @@ export default {
   max-width: 600px;
   z-index: 10001;
   border-radius: 14px;
-
 }
 
 .close {
@@ -203,5 +342,10 @@ button {
 
 button:hover {
   background: linear-gradient(to right, rgb(53,204,255), rgb(4,114,182)); 
+}
+:deep(.zdycfq .el-switch__core){
+  width: 300px;
+  height: 30px;
+  position: absolute;left: -80px
 }
 </style>
