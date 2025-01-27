@@ -103,10 +103,26 @@
             <template #default="scope">
               <div>
                 <div class="button3Box"> 
-                  <el-button type="success" @click="startNow(scope.row)" size="small" circle><el-icon :size="24"><Refresh /></el-icon></el-button>
-                  <el-button type="success" @click="resumeJob(scope.row)" size="small" circle><el-icon :size="24"><VideoPlay /></el-icon></el-button>
-                <el-button type="warning" @click="pauseJob(scope.row)" size="small" circle><el-icon :size="24"><VideoPause /></el-icon></el-button>
-                <el-button type="danger" @click="deleteJob(scope.row)" size="small" circle><el-icon :size="18"><Delete /></el-icon></el-button>
+                  <el-tooltip content="恢复任务" placement="top">
+                    <el-button type="success" @click="showConfirm('resumeJob', scope.row)" size="small" circle>
+                      <el-icon :size="24"><Refresh /></el-icon>
+                    </el-button>
+                  </el-tooltip>
+                  <el-tooltip content="立即开始一次" placement="top">
+                    <el-button type="success" @click="showConfirm('startNow', scope.row)" size="small" circle>
+                      <el-icon :size="24"><VideoPlay /></el-icon>
+                    </el-button>
+                  </el-tooltip>
+                  <el-tooltip content="暂停任务" placement="top">
+                    <el-button type="warning" @click="showConfirm('pauseJob', scope.row)" size="small" circle>
+                      <el-icon :size="24"><VideoPause /></el-icon>
+                    </el-button>
+                  </el-tooltip>
+                  <el-tooltip content="删除任务" placement="top">
+                    <el-button type="danger" @click="showConfirm('deleteJob', scope.row)" size="small" circle>
+                      <el-icon :size="18"><Delete /></el-icon>
+                    </el-button>
+                  </el-tooltip>
                 </div>
                 <div class="button2Box"> 
                   <el-button type="info" @click="replacetrigger(scope.row)">替换触发器</el-button>
@@ -121,8 +137,8 @@
       </div>
     </div>
     
-    <TriggerModal ref="triggerModal" />
-    <JobModal ref="jobModal" />
+    <TriggerModal ref="triggerModal" class="trmod"/>
+    <JobModal ref="jobModal" class="jobmod"/>
     <transition name="modal">
       <div v-if="showModal" class="modal-mask">
         <div class="modal-wrapper">
@@ -345,25 +361,45 @@ export default {
       this.showupload = false;
     },
     //二级弹窗
-    showConfirm(action) {
-      ElMessageBox.confirm(`确定要${action === 'resumeAllJob' ? '恢复所有任务' : action === 'pauseAllJob' ? '停止所有任务' : '删除所有任务'}吗？`, '确认操作', {
+    showConfirm(action, row = null) {
+      const actionMap = {
+        resumeJob: '恢复',
+        startNow: '立即开始一次',
+        pauseJob: '暂停',
+        deleteJob: '删除',
+        resumeAllJob: '恢复所有任务',
+        pauseAllJob: '停止所有任务',
+        deleteAllJob: '删除所有任务'
+      };
+      const message = row
+        ? `确定要${actionMap[action]}任务 "${row.jobname}" 吗？`
+        : `确定要${actionMap[action]}吗？`;
+      ElMessageBox.confirm(message, '确认操作', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
-    }).then(() => {
-      // 用户点击“确定”按钮
-      if (action === 'resumeAllJob') {
-        this.resumeAllJob();
-      } else if (action === 'pauseAllJob') {
-        this.pauseAllJob();
-      } else if (action === 'deleteAllJob') {
-        this.deleteAllJob();
-      }
-    }).catch(() => {
-      // 用户点击“取消”按钮
-      console.log('取消操作');
-    });
-  },
+      }).then(() => {
+        // 用户点击“确定”按钮
+        if (action === 'resumeJob') {
+          this.resumeJob(row);
+        } else if (action === 'startNow') {
+          this.startNow(row);
+        } else if (action === 'pauseJob') {
+          this.pauseJob(row);
+        } else if (action === 'deleteJob') {
+          this.deleteJob(row);
+        } else if (action === 'resumeAllJob') {
+          this.resumeAllJob();
+        } else if (action === 'pauseAllJob') {
+          this.pauseAllJob();
+        } else if (action === 'deleteAllJob') {
+          this.deleteAllJob();
+        }
+      }).catch(() => {
+        // 用户点击“取消”按钮
+        console.log('取消操作');
+      });
+    },
     async resumeAllJob() {
       try {
         const response = await axios.post(
@@ -741,10 +777,19 @@ export default {
   transform: scale(1.1);
 } */
 
-:deep(.el-dialog){
+:deep(.el-dialog.jobmod){
   background-color: #fefefe;
   border: 1px solid #888;
   width: 750px;
+  /* height: 650px; */
+  border-radius: 14px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10001;
+}
+:deep(.el-dialog.trmod ){
+  background-color: #fefefe;
+  border: 1px solid #888;
+  width: 390px;
   /* height: 650px; */
   border-radius: 14px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);

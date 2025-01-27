@@ -120,7 +120,15 @@
             v-if="trigger === 'CronTrigger' && isCustomTrigger === 'false'"
             label="cron字段"
           >
-            <el-input v-model="cronexpression" placeholder="请输入cron格式字段" />
+            <el-input
+              v-model="cronexpression"
+              placeholder="请输入cron格式字段"
+              @click="openCronDialog"
+              :clearable="true"
+            />
+            <el-dialog v-model="showCronDialog" title="Cron表达式选择器">
+              <Vue3CronPlusPicker @hide="closeCronDialog" @fill="fillCronValue" :expression="cronexpression" />
+            </el-dialog>
           </el-form-item>
 
           <!-- DailyTimeIntervalTrigger -->
@@ -208,7 +216,13 @@
 <script>
 import { ref } from "vue";
 import axios from "axios";
+import { Vue3CronPlusPicker } from 'vue3-cron-plus-picker';
+import 'vue3-cron-plus-picker/style.css';
+
 export default {
+  components: {
+    Vue3CronPlusPicker
+  },
   data() {
     return {
       triggers: [],
@@ -246,6 +260,7 @@ export default {
       options: ["1", "2", "3", "4", "5", "6", "7", "workday", "weekend", "all"],
       Info: {},
       isVisible: false,
+      showCronDialog: false
     };
   },
   methods: {
@@ -500,6 +515,16 @@ export default {
         this.dailyworkday = [];
       }
     },
+    openCronDialog() {
+      this.showCronDialog = true;
+    },
+    closeCronDialog() {
+      this.showCronDialog = false;
+    },
+    fillCronValue(cronValue) {
+      this.cronexpression = cronValue;
+      this.closeCronDialog();
+    }
   },
   created() {
     this.getTrigger();
