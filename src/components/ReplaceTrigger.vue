@@ -69,7 +69,11 @@
         <div v-show="selecttrigger === 'CronTrigger' && this.isCustomTrigger === false" class="detailbox">
           <div class="detail">
             <span>cron字段</span>
-            <el-input v-model="cronexpression" placeholder="请输入cron格式字段" />            
+            <el-input class="elInput" v-model="cronexpression"  @click="openDialog" :clearable="true"  placeholder="请输入正确的cron表达式">
+            </el-input>
+            <el-dialog v-model="showCron">
+              <Vue3CronPlusPicker @hide="closeDialog" @fill="fillValue" :expression="expression"/>
+            </el-dialog>            
           </div>
         </div>
 
@@ -152,7 +156,11 @@
   
 <script>
 import axios from 'axios';
+import 'vue3-cron-plus-picker/style.css'
+import {Vue3CronPlusPicker} from 'vue3-cron-plus-picker'
+
 export default {
+  components : {"Vue3CronPlusPicker":Vue3CronPlusPicker,},
   props: {
     jobinfo: {
       type: Object,
@@ -182,6 +190,8 @@ export default {
 
       // CronTrigger 特定属性
       cronexpression: "", // cron 表达式
+      showCron:false,
+			expression:"* * * * * * *",
 
       // CalendarIntervalTrigger 特定属性
       calendartime: "second", // 默认时间单位为秒
@@ -216,6 +226,18 @@ export default {
     }
   },
   methods: {
+    openDialog () {
+			this.showCron = true;
+			if (this.cronexpression != ""){
+				this.expression = this.cronexpression
+			}
+		},
+		closeDialog(){
+			this.showCron = false;
+		},
+		fillValue(cronValue){
+			this.cronexpression = cronValue;
+		},
     filterInput(value) {
       // 使用正则表达式替换所有非数字字符为空字符串
       this.priority = value.replace(/\D/g, '');
@@ -232,14 +254,21 @@ export default {
       }
     },
     checkworkday(){
+      console.log('checkday4');
       if(this.workday){
         this.dailyworkday.push("1","2","3","4","5");
         this.dailyworkday = [...new Set(this.dailyworkday)];
         if(this.dailyworkday.includes("1") && this.dailyworkday.includes("2") && this.dailyworkday.includes("3") && this.dailyworkday.includes("4") && this.dailyworkday.includes("5") && this.dailyworkday.includes("6") && this.dailyworkday.includes("7")){
           this.all = true;
         }
+
       }else{
         this.dailyworkday = [];
+
+        if(this.weekend){
+          this.dailyworkday.push("6","7");
+        }
+        this.all = false;
       }
     },
     checkweekend(){
@@ -251,20 +280,28 @@ export default {
         }
       }else{
         this.dailyworkday = [];
+        if(this.workday){
+          this.dailyworkday.push("1","2","3","4","5");
       }
-    },
-    checkday(){
       this.all = false;
-      this.workday = false;
-      this.weekend = false;
-      if(this.dailyworkday.includes("1") && this.dailyworkday.includes("2") && this.dailyworkday.includes("3") && this.dailyworkday.includes("4") && this.dailyworkday.includes("5")){
+    }
+    },
+    checkday() {
+      console.log('checkday');
+      if (this.dailyworkday.includes("1") && this.dailyworkday.includes("2") && this.dailyworkday.includes("3") && this.dailyworkday.includes("4") && this.dailyworkday.includes("5")) {
         this.workday = true;
+      } else {
+        this.workday = false;
       }
-      if(this.dailyworkday.includes("6") && this.dailyworkday.includes("7")){
+      if (this.dailyworkday.includes("6") && this.dailyworkday.includes("7")) {
         this.weekend = true;
+      } else {
+        this.weekend = false;
       }
-      if(this.dailyworkday.length === 7){
+      if (this.workday && this.weekend) {
         this.all = true;
+      } else {
+        this.all = false;
       }
     },
     back(){
@@ -328,6 +365,7 @@ export default {
             "http://114.132.71.250:8002/task/Util/cron-check?cron=" +
               this.cronexpression
           );
+          console.log(response);
           if (response.data.message === "cron表达式格式错误！") {
             alert("cron表达式不合法");
             return false;
@@ -515,4 +553,13 @@ export default {
   margin-right: 20px;
   margin-bottom: 20px;
 }
+
+:deep(.detail .el-dialog){
+  width: 600px;
+}
+
+:deep(.detail .el-dialog .el-select){
+  width: 150px;
+}
+
 </style>

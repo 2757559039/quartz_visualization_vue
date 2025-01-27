@@ -78,13 +78,9 @@
             <template #default="scope">
               <div>
                 <div class="button3Box"> 
-                  <el-button type="success" @click="resumeJob(scope.row)" circle>ON</el-button>
-                <el-button type="warning" @click="pauseJob(scope.row)" circle>OFF</el-button>
-                <el-button type="danger" :icon="Delete" circle @click="deleteJob(scope.row)">  
-                  <el-icon>
-                    <Delete />
-                  </el-icon>
-                </el-button>
+                  <el-button type="success" @click="resumeJob(scope.row)" circlesize="small" circle><el-icon :size="24"><VideoPlay /></el-icon></el-button>
+                  <el-button type="warning" @click="pauseJob(scope.row)" circlesize="small" circle><el-icon :size="24"><VideoPause /></el-icon></el-button>
+                  <el-button type="danger" @click="deleteJob(scope.row)" circlesize="small" circle><el-icon :size="22"><Delete /></el-icon></el-button>
                 </div>
                 <div class="button2Box"> 
                   <el-button type="info" @click="replacetrigger(scope.row)">更改触发器参数</el-button>
@@ -100,10 +96,6 @@
       <div v-if="showModal" class="modal-mask">
         <div class="modal-wrapper">
           <div class="modal-container">
-            <div class="modal-header">
-              <slot name="header">Resume Job Confirmation</slot>
-            </div>
-
             <div class="modal-body">
               <!-- 动态插入子组件 -->
               <updateTrigger
@@ -111,12 +103,6 @@
                 v-if="showModal"
                 @close="closeModal"
               ></updateTrigger>
-            </div>
-
-            <div class="modal-footer">
-              <button class="modal-default-button" @click="closeModal">
-                Close
-              </button>
             </div>
           </div>
         </div>
@@ -265,13 +251,13 @@ export default {
       this.getUsedJob();
     },
 
-    async resumeJob(index) {
+    async resumeJob(row) {
       try {
         const response = await axios.post(
           "http://114.132.71.250:8002/task/Start/resumetri?triname=" +
-            this.Jobs[index].triggername +
+          row.triggername +
             "&trigroup=" +
-            this.Jobs[index].triggergroup
+            row.triggergroup
         );
         console.log(response);
 
@@ -283,13 +269,13 @@ export default {
       }
       this.getUsedJob();
     },
-    async pauseJob(index) {
+    async pauseJob(row) {
       try {
         const response = await axios.post(
           "http://114.132.71.250:8002/task/Pause/trigger?triname=" +
-            this.Jobs[index].triggername +
+          row.triggername +
             "&trigroup=" +
-            this.Jobs[index].triggergroup
+            row.triggergroup
         );
         console.log(response);
 
@@ -301,13 +287,13 @@ export default {
       }
       this.getUsedJob();
     },
-    async deleteJob(index) {
+    async deleteJob(row) {
       try {
         const response = await axios.post(
           "http://114.132.71.250:8002/task/Delete/jobUNtri?triggername=" +
-            this.Jobs[index].triggername +
+          row.triggername +
             "&triggergroup=" +
-            this.Jobs[index].triggergroup
+            row.triggergroup
         );
         console.log(response);
 
@@ -566,12 +552,15 @@ export default {
 }
 
 .modal-wrapper {
-  display: table-cell;
-  vertical-align: middle;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%; /* 确保与父元素高度一致 */
 }
 
 .modal-container {
-  width: 500px;
+  width: 850px;
+  height: 600px;
   margin: 0px auto;
   padding: 20px 30px;
   background-color: #fff;
