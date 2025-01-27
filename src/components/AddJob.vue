@@ -29,6 +29,7 @@
               format="YYYY/MM/DD"
               value-format="YYYY-MM-DD"
               placeholder="选择开始日期"
+              :disabled-date="disabledStartDate"
             />
           </el-form-item>
           <el-form-item label="结束任务时间">
@@ -38,6 +39,7 @@
               format="YYYY/MM/DD"
               value-format="YYYY-MM-DD"
               placeholder="选择结束日期"
+              :disabled-date="disabledEndDate"
             />
           </el-form-item>
           <el-form-item label="任务优先级">
@@ -377,6 +379,22 @@ export default {
       }
       console.log('yes');
       return "true";
+    },
+    disabledStartDate(time) {
+    // 获取当前日期
+    const today = new Date();
+    // 设置时间的时分秒为0，表示当天的开始
+    today.setHours(0, 0, 0, 0);
+    // 返回一个布尔值，表示是否禁用该日期
+    return time.getTime() < today.getTime();
+  },
+  disabledEndDate(time) {
+      if (!this.startTime) {
+        return false; // 如果开始时间未设置，则不进行限制
+      }
+      const start = new Date(this.startTime);
+      start.setHours(0, 0, 0, 0); // 将开始时间的时分秒设置为0
+      return time.getTime() < start.getTime();
     },
     builInfo() {
       this.Info.jobname = this.jobName;
