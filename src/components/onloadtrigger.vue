@@ -154,11 +154,16 @@
       >
         <el-switch v-model="preserveHourOfDayAcrossDaylightSavings" />
       </el-form-item>
-      <el-form-item
-        v-if="selecttrigger === 'CalendarIntervalTrigger' && isCustomTrigger === 'false'"
-        label="设置当小时不存在时是否跳过这一天"
-      >
-        <el-switch v-model="skipDayIfHourDoesNotExist" />
+      <el-form-item class="zdycfq" v-if="selecttrigger === 'CalendarIntervalTrigger' && isCustomTrigger === 'false'">
+        <el-switch
+          v-model="skipDayIfHourDoesNotExist"
+          active-value="true"
+          inactive-value="false"
+          inline-prompt
+          style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
+          active-text="设置当小时不存在时是否跳过这一天"
+          inactive-text="设置当小时不存在时是否跳过这一天"
+        />
       </el-form-item>
     </el-form>
     <template #footer>
@@ -181,11 +186,11 @@ export default {
     return {
       isVisible: false,
       jobgroups: [],
-      jobgroup: "group1",
+      jobgroup: "",
       jobs: [],
       job: "",
       priority: "",
-      selecttrigger: "",
+      selecttrigger: "SimpleTrigger",
       isCustomTrigger: "false",
       triggername: "",
       triggergroup: "",

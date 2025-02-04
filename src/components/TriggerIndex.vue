@@ -486,6 +486,7 @@ export default {
   margin-left: 10px;
   width: 80px;
   height: 40px;
+  background:linear-gradient(to left, rgb(53,204,255), rgb(4,114,182)); /* 从浅蓝色到深蓝色 */
 }
 
 .selectedtitle{
@@ -704,5 +705,8 @@ export default {
   color: rgb(0,0,0);
   transform: translateY(-2px); /* 轻微上移 */
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* 阴影加深 */
+}
+:deep(.el-link__inner){
+  color:rgb(0,119,194);
 }
 </style>

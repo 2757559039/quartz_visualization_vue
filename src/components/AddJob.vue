@@ -77,14 +77,19 @@
           </el-form-item>
           <el-form-item class="zdycfq">
             <el-switch
-              v-model="isCustomTrigger"
-              active-value="true"
-              inactive-value="false"
-              inline-prompt
-              style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
-              active-text="自定义触发器"
-              inactive-text="自定义触发器"
-            />
+  v-model="isCustomTrigger"
+  active-value="true"
+  inactive-value="false"
+  inline-prompt
+  style="
+    --el-switch-on-color: linear-gradient(to left, #35ccff, #0472b6);
+    --el-switch-off-color: linear-gradient(to right, #35ccff, #0472b6);
+    --el-switch-border-color: #409eff;
+  "
+  active-text="自定义触发器"
+  inactive-text="自定义触发器"
+  class="custom-switch"
+/>
           </el-form-item>
           <el-form-item v-if="isCustomTrigger === 'true'" label="触发器实现类">
             <el-select v-model="selecttrigger">
@@ -197,11 +202,16 @@
           >
             <el-switch v-model="preserveHourOfDayAcrossDaylightSavings" />
           </el-form-item>
-          <el-form-item
-            v-if="trigger === 'CalendarIntervalTrigger' && isCustomTrigger === 'false'"
-            label="设置当小时不存在时是否跳过这一天"
-          >
-            <el-switch v-model="skipDayIfHourDoesNotExist" />
+          <el-form-item class="zdycfq" v-if="trigger === 'CalendarIntervalTrigger' && isCustomTrigger === 'false'">
+            <el-switch
+              v-model="skipDayIfHourDoesNotExist"
+              active-value="true"
+              inactive-value="false"
+              inline-prompt
+              style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
+              active-text="设置当小时不存在时是否跳过这一天"
+              inactive-text="设置当小时不存在时是否跳过这一天"
+            />
           </el-form-item>
         </el-col>
       </el-row>
@@ -237,7 +247,7 @@ export default {
       endTime: "",
       priority: 5,
       selecttrigger: "",
-      trigger: "",
+      trigger: "SimpleTrigger",
       isCustomJobDetail: "false",
       JobDetails: [],
       jobDetail: "",
@@ -669,5 +679,20 @@ button:hover {
   width: 300px;
   height: 30px;
   position: absolute;left: -80px
+}
+/* 开关 */
+:deep(.custom-switch .el-switch__core) {
+  background-size: 200% auto !important;
+  transition: background-position 0.3s ease;
+}
+:deep(.custom-switch.is-checked .el-switch__core) {
+  background-position: right center;
+}
+:deep(.custom-switch:not(.is-checked) .el-switch__core) {
+  background-position: left center;
+}
+:deep(.el-switch__button) {
+  background: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 </style>
