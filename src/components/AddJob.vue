@@ -77,19 +77,18 @@
           </el-form-item>
           <el-form-item class="zdycfq">
             <el-switch
-  v-model="isCustomTrigger"
-  active-value="true"
-  inactive-value="false"
-  inline-prompt
-  style="
-    --el-switch-on-color: linear-gradient(to left, #35ccff, #0472b6);
-    --el-switch-off-color: linear-gradient(to right, #35ccff, #0472b6);
-    --el-switch-border-color: #409eff;
-  "
-  active-text="自定义触发器"
-  inactive-text="自定义触发器"
-  class="custom-switch"
-/>
+              v-model="isCustomTrigger"
+              active-value="true"
+              inactive-value="false"
+              inline-prompt
+              style="
+                --el-switch-on-color: linear-gradient(to left, #35ccff, #0472b6);
+                --el-switch-off-color: linear-gradient(to right, #35ccff, #0472b6);
+              "
+              active-text="自定义触发器"
+              inactive-text="自定义触发器"
+              class="custom-switch"
+            />
           </el-form-item>
           <el-form-item v-if="isCustomTrigger === 'true'" label="触发器实现类">
             <el-select v-model="selecttrigger">
@@ -208,9 +207,13 @@
               active-value="true"
               inactive-value="false"
               inline-prompt
-              style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
+              style="
+                --el-switch-on-color: linear-gradient(to left, #35ccff, #0472b6);
+                --el-switch-off-color: linear-gradient(to right, #35ccff, #0472b6);
+              "
               active-text="设置当小时不存在时是否跳过这一天"
               inactive-text="设置当小时不存在时是否跳过这一天"
+              class="custom-switch"
             />
           </el-form-item>
         </el-col>
@@ -465,7 +468,7 @@ export default {
       console.log(this.Info);
       const if1 = this.checkBaseInfo() === "true";
       const if2 = await this.checkTrigger() === "true";
-      console.log(this.checkBaseInfo());
+      // console.log(this.checkBaseInfo());//这个会弹两次弹窗
       console.log(this.checkTrigger().PromiseResult);
       console.log(if1, if2);
       if (if1 && if2) {
