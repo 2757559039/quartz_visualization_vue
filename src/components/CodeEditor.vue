@@ -107,8 +107,8 @@
   
   <style scoped>
   .code-editor {
-    width: 1440px;
-    height: 750px;
+    width: 100%;
+    height: 520px;
     /* overflow: auto; */
     border: 1px solid #ddd;
     border-radius: 5px;

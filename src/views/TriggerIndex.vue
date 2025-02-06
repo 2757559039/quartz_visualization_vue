@@ -5,7 +5,7 @@
       <div class="modalButtonBox">
         <el-button @click="jobModal" type="primary" class="addbtn">添加任务</el-button>
         <el-button @click="onloadModal" type="primary" class="addbtn">挂载触发器</el-button>
-        <el-button type="primary" @click="upload">上传类</el-button>
+        <el-button type="primary" @click="uploadModal">上传类</el-button>
       </div>
     </div>
 
@@ -110,6 +110,7 @@
       </div>
     <TriggerModal ref="triggerModal" class="trmod"/>
     <JobModal ref="jobModal" class="jobmod"/>
+    <UpLoadModal ref="uploadModal" class="uploadmod"/>
     <transition name="modal">
       <div v-if="showModal" class="modal-mask">
         <div class="modal-wrapper">
@@ -154,7 +155,7 @@ export default {
     updateTrigger,
     TriggerModal,
     JobModal,
-    UpLoad,
+    UpLoadModal,
    },
   data() {
     return {
@@ -192,6 +193,9 @@ export default {
     closeshowupload() {
       // 关闭弹窗
       this.showupload = false;
+    },
+    uploadModal() {
+      this.$refs.uploadModal.uploadModal();
     },
     Go(address) {
       this.$router.push({ path: '/'+address });
