@@ -116,7 +116,7 @@
     
     <TriggerModal ref="triggerModal" class="trmod"/>
     <JobModal ref="jobModal" class="jobmod"/>
-    <UpLoadModal ref="uploadModal" class="uploadmod"/>
+    <UpLoad ref="uploadModal" class="uploadmod"/>
     <transition name="modal">
       <div v-if="showModal" class="modal-mask">
         <div class="modal-wrapper">
@@ -176,7 +176,7 @@ export default {
   components: {
     ReplaceTrigger,
     JobDetail,
-    UpLoadModal,
+    UpLoad,
     TriggerModal,
     JobModal,
   },
@@ -872,7 +872,7 @@ export default {
   /* height: 650px; */
   border-radius: 14px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  z-index: 10001;
+  z-index: 4;
 }
 :deep(.el-dialog.trmod ){
   background-color: #fefefe;
@@ -881,7 +881,7 @@ export default {
   /* height: 650px; */
   border-radius: 14px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  z-index: 10001;
+  z-index: 4;
 }
 :deep(.el-dialog.uploadmod ){
   background-color: #fefefe;
@@ -890,7 +890,7 @@ export default {
   /* height: 650px; */
   border-radius: 14px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  z-index: 10001;
+  z-index: 4;
 }
  /* 上三按钮 */
 :deep(.modalButtonBox button){

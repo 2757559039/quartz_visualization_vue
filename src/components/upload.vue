@@ -69,5 +69,7 @@
 }
 .CodeMirror-gutter-elt{
   left:-30px !important;
+}.CodeMirror-hints{
+  z-index: 10111;
 }
   </style>

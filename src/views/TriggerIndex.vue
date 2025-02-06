@@ -110,7 +110,7 @@
       </div>
     <TriggerModal ref="triggerModal" class="trmod"/>
     <JobModal ref="jobModal" class="jobmod"/>
-    <UpLoadModal ref="uploadModal" class="uploadmod"/>
+    <UpLoad ref="uploadModal" class="uploadmod"/>
     <transition name="modal">
       <div v-if="showModal" class="modal-mask">
         <div class="modal-wrapper">
@@ -155,7 +155,7 @@ export default {
     updateTrigger,
     TriggerModal,
     JobModal,
-    UpLoadModal,
+    UpLoad,
    },
   data() {
     return {
