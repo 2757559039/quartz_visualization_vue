@@ -5,7 +5,7 @@
       <div class="modalButtonBox">
         <el-button @click="jobModal" type="primary" class="addbtn">添加任务</el-button>
         <el-button @click="onloadModal" type="primary" class="addbtn">挂载触发器</el-button>
-        <el-button type="primary" @click="upload">上传类</el-button>
+        <el-button type="primary" @click="uploadModal">上传类</el-button>
       </div>
     </div>
 
@@ -139,6 +139,7 @@
     
     <TriggerModal ref="triggerModal" class="trmod"/>
     <JobModal ref="jobModal" class="jobmod"/>
+    <UpLoadModal ref="uploadModal" class="uploadmod"/>
     <transition name="modal">
       <div v-if="showModal" class="modal-mask">
         <div class="modal-wrapper">
@@ -191,14 +192,14 @@
 import axios from "axios";
 import ReplaceTrigger from "../components/ReplaceTrigger.vue";
 import JobDetail from "../components/JobDetail.vue";
-import UpLoad from "./upload.vue";
+import UpLoadModal from "./upload.vue";
 import TriggerModal from './onloadtrigger.vue';
 import JobModal from './AddJob.vue';
 export default {
   components: {
     ReplaceTrigger,
     JobDetail,
-    UpLoad,
+    UpLoadModal,
     TriggerModal,
     JobModal,
   },
@@ -226,6 +227,9 @@ export default {
     },
     jobModal() {
       this.$refs.jobModal.jobModal();
+    },
+    uploadModal() {
+      this.$refs.uploadModal.uploadModal();
     },
     async getUsedJob() {
       try {
@@ -792,6 +796,15 @@ export default {
   background-color: #fefefe;
   border: 1px solid #888;
   width: 390px;
+  /* height: 650px; */
+  border-radius: 14px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10001;
+}
+:deep(.el-dialog.uploadmod ){
+  background-color: #fefefe;
+  border: 1px solid #888;
+  width: 1440px;
   /* height: 650px; */
   border-radius: 14px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
