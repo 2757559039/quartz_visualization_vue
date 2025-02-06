@@ -670,7 +670,7 @@ export default {
   /* height: 650px; */
   border-radius: 14px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  z-index: 10001;
+  z-index: 4;
 }
 :deep(.el-dialog.trmod ){
   background-color: #fefefe;
@@ -679,7 +679,16 @@ export default {
   /* height: 650px; */
   border-radius: 14px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  z-index: 10001;
+  z-index: 4;
+}
+:deep(.el-dialog.uploadmod ){
+  background-color: #fefefe;
+  border: 1px solid #888;
+  width: 1440px;
+  /* height: 650px; */
+  border-radius: 14px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 4;
 }
  /* 上三按钮 */
 :deep(.modalButtonBox button){
