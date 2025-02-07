@@ -53,7 +53,7 @@
         <el-table :data="Jobs" class="JobBox" @expand-change="handleExpandChange" :expand-row-keys="expandedRows" :row-key="getRowKey">
           <el-table-column type="expand">
             <template #default="props">
-              <el-table :data="props.row.triggerList" v-loading="!props.row.loadDetails" class="c">
+              <el-table :data="props.row.triggerList" class="c">
                 <el-table-column label="触发器分组" sortable prop="triggergroup" min-width="16" align="center"/>
                 <el-table-column label="触发器名" sortable prop="triggername" min-width="16" align="center"/>
                 <el-table-column label="任务类型" sortable prop="type" min-width="16" align="center"/>
@@ -310,6 +310,7 @@ export default {
         const response = await axios.post(
           "http://114.132.71.250:8002/task/Select/FINDjobBYgroup?group=" + this.selectGroup)
           this.Jobs = response.data.data;
+          this.expandedRows = [];
       } catch (error) {
         // 处理网络错误或其他错误
         this.errorMessage = "请求失败，请检查网络连接";
@@ -326,15 +327,25 @@ export default {
           row.jobgroup
         );
         console.log(response);
-
+        if(response.data.data == 'success'){
+          this.$message({
+            showClose: true,
+            message: '任务已执行',
+            type: 'success'
+          });
+        }else{
+          this.$message({
+            showClose: true,
+            message: '执行任务失败',
+            type: 'error'
+          });
+        }
         // 重置表单
       } catch (error) {
         // 处理网络错误或其他错误
         this.errorMessage = "请求失败，请检查网络连接";
         console.error;
       }
-      this.getUsedJob();
-      this.expandedRows = [];
     },
     async startNow(row) {
       try {
@@ -346,6 +357,19 @@ export default {
         );
         console.log(response);
 
+        if(response.data.data == 'success'){
+          this.$message({
+            showClose: true,
+            message: '任务已恢复',
+            type: 'success'
+          });
+        }else{
+          this.$message({
+            showClose: true,
+            message: '恢复任务失败',
+            type: 'error'
+          });
+        }
         // 重置表单
       } catch (error) {
         // 处理网络错误或其他错误
@@ -353,7 +377,6 @@ export default {
         console.error;
       }
       this.getUsedJob();
-      this.expandedRows = [];
     },
     async pauseJob(row) {
       try {
@@ -365,6 +388,19 @@ export default {
         );
         console.log(response);
 
+        if(response.data.data == 'success'){
+          this.$message({
+            showClose: true,
+            message: '任务已停止',
+            type: 'success'
+          });
+        }else{
+          this.$message({
+            showClose: true,
+            message: '停止任务失败',
+            type: 'error'
+          });
+        }
         // 重置表单
       } catch (error) {
         // 处理网络错误或其他错误
@@ -372,7 +408,6 @@ export default {
         console.error;
       }
       this.getUsedJob();
-      this.expandedRows = [];
     },
     async deleteJob(row) {
       try {
@@ -383,15 +418,26 @@ export default {
           row.jobgroup
         );
         console.log(response);
-
+        if(response.data.data == 'success'){
+          this.$message({
+            showClose: true,
+            message: '任务已删除',
+            type: 'success'
+          });
+          row = null;
+        }else{
+          this.$message({
+            showClose: true,
+            message: '删除任务失败',
+            type: 'error'
+          });
+        }
         // 重置表单
       } catch (error) {
         // 处理网络错误或其他错误
         this.errorMessage = "请求失败，请检查网络连接";
         console.error;
       }
-      this.getUsedJob();
-      this.expandedRows = [];
     },
 
     replacetrigger(row) {
@@ -476,7 +522,6 @@ export default {
         console.error;
       }
       this.getUsedJob();
-      this.expandedRows = [];
     },
     async pauseAllJob() {
       try {
@@ -492,7 +537,6 @@ export default {
         console.error;
       }
       this.getUsedJob();
-      this.expandedRows = [];
     },
     async deleteAllJob() {
       try {
@@ -508,7 +552,6 @@ export default {
         console.error;
       }
       this.getUsedJob();
-      this.expandedRows = [];
     },
   },
   created() {
