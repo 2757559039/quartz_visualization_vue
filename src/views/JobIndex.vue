@@ -75,7 +75,7 @@
                 <div> 
                   <div class="b4"> 
                     <el-tooltip content="立即执行一次" placement="top">
-                      <el-button type="success" @click="showConfirm('resumeJob', scope.row)" size="large" circle>
+                      <el-button type="success" @click="showConfirm('resumeJob', scope.row)" size="large" circle :disabled="isAllPaused">
                         <el-icon :size="24"><Refresh /></el-icon>
                       </el-button>
                     </el-tooltip>
@@ -87,12 +87,12 @@
                   </div>
 
                   <div class="b4"> 
-                    <el-tooltip content="暂停任务" placement="top">
+                    <el-tooltip content="暂停任务" placement="bottom">
                       <el-button type="warning" @click="showConfirm('pauseJob', scope.row)" size="large" circle>
                         <el-icon :size="24"><VideoPause /></el-icon>
                       </el-button>
                     </el-tooltip>
-                    <el-tooltip content="删除任务" placement="top">
+                    <el-tooltip content="删除任务" placement="bottom">
                       <el-button type="danger" @click="showConfirm('deleteJob', scope.row)" size="large" circle>
                         <el-icon :size="18"><Delete /></el-icon>
                       </el-button>
@@ -191,7 +191,7 @@ export default {
     showModal: false,
     showjobDetail: false,
     showupload: false,
-
+    isAllPaused: null,
   };
 },
   computed: {
@@ -512,7 +512,8 @@ export default {
           "http://114.132.71.250:8002/task/Start/resumeall"
         );
         console.log(response);
-
+        this.getUsedJob();
+        this.checkAllPaused()
         // 重置表单
       } catch (error) {
         // 处理网络错误或其他错误
@@ -526,7 +527,8 @@ export default {
           "http://114.132.71.250:8002/task/Pause/alljob"
         );
         console.log(response);
-
+        this.getUsedJob();
+        this.checkAllPaused()
         // 重置表单
       } catch (error) {
         // 处理网络错误或其他错误
@@ -540,7 +542,8 @@ export default {
           "http://114.132.71.250:8002/task/Delete/alljob"
         );
         console.log(response);
-
+        this.getUsedJob();
+        this.checkAllPaused()
         // 重置表单
       } catch (error) {
         // 处理网络错误或其他错误
@@ -548,11 +551,24 @@ export default {
         console.error;
       }
     },
+    async checkAllPaused() {
+  try {
+    const response = await axios.post(
+      "http://114.132.71.250:8002/task/Select/isAllPaused"
+    );
+    console.log(response);
+    this.isAllPaused = response.data.data; 
+  } catch (error) {
+    console.error("请求失败，请检查网络连接", error);
+    this.isAllPaused = false; 
+  }
+},
   },
   created() {
     this.getUsedJob();
     this.expandedRows = [];
     this.getGroups();
+    this.checkAllPaused();
   },
 };
 </script>
@@ -803,6 +819,9 @@ export default {
   width: 196px;
   height: 40px;
   background: linear-gradient(to left, rgb(53,204,255), rgb(4,114,182)); /* 从浅蓝色到深蓝色 */
+  border: none; /* 去除边框 */
+  border-radius: 4px; /* 圆角 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 阴影 */
 }
 
 .detail {
@@ -989,5 +1008,12 @@ export default {
 
 :deep(.el-link__inner){
   color:rgb(0,119,194);
+}
+
+:deep(.el-button--success:disabled) {
+  background-color:rgba(0, 0, 0, 0.1)  !important; /* 自定义背景颜色 */
+  color: #ffffff !important; /* 自定义文字颜色 */
+  opacity: 0.6; /* 调整透明度 */
+  cursor: not-allowed; /* 鼠标样式 */
 }
 </style>
