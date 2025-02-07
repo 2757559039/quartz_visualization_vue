@@ -74,12 +74,12 @@
               <div style="display: flex;justify-content: space-between;">
                 <div> 
                   <div class="b4"> 
-                    <el-tooltip content="恢复任务" placement="top">
+                    <el-tooltip content="立即执行一次" placement="top">
                       <el-button type="success" @click="showConfirm('resumeJob', scope.row)" size="large" circle>
                         <el-icon :size="24"><Refresh /></el-icon>
                       </el-button>
                     </el-tooltip>
-                    <el-tooltip content="立即开始一次" placement="top">
+                    <el-tooltip content="恢复任务" placement="top">
                       <el-button type="success" @click="showConfirm('startNow', scope.row)" size="large" circle>
                         <el-icon :size="24"><VideoPlay /></el-icon>
                       </el-button>
@@ -300,10 +300,24 @@ export default {
       }
     },
 
-    async select(selectGroup) {
+    async select() {
+      if(this.selectGroup == null){
+        this.getUsedJob();
+        this.expandedRows = [];
+        return;
+      }
+      try {
+        const response = await axios.post(
+          "http://114.132.71.250:8002/task/Select/FINDjobBYgroup?group=" + this.selectGroup)
+          this.Jobs = response.data.data;
+      } catch (error) {
+        // 处理网络错误或其他错误
+        this.errorMessage = "请求失败，请检查网络连接";
+        console.error;
+      }
     },
 
-    async startNow (row) {
+    async resumeJob(row) {
       try {
         const response = await axios.post(
           "http://114.132.71.250:8002/task/Start/resumeNow?name=" +
@@ -320,8 +334,9 @@ export default {
         console.error;
       }
       this.getUsedJob();
+      this.expandedRows = [];
     },
-    async resumeJob(row) {
+    async startNow(row) {
       try {
         const response = await axios.post(
           "http://114.132.71.250:8002/task/Start/resume?name=" +
@@ -338,6 +353,7 @@ export default {
         console.error;
       }
       this.getUsedJob();
+      this.expandedRows = [];
     },
     async pauseJob(row) {
       try {
@@ -356,6 +372,7 @@ export default {
         console.error;
       }
       this.getUsedJob();
+      this.expandedRows = [];
     },
     async deleteJob(row) {
       try {
@@ -374,6 +391,7 @@ export default {
         console.error;
       }
       this.getUsedJob();
+      this.expandedRows = [];
     },
 
     replacetrigger(row) {
@@ -407,8 +425,8 @@ export default {
     //二级弹窗
     showConfirm(action, row = null) {
       const actionMap = {
-        resumeJob: '恢复',
-        startNow: '立即开始一次',
+        resumeJob: '立即执行一次',
+        startNow: '恢复',
         pauseJob: '暂停',
         deleteJob: '删除',
         resumeAllJob: '恢复所有任务',
@@ -458,6 +476,7 @@ export default {
         console.error;
       }
       this.getUsedJob();
+      this.expandedRows = [];
     },
     async pauseAllJob() {
       try {
@@ -473,6 +492,7 @@ export default {
         console.error;
       }
       this.getUsedJob();
+      this.expandedRows = [];
     },
     async deleteAllJob() {
       try {
@@ -488,10 +508,12 @@ export default {
         console.error;
       }
       this.getUsedJob();
+      this.expandedRows = [];
     },
   },
   created() {
     this.getUsedJob();
+    this.expandedRows = [];
     this.getGroups();
   },
 };

@@ -84,7 +84,7 @@
             <template #default="scope">
               <div>
                 <div class="button3Box"> 
-                  <el-tooltip content="立即开始一次" placement="top">
+                  <el-tooltip content="恢复任务" placement="top">
                     <el-button type="success" @click="showConfirm('startNow', scope.row)" size="small" circle>
                       <el-icon :size="24"><VideoPlay /></el-icon>
                     </el-button>
@@ -233,8 +233,8 @@ export default {
     //二级弹窗
     showConfirm(action, row = null) {
       const actionMap = {
-        resumeJob: '恢复',
-        startNow: '立即开始一次',
+        resumeJob: '立即执行一次',
+        startNow: '恢复',
         pauseJob: '暂停',
         deleteJob: '删除',
         resumeAllJob: '恢复所有任务',
