@@ -376,7 +376,6 @@ export default {
         this.errorMessage = "请求失败，请检查网络连接";
         console.error;
       }
-      this.getUsedJob();
     },
     async pauseJob(row) {
       try {
@@ -407,7 +406,6 @@ export default {
         this.errorMessage = "请求失败，请检查网络连接";
         console.error;
       }
-      this.getUsedJob();
     },
     async deleteJob(row) {
       try {
@@ -521,7 +519,6 @@ export default {
         this.errorMessage = "请求失败，请检查网络连接";
         console.error;
       }
-      this.getUsedJob();
     },
     async pauseAllJob() {
       try {
@@ -536,7 +533,6 @@ export default {
         this.errorMessage = "请求失败，请检查网络连接";
         console.error;
       }
-      this.getUsedJob();
     },
     async deleteAllJob() {
       try {
@@ -551,7 +547,6 @@ export default {
         this.errorMessage = "请求失败，请检查网络连接";
         console.error;
       }
-      this.getUsedJob();
     },
   },
   created() {
