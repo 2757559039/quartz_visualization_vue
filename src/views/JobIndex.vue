@@ -1015,34 +1015,31 @@ export default {
 
 
 :deep(.b4 .el-button--success) {
-  background: linear-gradient(to left, rgb(72, 236, 121), rgb(1, 114, 35)); 
+  background: linear-gradient(to left, rgb(72, 236, 121), rgb(1, 158, 48)); 
   color: #ffffff !important;
-  opacity: 0.6;
   border: none;
 }
 :deep(.b4 .el-button--success:hover) {
-  background: linear-gradient(to right, rgb(72, 236, 121), rgb(1, 114, 35)); 
+  background: linear-gradient(to right, rgb(72, 236, 121), rgb(1, 158, 48)); 
 }
 :deep(.b4 .el-button--success:disabled) {
   background: linear-gradient(to left, rgb(179, 179, 179), rgb(68, 68, 68)); 
   cursor: not-allowed; /* 鼠标样式 */
 }
 :deep(.b4 .el-button--warning) {
-  background: linear-gradient(to left, rgb(238, 238, 138), rgb(168, 168, 29));
+  background: linear-gradient(to left, rgb(240, 207, 154), rgb(252, 172, 43));
   color: #ffffff !important;
-  opacity: 0.6;
   border: none;
 }
 :deep(.b4 .el-button--warning:hover) {
-  background: linear-gradient(to right, rgb(238, 238, 138), rgb(168, 168, 29)); 
+  background: linear-gradient(to right, rgb(240, 207, 154), rgb(252, 172, 43)); 
 }
 :deep(.b4 .el-button--danger) {
-  background: linear-gradient(to left, rgb(236, 72, 72), rgb(114, 1, 1)); 
+  background: linear-gradient(to left, rgb(236, 124, 124), rgb(235, 18, 18)); 
   color: #ffffff !important;
-  opacity: 0.6;
   border: none;
 }
 :deep(.b4 .el-button--danger:hover) {
-  background: linear-gradient(to right, rgb(236, 72, 72), rgb(114, 1, 1)); 
+  background: linear-gradient(to right, rgb(236, 124, 124), rgb(235, 18, 18)); 
 }
 </style>
