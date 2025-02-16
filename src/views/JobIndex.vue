@@ -22,26 +22,26 @@
       <p class="selectedtitle">条件筛选</p>
       <div class="selectBox"> 
         <div style="display: flex; flex-direction: column; align-items: center;"> 
-          <el-select v-model="selectGroup" class="select" @change="select" placeholder="任务分组: 全部">
+          <el-select v-model="selectGroup" class="select" @change="SelectGroup" placeholder="任务分组: 全部">
             <el-option :label="'任务分组: 全部'" :value=null />
             <el-option v-for="item in groups" :key="item" :label="'任务分组: ' + item" :value="item"/>
           </el-select>
         </div>
 
         <div style="display: flex; flex-direction: column; align-items: center;"> 
-          <el-select v-model="selectGroup" class="select" @change="select" placeholder="任务分组: 全部">
-            <el-option :label="'任务分组: 全部'" :value=null />
-            <el-option v-for="item in groups" :key="item" :label="'任务分组: ' + item" :value="item"/>
+          <el-select v-model="selectName" class="select" :placeholder="defaultName">
+            <el-option :label="defaultName" :value=null />
+            <el-option v-for="item in names" :key="item" :label="'任务分组: ' + item" :value="item"/>
           </el-select>
         </div>
         
         <div class="inputnox" >
-          <el-input v-model="selected" class="input1" placeholder="Type something">
+          <el-input v-model="selected" class="input1" placeholder="请输入">
             <template #prefix>
               <el-icon class="el-input__icon"><search /></el-icon>
             </template>
           </el-input>
-          <el-button type="primary">
+          <el-button type="primary" @click="search()">
             <el-icon style="vertical-align: middle">
               <Search />
             </el-icon>
@@ -50,7 +50,7 @@
       </div>
 
       <div class="box"> 
-        <el-table :data="Jobs" class="JobBox" @expand-change="handleExpandChange" :expand-row-keys="expandedRows" :row-key="getRowKey">
+        <el-table :data="Table" class="JobBox" @expand-change="handleExpandChange" :expand-row-keys="expandedRows" :row-key="getRowKey">
           <el-table-column type="expand">
             <template #default="props">
               <el-table :data="props.row.triggerList" class="c">
@@ -64,11 +64,11 @@
               </el-table>
             </template>
           </el-table-column>
-          <el-table-column label="ID" sortable prop="id" min-width="5" align="center"/>
           <el-table-column label="任务分组" sortable prop="jobgroup" min-width="10" align="center"/>
           <el-table-column label="任务名" sortable prop="jobname" min-width="10" align="center"/>
           <el-table-column label="任务类名" sortable prop="jobclassname" min-width="10" align="center"/>
-          <el-table-column label="任务描述" prop="description" min-width="40" align="center"/>
+          <el-table-column label="任务描述" prop="description" min-width="35" align="center"/>
+          <el-table-column label="触发器数" sortable prop="triggersNumbers" min-width="10" align="center"/>
           <el-table-column label="任务操作" min-width="25" align="center">
             <template #default="scope">
               <div style="display: flex;justify-content: space-between;">
@@ -184,9 +184,12 @@ export default {
   return {
     Jobs: [],
     expandedRows: [], // 用于存储当前展开的行的唯一标识
-    groups: ['Group-A', 'Group-B', 'Group-C'],
+    groups: [],
+    names: [],
     selectedJob: {},
     selectGroup: "",
+    defaultName:'请选择任务分组',
+    selectName: null,
     selected: "",
     showModal: false,
     showjobDetail: false,
@@ -195,8 +198,27 @@ export default {
   };
 },
   computed: {
+    Table() {
+      if (this.selectName) {
+      return this.Jobs.filter(job => job.jobname === this.selectName);
+      }
+      return this.Jobs;
+    }
   },
   methods: {
+    search() {
+      if (this.selected !== "") {
+        const searchTerm = this.selected.toLowerCase();
+        this.Jobs = this.Jobs.filter(job => 
+          job.jobname.toLowerCase().includes(searchTerm) ||
+          job.jobgroup.toLowerCase().includes(searchTerm) ||
+          job.jobclassname.toLowerCase().includes(searchTerm) ||
+          job.description.toLowerCase().includes(searchTerm)
+        );
+      } else {
+        this.getUsedJob();
+      }
+    },
     handleExpandChange(row, expanded) {
       const rowKey = this.getRowKey(row);
 
@@ -205,18 +227,16 @@ export default {
         if (!this.expandedRows.includes(rowKey)) {
           this.expandedRows.push(rowKey);
         }
-      } else {
+        else {
+        console.log(this.expandedRows);
         // 如果行被折叠，则从 expandedRows 数组中移除
         this.expandedRows = this.expandedRows.filter(key => key !== rowKey);
-      }
+        }
+       }
 
       if (!row.loadDetails && expanded) {  // 根据loadDetails判定是否已经加载了数据，并且只有在展开时才加载数据
         this.load(row);
       }
-    },
-    getRowKey(row) {
-      // 返回行的唯一标识，可以是任意唯一的字段
-      return `${row.jobname}-${row.jobgroup}`;
     },
     getRowKey(row) {
       // 返回行的唯一标识，可以是任意唯一的字段
@@ -300,10 +320,15 @@ export default {
       }
     },
 
-    async select() {
+    async SelectGroup() {
+      console.log(this.selectGroup);
       if(this.selectGroup == null){
         this.getUsedJob();
         this.expandedRows = [];
+        this.names = [];
+        this.selectName = null;
+        this.selected = "";
+        this.defaultName = '请选择任务分组';
         return;
       }
       try {
@@ -311,6 +336,12 @@ export default {
           "http://114.132.71.250:8002/task/Select/FINDjobBYgroup?group=" + this.selectGroup)
           this.Jobs = response.data.data;
           this.expandedRows = [];
+
+        this.selectName = null;
+        const response1 = await axios.post(
+          "http://114.132.71.250:8002/task/Select/jobDetailname?jobgroup=" + this.selectGroup);
+          this.names = response1.data.data;
+          this.defaultName = '请选择任务名';
       } catch (error) {
         // 处理网络错误或其他错误
         this.errorMessage = "请求失败，请检查网络连接";
@@ -325,21 +356,24 @@ export default {
           row.jobname +
             "&group=" +
           row.jobgroup
-        );
-        console.log(response);
-        if(response.data.data == 'success'){
-          this.$message({
-            showClose: true,
-            message: '任务已执行',
-            type: 'success'
-          });
-        }else{
-          this.$message({
-            showClose: true,
-            message: '执行任务失败',
-            type: 'error'
-          });
-        }
+        ).then(response => {
+          console.log(response);
+          if(response.data.data == 'success'){
+            this.$message({
+              showClose: true,
+              message: '任务已执行',
+              type: 'success'
+            });
+          }else{
+            this.$message({
+              showClose: true,
+              message: '执行任务失败',
+              type: 'error'
+            });
+          }
+          this.load(row)
+        })
+        
         // 重置表单
       } catch (error) {
         // 处理网络错误或其他错误
@@ -354,10 +388,9 @@ export default {
           row.jobname +
             "&group=" +
           row.jobgroup
-        );
-        console.log(response);
-
-        if(response.data.data == 'success'){
+        ).then(response => {
+          console.log(response);
+          if(response.data.data == 'success'){
           this.$message({
             showClose: true,
             message: '任务已恢复',
@@ -370,6 +403,11 @@ export default {
             type: 'error'
           });
         }
+        this.load(row)
+        });
+
+
+
         // 重置表单
       } catch (error) {
         // 处理网络错误或其他错误
@@ -384,23 +422,26 @@ export default {
           row.jobname +
             "&jobgroup=" +
           row.jobgroup
-        );
-        console.log(response);
+        ).then(response => {
+          console.log(response);
 
-        if(response.data.data == 'success'){
-          this.$message({
-            showClose: true,
-            message: '任务已停止',
-            type: 'success'
-          });
-        }else{
-          this.$message({
-            showClose: true,
-            message: '停止任务失败',
-            type: 'error'
-          });
-        }
-        // 重置表单
+          if(response.data.data == 'success'){
+            this.$message({
+              showClose: true,
+              message: '任务已停止',
+              type: 'success'
+            });
+          }else{
+            this.$message({
+              showClose: true,
+              message: '停止任务失败',
+              type: 'error'
+            });
+          }
+          this.load(row)
+          // 重置表单
+        })
+        
       } catch (error) {
         // 处理网络错误或其他错误
         this.errorMessage = "请求失败，请检查网络连接";
@@ -513,6 +554,7 @@ export default {
         );
         console.log(response);
         this.getUsedJob();
+        this.resumeall = [];
         this.checkAllPaused()
         // 重置表单
       } catch (error) {
@@ -528,6 +570,7 @@ export default {
         );
         console.log(response);
         this.getUsedJob();
+        this.resumeall = [];
         this.checkAllPaused()
         // 重置表单
       } catch (error) {
@@ -543,6 +586,7 @@ export default {
         );
         console.log(response);
         this.getUsedJob();
+        this.resumeall = [];
         this.checkAllPaused()
         // 重置表单
       } catch (error) {
@@ -563,13 +607,28 @@ export default {
     this.isAllPaused = false; 
   }
 },
-  },
-  created() {
+
+  init(){
     this.getUsedJob();
     this.expandedRows = [];
     this.getGroups();
     this.checkAllPaused();
+  }
   },
+  beforeRouteEnter(to, from, next) {
+    // 注意：在 beforeRouteEnter 守卫中，组件实例还未被创建，
+    // 因此你不能直接访问 this。但是，你可以通过 next 函数的回调来访问实例。
+    next(vm => {
+      // vm 是组件实例
+      vm.init();
+    });
+  }
+  // mounted() {
+  //   this.getUsedJob();
+  //   this.expandedRows = [];
+  //   this.getGroups();
+  //   this.checkAllPaused();
+  // },
 };
 </script>
   
@@ -784,7 +843,7 @@ export default {
 }
 
 :deep(.JobBox .el-table__header-wrapper) {
-  width: 1515px;
+  width: 1483px;
 }
 
 :deep(.c .el-table__header-wrapper) {
@@ -804,6 +863,7 @@ export default {
   display: flex;
   margin-top: 8px;
   padding-left: 20px;
+  margin-right: 12px;
 }
 
 .button2Box{
@@ -816,7 +876,7 @@ export default {
 
 .button2Box button{
   font-size: 18px;
-  width: 196px;
+  width: 184px;
   height: 40px;
   background: linear-gradient(to left, rgb(53,204,255), rgb(4,114,182)); /* 从浅蓝色到深蓝色 */
   border: none; /* 去除边框 */

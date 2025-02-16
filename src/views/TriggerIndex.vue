@@ -22,47 +22,26 @@
       <p class="selectedtitle">条件筛选</p>
       <div class="selectBox"> 
         <div style="display: flex; flex-direction: column; align-items: center;"> 
-          <el-select v-model="selectGroup" class="select" @change="select" placeholder="任务分组:全部">
-            <el-option :label="'任务分组: 全部'" :value=null />
-            <el-option v-for="item in groups" :key="item" :label="'任务分组: ' + item" :value="item"/>
-          </el-select>
-        </div>
-
-        <div style="display: flex; flex-direction: column; align-items: center;">
-          <el-select v-model="selectGroup" class="select" @change="select" placeholder="任务分组:全部">
-            <el-option :label="'任务分组: 全部'" :value=null />
-            <el-option v-for="item in groups" :key="item" :label="'任务分组: ' + item" :value="item"/>
+          <el-select v-model="selectGroup" class="select" @change="SelectGroup" placeholder="触发器分组:全部">
+            <el-option :label="'触发器分组: 全部'" :value=null />
+            <el-option v-for="item in groups" :key="item" :label="'触发器分组: ' + item" :value="item"/>
           </el-select>
         </div>
 
         <div style="display: flex; flex-direction: column; align-items: center;"> 
-          <el-select v-model="selectGroup" class="select" @change="select" placeholder="任务分组:全部">
-            <el-option :label="'任务分组: 全部'" :value=null />
-            <el-option v-for="item in groups" :key="item" :label="'任务分组: ' + item" :value="item"/>
-          </el-select>
-        </div>
-
-        <div style="display: flex; flex-direction: column; align-items: center;"> 
-          <el-select v-model="selectGroup" class="select" @change="select" placeholder="任务分组:全部">
-            <el-option :label="'任务分组: 全部'" :value=null />
-            <el-option v-for="item in groups" :key="item" :label="'任务分组: ' + item" :value="item"/>
-          </el-select>
-        </div>
-
-        <div style="display: flex; flex-direction: column; align-items: center;"> 
-          <el-select v-model="selectGroup" class="select" @change="select" placeholder="任务分组:全部">
-            <el-option :label="'任务分组: 全部'" :value=null />
-            <el-option v-for="item in groups" :key="item" :label="'任务分组: ' + item" :value="item"/>
+          <el-select v-model="selectName" class="select" :placeholder="defaultName">
+            <el-option :label="defaultName" :value=null />
+            <el-option v-for="item in names" :key="item" :label="'触发器名: ' + item" :value="item"/>
           </el-select>
         </div>
         
         <div class="inputnox" >
-          <el-input v-model="selected" class="input1" placeholder="Type something">
+          <el-input v-model="selected" class="input1" placeholder="请输入">
             <template #prefix>
               <el-icon class="el-input__icon"><search /></el-icon>
             </template>
           </el-input>
-          <el-button type="primary">
+          <el-button type="primary" @click="search()">
             <el-icon style="vertical-align: middle">
               <Search />
             </el-icon>
@@ -71,32 +50,44 @@
       </div>
 
       <div class="box"> 
-        <el-table :data="Jobs" :border="parentBorder" max-height="750" class="JobBox">
+        <el-table :data="Table" class="JobBox" @expand-change="handleExpandChange" :expand-row-keys="expandedRows" :row-key="getRowKey">
+          <el-table-column type="expand">
+            <template #default="props">
+              <el-table :data="props.row.triggerList" class="c">
+                <el-table-column label="触发器分组" sortable prop="triggergroup" min-width="16" align="center"/>
+                <el-table-column label="触发器名" sortable prop="triggername" min-width="16" align="center"/>
+                <el-table-column label="任务类型" sortable prop="type" min-width="16" align="center"/>
+                <el-table-column label="开始时间" sortable prop="startime" min-width="16" align="center"/>
+                <el-table-column label="结束时间" sortable prop="endtime" min-width="16" align="center"/>
+                <el-table-column label="触发器状态" sortable prop="triggers_state" min-width="16" align="center"/>
+                <el-table-column min-width="28" />
+              </el-table>
+            </template>
+          </el-table-column>
           <el-table-column label="触发器名" prop="triggername" min-width="90"/>
           <el-table-column label="触发器分组" sortable prop="triggergroup" min-width="120"/>
-          <el-table-column label="所属任务名" prop="jobname" min-width="90"/>
-          <el-table-column label="所属任务分组" sortable prop="jobgroup" min-width="110" />
-          <el-table-column label="所属任务类名" prop="jobclassname" min-width="100"/>
+          <el-table-column label="触发器类型" sortable prop="type" min-width="120"/>
           <el-table-column label="优先级" sortable prop="priority" min-width="80" />
           <el-table-column label="触发器状态" sortable prop="triggers_state" min-width="120"/>
-          <el-table-column label="任务状态" sortable prop="job_state" min-width="110"/>
+          <el-table-column label="开始时间" sortable prop="startime" min-width="120"/>
+          <el-table-column label="结束时间" sortable prop="endtime" min-width="120"/>
           <el-table-column label="任务操作" min-width="151">
             <template #default="scope">
-              <div>
+              <div class="buttonBox">
                 <div class="button3Box"> 
                   <el-tooltip content="恢复任务" placement="top">
-                    <el-button type="success" @click="showConfirm('startNow', scope.row)" size="small" circle>
+                    <el-button type="success" @click="showConfirm('startNow', scope.row)" size="large" circle>
                       <el-icon :size="24"><VideoPlay /></el-icon>
                     </el-button>
                   </el-tooltip>
                   <el-tooltip content="暂停任务" placement="top">
-                    <el-button type="warning" @click="showConfirm('pauseJob', scope.row)" size="small" circle>
+                    <el-button type="warning" @click="showConfirm('pauseJob', scope.row)" size="large" circle>
                       <el-icon :size="24"><VideoPause /></el-icon>
                     </el-button>
                   </el-tooltip>
                   <el-tooltip content="删除任务" placement="top">
-                    <el-button type="danger" @click="showConfirm('deleteJob', scope.row)" size="small" circle>
-                      <el-icon :size="18"><Delete /></el-icon>
+                    <el-button type="danger" @click="showConfirm('deleteJob', scope.row)" size="large" circle>
+                      <el-icon :size="24"><Delete /></el-icon>
                     </el-button>
                   </el-tooltip>
                 </div>
@@ -159,28 +150,106 @@ export default {
    },
   data() {
     return {
-      Jobs: [
+      trigger: [
       ],
-      groups: ['ALL', 'GroupA', 'GroupB', 'GroupC'],
+      groups: [],
+      names: [],
       selectedJob: {},
       selectGroup: "",
+      selectName: "",
+      selected: "",
+      defaultName: '请选择触发器分组',
       selectedJObName: "",
+      expandedRows: [],
       showModal: false,
       showupload: false,
     };
   },
 
   computed: {
-    // 计算属性：根据 selectGroup 的值过滤 Jobs 数组
-    // filteredJobs() {
-    //   if (this.selectGroup === "ALL") {
-    //     return this.Jobs;
-    //   } else {
-    //     return this.Jobs.filter((job) => job.jobgroup === this.selectGroup);
-    //   }
-    // },
+    Table() {
+      if (this.selectName) {
+      return this.trigger.filter(trigger => trigger.triggername === this.selectName);
+      }
+      return this.trigger;
+    }
   },
   methods: {
+    search() {
+      if (this.selected !== "") {
+        const searchTerm = this.selected.toLowerCase();
+        this.trigger = this.trigger.filter(trigger => 
+        trigger.triggername.toLowerCase().includes(searchTerm) ||
+        trigger.triggergroup.toLowerCase().includes(searchTerm) ||
+        trigger.priority.toLowerCase().includes(searchTerm) ||
+        trigger.type.toLowerCase().includes(searchTerm)
+        );
+      } else {
+        this.getUsedTrigger();
+      }
+    },
+
+    handleExpandChange(row, expanded) {
+      const rowKey = this.getRowKey(row);
+
+      if (expanded) {
+        // 如果行被展开，则将其加入到 expandedRows 数组中
+        if (!this.expandedRows.includes(rowKey)) {
+          this.expandedRows.push(rowKey);
+        }
+        else {
+        console.log(this.expandedRows);
+        // 如果行被折叠，则从 expandedRows 数组中移除
+        this.expandedRows = this.expandedRows.filter(key => key !== rowKey);
+        }
+       }
+
+      if (!row.loadDetails && expanded) {  // 根据loadDetails判定是否已经加载了数据，并且只有在展开时才加载数据
+        this.load(row);
+      }
+    },
+    getRowKey(row) {
+      // 返回行的唯一标识，可以是任意唯一的字段
+      return `${row.triggername}-${row.triggergroup}`;
+    },
+    load(row) {
+    console.log('load');
+    // 动态添加 triggerList 和 loadDetails 属性
+    row.triggerList = row.triggerList || [];
+    row.loadDetails = row.loadDetails !== undefined ? row.loadDetails : false;
+
+    axios.post(`http://114.132.71.250:8002/task/Select/triggerDetail`, null, {
+      params: {
+        triggername: row.triggername,
+        triggergroup: row.triggergroup
+      }
+    }).then(response => {
+      console.log(response);
+        row.triggerList = response.data.data;
+        row.loadDetails = true; // 加载成功之后更新标识
+
+        // 自动展开当前行
+        const rowKey = this.getRowKey(row);
+        if (!this.expandedRows.includes(rowKey)) {
+          this.expandedRows.push(rowKey);
+        }
+
+        this.$message({
+          showClose: true,
+          message: '数据加载成功',
+          type: 'success'
+        });
+    }).catch(error => {
+      console.log("Error loading data:", error);
+      this.$message({
+        showClose: true,
+        message: '数据加载失败',
+        type: 'error'
+      });
+    });
+    console.log(row)
+  },
+
     onloadModal() {
       this.$refs.triggerModal.onloadModal();
     },
@@ -200,13 +269,44 @@ export default {
     Go(address) {
       this.$router.push({ path: '/'+address });
     },
-    async getUsedJob() {
+
+    async SelectGroup() {
+      console.log(this.selectGroup);
+      if(this.selectGroup == null){
+        this.getUsedTrigger();
+        this.expandedRows = [];
+        this.names = [];
+        this.selectName = null;
+        this.selected = "";
+        this.defaultName = '请选择触发器分组';
+        return;
+      }
       try {
         const response = await axios.post(
-          "http://114.132.71.250:8002/task/Select/jobs"
+          "http://114.132.71.250:8002/task/Select/FINDtriggerBYgroup?triggergroup=" + this.selectGroup)
+          this.trigger = response.data.data;
+          this.expandedRows = [];
+
+        this.selectName = null;
+        const response1 = await axios.post(
+          "http://114.132.71.250:8002/task/Select/Triggername?triggergroup=" + this.selectGroup);
+          console.log(response1);
+          this.names = response1.data.data;
+          this.defaultName = '请选择触发器名';
+      } catch (error) {
+        // 处理网络错误或其他错误
+        this.errorMessage = "请求失败，请检查网络连接";
+        console.error;
+      }
+    },
+
+    async getUsedTrigger() {
+      try {
+        const response = await axios.post(
+          "http://114.132.71.250:8002/task/Select/triggers"
         );
         console.log(response);
-        this.Jobs = response.data.data;
+        this.trigger = response.data.data;
 
         // 重置表单
       } catch (error) {
@@ -218,7 +318,7 @@ export default {
     async getGroups() {
       try {
         const response = await axios.post(
-          "http://114.132.71.250:8002/task/Select/jobgroupall"
+          "http://114.132.71.250:8002/task/Select/triggergroupall"
         );
         console.log(response);
         this.groups = response.data.data;
@@ -231,7 +331,7 @@ export default {
       }
     },
     //二级弹窗
-    showConfirm(action, row = null) {
+    async showConfirm(action, row = null) {
       const actionMap = {
         resumeJob: '立即执行一次',
         startNow: '恢复',
@@ -241,8 +341,20 @@ export default {
         pauseAllJob: '停止所有任务',
         deleteAllJob: '删除所有任务'
       };
-      const message = row
-        ? `确定要${actionMap[action]}任务 "${row.jobname}" 吗？`
+
+      const isAllPaused = (await axios.post('http://114.132.71.250:8002/task/Select/isAllPaused')).data.data;
+      if(isAllPaused && (action === 'startNow' || action === 'pauseJob')){
+        const message = '所有任务已冻结,请先解冻再操作';
+      ElMessageBox.confirm(message, '确认操作', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      })
+      return;
+      }
+      else{
+        const message = row
+        ? `确定要${actionMap[action]}触发器 "${row.triggername}" 吗？`
         : `确定要${actionMap[action]}吗？`;
       ElMessageBox.confirm(message, '确认操作', {
         confirmButtonText: '确定',
@@ -250,10 +362,8 @@ export default {
         type: 'warning',
       }).then(() => {
         // 用户点击“确定”按钮
-        if (action === 'resumeJob') {
+        if (action === 'startNow') {
           this.resumeJob(row);
-        } else if (action === 'startNow') {
-          this.startNow(row);
         } else if (action === 'pauseJob') {
           this.pauseJob(row);
         } else if (action === 'deleteJob') {
@@ -269,6 +379,7 @@ export default {
         // 用户点击“取消”按钮
         console.log('取消操作');
       });
+      }
     },
     async resumeAllJob() {
       try {
@@ -276,14 +387,13 @@ export default {
           "http://114.132.71.250:8002/task/Start/resumeall"
         );
         console.log(response);
-
         // 重置表单
       } catch (error) {
         // 处理网络错误或其他错误
         this.errorMessage = "请求失败，请检查网络连接";
         console.error;
       }
-      this.getUsedJob();
+      this.getUsedTrigger();
     },
     async pauseAllJob() {
       try {
@@ -298,7 +408,7 @@ export default {
         this.errorMessage = "请求失败，请检查网络连接";
         console.error;
       }
-      this.getUsedJob();
+      this.getUsedTrigger();
     },
     async deleteAllJob() {
       try {
@@ -313,7 +423,7 @@ export default {
         this.errorMessage = "请求失败，请检查网络连接";
         console.error;
       }
-      this.getUsedJob();
+      this.getUsedTrigger();
     },
 
     async resumeJob(row) {
@@ -332,7 +442,7 @@ export default {
         this.errorMessage = "请求失败，请检查网络连接";
         console.error;
       }
-      this.getUsedJob();
+      this.getUsedTrigger();
     },
     async pauseJob(row) {
       try {
@@ -350,7 +460,7 @@ export default {
         this.errorMessage = "请求失败，请检查网络连接";
         console.error;
       }
-      this.getUsedJob();
+      this.getUsedTrigger();
     },
     async deleteJob(row) {
       try {
@@ -368,7 +478,7 @@ export default {
         this.errorMessage = "请求失败，请检查网络连接";
         console.error;
       }
-      this.getUsedJob();
+      this.getUsedTrigger();
     },
 
     replacetrigger(row) {
@@ -380,12 +490,23 @@ export default {
       // 关闭弹窗
       this.showModal = false;
     },
-
+    init() {
+      this.getUsedTrigger();
+      this.getGroups();
+    },
   },
-  created() {
-    this.getUsedJob();
-    this.getGroups();
-  },
+  beforeRouteEnter(to, from, next) {
+    // 注意：在 beforeRouteEnter 守卫中，组件实例还未被创建，
+    // 因此你不能直接访问 this。但是，你可以通过 next 函数的回调来访问实例。
+    next(vm => {
+      // vm 是组件实例
+      vm.init();
+    });
+  }
+  // mounted() {
+  //   this.getUsedTrigger();
+  //   this.getGroups();
+  // },
 };
 </script>
   
@@ -508,11 +629,12 @@ export default {
 
 .selectBox{
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
   gap: 20px;
   font-size: 20px;
   margin-top: 10px;
   margin-bottom: 10px;
+  margin-right: 20px;
 }
 
 .select{
@@ -580,21 +702,32 @@ export default {
 }
 
 .button3Box{
+  margin-top: 10px;
 }
 
 .button2Box{
-  width: 127px;
-  margin-top: 8px;
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  align-content: center;
 }
 
 .button2Box button{
-  width: 127px;
+  font-size: 18px;
+  width: 144px;
   height: 40px;
+  background: linear-gradient(to left, rgb(53,204,255), rgb(4,114,182)); /* 从浅蓝色到深蓝色 */
+  border: none; /* 去除边框 */
+  border-radius: 4px; /* 圆角 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 阴影 */
+}
+.button2Box button:hover{
+  background: linear-gradient(to right, rgb(53,204,255), rgb(4,114,182)); /* 从浅蓝色到深蓝色 */
 }
 
 
 .buttonBox {
-  width: 200px;
+  width: 144px;
   /* white-space: normal; */
 }
 
