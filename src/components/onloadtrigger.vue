@@ -1,6 +1,6 @@
 <template>
-  <el-dialog v-model="isVisible" title="触发器挂载" width="50%" :before-close="closeModal">
-    <el-form label-width="120px">
+  <el-dialog v-model="isVisible" title="触发器挂载" :before-close="closeModal">
+    <el-form label-width="140px">
       <el-form-item label="任务分组">
         <el-select v-model="jobgroup" @change="select(jobgroup)">
           <el-option
@@ -47,8 +47,8 @@
           class="custom-switch"
         />
       </el-form-item>
-      <el-form-item v-if="isCustomTrigger === 'true'" label="自定义触发器">
-        <el-select v-model="trigger">
+      <el-form-item label="自定义触发器">
+        <el-select v-model="trigger" :disabled="isCustomTrigger === 'false'">
           <el-option
             v-for="(trigger, index) in triggers"
             :key="index"
@@ -100,12 +100,12 @@
         label="触发器时间间隔单位"
       >
         <el-select v-model="dailytime">
-          <el-option label="second" value="second" />
-          <el-option label="minute" value="minute" />
-          <el-option label="hour" value="hour" />
-          <el-option label="day" value="day" />
-          <el-option label="month" value="month" />
-          <el-option label="year" value="year" />
+          <el-option label="秒钟" value="second" />
+          <el-option label="分钟" value="minute" />
+          <el-option label="小时" value="hour" />
+          <el-option label="日" value="day" />
+          <el-option label="月" value="month" />
+          <el-option label="年" value="year" />
         </el-select>
       </el-form-item>
       <el-form-item
@@ -118,7 +118,7 @@
         v-if="selecttrigger === 'DailyTimeIntervalTrigger' && isCustomTrigger === 'false'"
         label="执行日选择(星期)"
       >
-        <el-checkbox-group v-model="dailyworkday">
+        <el-checkbox-group v-model="dailyworkday" @change="checkday" >
           <el-checkbox label="1">星期一</el-checkbox>
           <el-checkbox label="2">星期二</el-checkbox>
           <el-checkbox label="3">星期三</el-checkbox>
@@ -127,9 +127,9 @@
           <el-checkbox label="6">星期六</el-checkbox>
           <el-checkbox label="7">星期日</el-checkbox>
         </el-checkbox-group>
-        <el-checkbox v-model="allDays" label="每一天" @change="setAllDays" />
-        <el-checkbox v-model="workDays" label="工作日" @change="setWorkDays" />
-        <el-checkbox v-model="weekendDays" label="周末" @change="setWeekendDays" />
+        <el-checkbox v-model="all" label="每一天" @change="setAllDays" />
+        <el-checkbox v-model="workday" label="工作日" @change="setWorkDays" />
+        <el-checkbox v-model="weekend" label="周末" @change="setWeekendDays" />
       </el-form-item>
 
       <!-- CalendarIntervalTrigger -->
@@ -138,12 +138,12 @@
         label="触发器时间间隔单位"
       >
         <el-select v-model="calendartime">
-          <el-option label="second" value="second" />
-          <el-option label="minute" value="minute" />
-          <el-option label="hour" value="hour" />
-          <el-option label="day" value="day" />
-          <el-option label="month" value="month" />
-          <el-option label="year" value="year" />
+          <el-option label="秒钟" value="second" />
+          <el-option label="分钟" value="minute" />
+          <el-option label="小时" value="hour" />
+          <el-option label="日" value="day" />
+          <el-option label="月" value="month" />
+          <el-option label="年" value="year" />
         </el-select>
       </el-form-item>
       <el-form-item
@@ -152,11 +152,16 @@
       >
         <el-input v-model="calendarnum" placeholder="请输入间隔次数" />
       </el-form-item>
-      <el-form-item
-        v-if="selecttrigger === 'CalendarIntervalTrigger' && isCustomTrigger === 'false'"
-        label="是否使用夏令时"
-      >
-        <el-switch v-model="preserveHourOfDayAcrossDaylightSavings" />
+      <el-form-item class="zdycfq" v-if="selecttrigger === 'CalendarIntervalTrigger' && isCustomTrigger === 'false'">
+        <el-switch
+          v-model="preserveHourOfDayAcrossDaylightSavings"
+          active-value="true"
+          inactive-value="false"
+          inline-prompt
+          style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
+          active-text="是否使用夏令时"
+          inactive-text="是否使用夏令时"
+        />
       </el-form-item>
       <el-form-item class="zdycfq" v-if="selecttrigger === 'CalendarIntervalTrigger' && isCustomTrigger === 'false'">
         <el-switch
@@ -171,8 +176,10 @@
       </el-form-item>
     </el-form>
     <template #footer>
+      <div class="footer">
       <el-button type="primary" @click="replace">挂载触发器</el-button>
       <el-button @click="closeModal">取消</el-button>
+      </div>
     </template>
   </el-dialog>
 </template>
@@ -194,7 +201,7 @@ export default {
       jobs: [],
       job: "",
       priority: "",
-      selecttrigger: "SimpleTrigger",
+      selecttrigger: "",
       isCustomTrigger: "false",
       triggername: "",
       triggergroup: "",
@@ -211,9 +218,9 @@ export default {
       dailynum: "",
       dailyrepeatcount: "",
       dailyworkday: [],
-      allDays: false,
-      workDays: false,
-      weekendDays: false,
+      workday: false,
+      weekend: false,
+      all: false,
       showCronDialog: false
     };
   },
@@ -255,30 +262,64 @@ export default {
       console.log("挂载触发器");
     },
     setAllDays() {
-      if (this.allDays) {
-        this.dailyworkday = ["1", "2", "3", "4", "5", "6", "7"];
-        this.workDays = false;
-        this.weekendDays = false;
-      } else {
+      if(this.all){
+        this.dailyworkday = ["1","2","3","4","5","6","7"];
+        this.workday = true;
+        this.weekend = true;
+      }else{
         this.dailyworkday = [];
+        this.workday = false;
+        this.weekend = false;
       }
     },
     setWorkDays() {
-      if (this.workDays) {
-        this.dailyworkday = ["1", "2", "3", "4", "5"];
-        this.allDays = false;
-        this.weekendDays = false;
-      } else {
+      if(this.workday){
+        this.dailyworkday.push("1","2","3","4","5");
+        this.dailyworkday = [...new Set(this.dailyworkday)];
+        if(this.dailyworkday.includes("1") && this.dailyworkday.includes("2") && this.dailyworkday.includes("3") && this.dailyworkday.includes("4") && this.dailyworkday.includes("5") && this.dailyworkday.includes("6") && this.dailyworkday.includes("7")){
+          this.all = true;
+        }
+
+      }else{
         this.dailyworkday = [];
+
+        if(this.weekend){
+          this.dailyworkday.push("6","7");
+        }
+        this.all = false;
       }
     },
     setWeekendDays() {
-      if (this.weekendDays) {
-        this.dailyworkday = ["6", "7"];
-        this.allDays = false;
-        this.workDays = false;
-      } else {
+      if(this.weekend){
+        this.dailyworkday.push("6","7");
+        this.dailyworkday = [...new Set(this.dailyworkday)];
+        if(this.dailyworkday.includes("1") && this.dailyworkday.includes("2") && this.dailyworkday.includes("3") && this.dailyworkday.includes("4") && this.dailyworkday.includes("5") && this.dailyworkday.includes("6") && this.dailyworkday.includes("7")){
+          this.all = true;
+        }
+      }else{
         this.dailyworkday = [];
+        if(this.workday){
+          this.dailyworkday.push("1","2","3","4","5");
+      }
+      this.all = false;
+    }
+    },
+    checkday() {
+      console.log('checkday');
+      if (this.dailyworkday.includes("1") && this.dailyworkday.includes("2") && this.dailyworkday.includes("3") && this.dailyworkday.includes("4") && this.dailyworkday.includes("5")) {
+        this.workday = true;
+      } else {
+        this.workday = false;
+      }
+      if (this.dailyworkday.includes("6") && this.dailyworkday.includes("7")) {
+        this.weekend = true;
+      } else {
+        this.weekend = false;
+      }
+      if (this.workday && this.weekend) {
+        this.all = true;
+      } else {
+        this.all = false;
       }
     },
     openCronDialog() {
@@ -318,7 +359,7 @@ export default {
   margin: auto;
   padding: 20px;
   border: 1px solid #888;
-  width: 400px;
+  width: 600px;
   height: 500px;
   max-width: 600px;
   z-index: 10001;
@@ -330,6 +371,10 @@ export default {
   float: right;
   font-size: 28px;
   font-weight: bold;
+}
+
+.el-input-number{
+  width: 286px;
 }
 
 .close:hover,
@@ -366,6 +411,8 @@ input {
 }
 
 button {
+  width: 120px;
+  font-size: 20px;
   background: linear-gradient(to left, rgb(53,204,255), rgb(4,114,182)); 
   color: white;
   padding: 10px 15px;
@@ -378,7 +425,7 @@ button:hover {
   background: linear-gradient(to right, rgb(53,204,255), rgb(4,114,182)); 
 }
 :deep(.zdycfq .el-switch__core){
-  width: 300px;
+  width: 365px;
   height: 30px;
   position: absolute;left: -80px
 }
@@ -396,5 +443,12 @@ button:hover {
 :deep(.el-switch__button) {
   background: #fff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.footer{
+  position: absolute;
+  bottom: 20px;
+  width: 100%; 
+  text-align: center;
 }
 </style>

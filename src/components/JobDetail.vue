@@ -35,8 +35,10 @@
           </el-select>
       </div>
       <div class="detail1">
+        <div class="buttonbox">
           <el-button type="primary" @click="update">更新任务属性</el-button>
           <el-button @click="back">返回</el-button>
+        </div>
       </div>
   </div>
 </template>
@@ -164,6 +166,23 @@ export default {
 }
 
 .detail1{
+  margin-bottom: 20px;
+}
+.buttonbox{
+  column-gap:0;
+  gap: 0px;
+  margin-top: 20px;
+  flex-direction: column;
+  display: flex;
+}
+
+.buttonbox button{
+  width: 300px !important;
+  font-size: 24px;
+  width: 128px;
+  height: 60px;
+  margin-left: 20px;
+  margin-right: 20px;
   margin-bottom: 20px;
 }
 

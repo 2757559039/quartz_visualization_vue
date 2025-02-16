@@ -1,8 +1,8 @@
 <template>
-  <el-dialog v-model="isVisible" title="任务配置" width="50%" :before-close="closeModal">
-    <el-form label-width="120px" class="two-column-form">
-      <el-row>
-        <el-col :span="12">
+  <el-dialog v-model="isVisible" title="任务配置" :before-close="closeModal">
+    <el-form label-width="140px" class="two-column-form">
+      <div class="title">
+        <div class="left">
           <el-form-item label="任务名">
             <el-input v-model="jobName" />
           </el-form-item>
@@ -22,51 +22,24 @@
           <el-form-item label="任务描述">
             <el-input v-model="jobDescription" />
           </el-form-item>
-          <el-form-item label="开始任务时间">
-            <el-date-picker
-              v-model="startTime"
-              type="date"
-              format="YYYY/MM/DD"
-              value-format="YYYY-MM-DD"
-              placeholder="选择开始日期"
-              :disabled-date="disabledStartDate"
-            />
-          </el-form-item>
-          <el-form-item label="结束任务时间">
-            <el-date-picker
-              v-model="endTime"
-              type="date"
-              format="YYYY/MM/DD"
-              value-format="YYYY-MM-DD"
-              placeholder="选择结束日期"
-              :disabled-date="disabledEndDate"
-            />
-          </el-form-item>
-          <el-form-item label="任务优先级">
-            <el-input-number v-model="priority" :min="0" :max="999" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="选择触发器">
-            <el-select v-model="trigger">
-              <el-option label="SimpleTrigger" value="SimpleTrigger" />
-              <el-option label="CronTrigger" value="CronTrigger" />
-              <el-option label="DailyTimeIntervalTrigger" value="DailyTimeIntervalTrigger" />
-              <el-option label="CalendarIntervalTrigger" value="CalendarIntervalTrigger" />
-            </el-select>
-          </el-form-item>
-          <el-form-item label="JobDetail">
+
+          <el-form-item class="zdycfq">
             <el-switch
               v-model="isCustomJobDetail"
               active-value="true"
               inactive-value="false"
-              style="position: absolute;left: -120px"
+              inline-prompt
+              style="
+                --el-switch-on-color: linear-gradient(to left, #35ccff, #0472b6);
+                --el-switch-off-color: linear-gradient(to right, #35ccff, #0472b6);
+              "
+              active-text="自定义JobDetail"
+              inactive-text="自定义JobDetail"
+              class="custom-switch"
             />
-            <el-select
-              v-model="jobDetail"
-              :disabled="isCustomJobDetail === 'false'"
-              style="flex: 1"
-            >
+          </el-form-item>
+          <el-form-item label="JobDetail">
+            <el-select v-model="jobDetail" :disabled="isCustomJobDetail">
               <el-option
                 v-for="(JobDetail, index) in JobDetails"
                 :key="index"
@@ -75,7 +48,20 @@
               />
             </el-select>
           </el-form-item>
-          <el-form-item class="zdycfq">
+          
+
+        </div>
+        <div class="right">
+          <el-form-item label="选择触发器">
+            <el-select v-model="trigger">
+              <el-option label="SimpleTrigger" value="SimpleTrigger" />
+              <el-option label="CronTrigger" value="CronTrigger" />
+              <el-option label="DailyTimeIntervalTrigger" value="DailyTimeIntervalTrigger" />
+              <el-option label="CalendarIntervalTrigger" value="CalendarIntervalTrigger" />
+            </el-select>
+          </el-form-item>
+          
+          <el-form-item class="zdycfq1">
             <el-switch
               v-model="isCustomTrigger"
               active-value="true"
@@ -105,6 +91,31 @@
           </el-form-item>
           <el-form-item v-if="isCustomTrigger === 'false'" label="触发器名组">
             <el-input v-model="triggergroup" />
+          </el-form-item>
+
+            <el-form-item label="任务优先级" v-if="isCustomTrigger === 'false'">
+            <el-input-number v-model="priority" :min="0" :max="999"/>
+            </el-form-item>
+
+          <el-form-item label="开始任务时间" v-if="isCustomTrigger === 'false'">
+            <el-date-picker
+              v-model="startTime"
+              type="date"
+              format="YYYY/MM/DD"
+              value-format="YYYY-MM-DD"
+              placeholder="选择开始日期"
+              :disabled-date="disabledStartDate"
+            />
+          </el-form-item>
+          <el-form-item label="结束任务时间" v-if="isCustomTrigger === 'false'">
+            <el-date-picker
+              v-model="endTime"
+              type="date"
+              format="YYYY/MM/DD"
+              value-format="YYYY-MM-DD"
+              placeholder="选择结束日期"
+              :disabled-date="disabledEndDate"
+            />
           </el-form-item>
 
           <!-- SimpleTrigger -->
@@ -159,9 +170,15 @@
           </el-form-item>
           <el-form-item
             v-if="trigger === 'DailyTimeIntervalTrigger' && isCustomTrigger === 'false'"
+            label="总执行次数"
+          >
+            <el-input v-model="dailyrepeatcount" placeholder="请输入总执行次数" />
+          </el-form-item>
+          <el-form-item
+            v-if="trigger === 'DailyTimeIntervalTrigger' && isCustomTrigger === 'false'"
             label="执行日选择(星期)"
           >
-            <el-checkbox-group v-model="dailyworkday">
+            <el-checkbox-group v-model="dailyworkday" @change="checkday">
               <el-checkbox label="1">星期一</el-checkbox>
               <el-checkbox label="2">星期二</el-checkbox>
               <el-checkbox label="3">星期三</el-checkbox>
@@ -170,9 +187,9 @@
               <el-checkbox label="6">星期六</el-checkbox>
               <el-checkbox label="7">星期日</el-checkbox>
             </el-checkbox-group>
-            <el-checkbox v-model="allDays" label="每一天" @change="setAllDays" />
-            <el-checkbox v-model="workDays" label="工作日" @change="setWorkDays" />
-            <el-checkbox v-model="weekendDays" label="周末" @change="setWeekendDays" />
+            <el-checkbox v-model="all" label="每一天" @change="setAllDays" />
+            <el-checkbox v-model="workday" label="工作日" @change="setWorkDays" />
+            <el-checkbox v-model="weekend" label="周末" @change="setWeekendDays" />
           </el-form-item>
 
           <!-- CalendarIntervalTrigger -->
@@ -195,13 +212,22 @@
           >
             <el-input v-model="calendarnum" placeholder="请输入间隔次数" />
           </el-form-item>
-          <el-form-item
-            v-if="trigger === 'CalendarIntervalTrigger' && isCustomTrigger === 'false'"
-            label="是否使用夏令时"
-          >
-            <el-switch v-model="preserveHourOfDayAcrossDaylightSavings" />
+          <el-form-item class="zdycfq1" v-if="trigger === 'CalendarIntervalTrigger' && isCustomTrigger === 'false'">
+            <el-switch
+              v-model="preserveHourOfDayAcrossDaylightSavings"
+              active-value="true"
+              inactive-value="false"
+              inline-prompt
+              style="
+                --el-switch-on-color: linear-gradient(to left, #35ccff, #0472b6);
+                --el-switch-off-color: linear-gradient(to right, #35ccff, #0472b6);
+              "
+              active-text="是否使用夏令时"
+              inactive-text="是否使用夏令时"
+              class="custom-switch"
+            />
           </el-form-item>
-          <el-form-item class="zdycfq" v-if="trigger === 'CalendarIntervalTrigger' && isCustomTrigger === 'false'">
+          <el-form-item class="zdycfq1" v-if="trigger === 'CalendarIntervalTrigger' && isCustomTrigger === 'false'">
             <el-switch
               v-model="skipDayIfHourDoesNotExist"
               active-value="true"
@@ -216,8 +242,8 @@
               class="custom-switch"
             />
           </el-form-item>
-        </el-col>
-      </el-row>
+        </div>
+      </div>
     </el-form>
     <template #footer>
       <div class="button-container">
@@ -269,9 +295,9 @@ export default {
       dailynum: "",
       dailyrepeatcount: "",
       dailyworkday: [],
-      allDays: false,
-      workDays: false,
-      weekendDays: false,
+      workday: false,
+      weekend: false,
+      all: false,
       options: ["1", "2", "3", "4", "5", "6", "7", "workday", "weekend", "all"],
       Info: {},
       isVisible: false,
@@ -520,30 +546,64 @@ export default {
       this.isVisible = false;
     },
     setAllDays() {
-      if (this.allDays) {
-        this.dailyworkday = ["1", "2", "3", "4", "5", "6", "7"];
-        this.workDays = false;
-        this.weekendDays = false;
-      } else {
+      if(this.all){
+        this.dailyworkday = ["1","2","3","4","5","6","7"];
+        this.workday = true;
+        this.weekend = true;
+      }else{
         this.dailyworkday = [];
+        this.workday = false;
+        this.weekend = false;
       }
     },
     setWorkDays() {
-      if (this.workDays) {
-        this.dailyworkday = ["1", "2", "3", "4", "5"];
-        this.allDays = false;
-        this.weekendDays = false;
-      } else {
+      if(this.workday){
+        this.dailyworkday.push("1","2","3","4","5");
+        this.dailyworkday = [...new Set(this.dailyworkday)];
+        if(this.dailyworkday.includes("1") && this.dailyworkday.includes("2") && this.dailyworkday.includes("3") && this.dailyworkday.includes("4") && this.dailyworkday.includes("5") && this.dailyworkday.includes("6") && this.dailyworkday.includes("7")){
+          this.all = true;
+        }
+
+      }else{
         this.dailyworkday = [];
+
+        if(this.weekend){
+          this.dailyworkday.push("6","7");
+        }
+        this.all = false;
       }
     },
     setWeekendDays() {
-      if (this.weekendDays) {
-        this.dailyworkday = ["6", "7"];
-        this.allDays = false;
-        this.workDays = false;
-      } else {
+      if(this.weekend){
+        this.dailyworkday.push("6","7");
+        this.dailyworkday = [...new Set(this.dailyworkday)];
+        if(this.dailyworkday.includes("1") && this.dailyworkday.includes("2") && this.dailyworkday.includes("3") && this.dailyworkday.includes("4") && this.dailyworkday.includes("5") && this.dailyworkday.includes("6") && this.dailyworkday.includes("7")){
+          this.all = true;
+        }
+      }else{
         this.dailyworkday = [];
+        if(this.workday){
+          this.dailyworkday.push("1","2","3","4","5");
+      }
+      this.all = false;
+    }
+    },
+    checkday() {
+      console.log('checkday');
+      if (this.dailyworkday.includes("1") && this.dailyworkday.includes("2") && this.dailyworkday.includes("3") && this.dailyworkday.includes("4") && this.dailyworkday.includes("5")) {
+        this.workday = true;
+      } else {
+        this.workday = false;
+      }
+      if (this.dailyworkday.includes("6") && this.dailyworkday.includes("7")) {
+        this.weekend = true;
+      } else {
+        this.weekend = false;
+      }
+      if (this.workday && this.weekend) {
+        this.all = true;
+      } else {
+        this.all = false;
       }
     },
     openCronDialog() {
@@ -633,6 +693,9 @@ input {
 }
 
 button {
+  width: 180px;
+  height: 40px;
+  font-size: 20px;
   background: linear-gradient(to left, rgb(53,204,255), rgb(4,114,182)); 
   color: white;
   padding: 10px 15px;
@@ -648,7 +711,24 @@ button:hover {
 :deep(.el-input),
 :deep(.el-select),
 :deep(.el-date-editor){
-  width:220px;
+  /* width:220px; */
+  padding-right: 20px;
+}
+:deep(.el-date-editor){
+  width: 290px;
+}
+
+.title{
+  display: flex;
+  justify-content: space-between;
+}
+
+.left{
+  width: 400px;
+}
+
+.right{
+  width: 430px;
 }
 
 .two-column-form {
@@ -670,16 +750,24 @@ button:hover {
 }
 
 .button-container {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
+  position: absolute;
+  bottom: 20px;
+  width: 800px; 
+  text-align: center;
 }
 
 .button-container .el-button {
+  font-size: 20px;
   margin: 0 10px;
 }
 :deep(.zdycfq .el-switch__core){
-  width: 300px;
+  width: 320px;
+  height: 30px;
+  position: absolute;left: -80px
+}
+
+:deep(.zdycfq1 .el-switch__core){
+  width: 350px;
   height: 30px;
   position: absolute;left: -80px
 }
@@ -697,5 +785,12 @@ button:hover {
 :deep(.el-switch__button) {
   background: #fff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.el-input-number{
+  width: 290px;
+}
+:deep(.el-input-number .el-input-number__increase){
+  right: 21px;
 }
 </style>
