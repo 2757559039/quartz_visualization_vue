@@ -53,15 +53,48 @@
         <el-table :data="Table" class="JobBox" @expand-change="handleExpandChange" :expand-row-keys="expandedRows" :row-key="getRowKey">
           <el-table-column type="expand">
             <template #default="props">
-              <el-table :data="props.row.triggerList" class="c">
-                <el-table-column label="触发器分组" sortable prop="triggergroup" min-width="16" align="center"/>
-                <el-table-column label="触发器名" sortable prop="triggername" min-width="16" align="center"/>
-                <el-table-column label="任务类型" sortable prop="type" min-width="16" align="center"/>
-                <el-table-column label="开始时间" sortable prop="startime" min-width="16" align="center"/>
-                <el-table-column label="结束时间" sortable prop="endtime" min-width="16" align="center"/>
-                <el-table-column label="触发器状态" sortable prop="triggers_state" min-width="16" align="center"/>
-                <el-table-column min-width="28" />
-              </el-table>
+              <div>
+                <!-- <p>{{ props.row.triggerList }}</p> -->
+                <div class="text">
+                  <span class="left">是否使用自定义触发器:</span><span class="right">{{ props.row.triggerList.isConcurrentExectionDisallowed }}</span>
+                </div>
+                
+                <div v-if="!props.row.triggerList.isConcurrentExectionDisallowed === 'false'" class="text">
+                  <span class="left">自定义触发器:</span><span class="right">{{ props.row.triggerList.trigger }}</span>
+                </div>
+                <div v-if="props.row.triggerList.isConcurrentExectionDisallowed === 'false'">
+                  <div v-if="props.row.type === 'SimpleTriggerImpl'">
+                    <div class="text">
+                      <span class="left">触发间隔时间:</span><span class="right">{{ props.row.triggerList.simpletimesecond }} 秒</span>
+                    </div>
+                    <div class="text">
+                      <span class="left">触发器执行次数:</span><span class="right">{{ props.row.triggerList.repeatcount }} 次</span>
+                    </div>
+                  </div>
+                  <div v-else-if="props.row.type === 'CronTriggerImpl'">
+                    <div class="text">
+                      <span class="left">cron表达式:</span><span class="right">{{ props.row.triggerList.cronexpression }}</span>
+                    </div>
+                  </div>
+                  <div v-else-if="props.row.type === 'DailyTimeIntervalTriggerImpl'">
+                    <div class="text"><span class="left">触发器时间间隔单位:</span><span class="right">{{ props.row.triggerList.dailytime }}</span></div>
+                    <div class="text"><span class="left">触发器间隔数:</span><span class="right">{{ props.row.triggerList.dailytimenum }}</span></div>
+                    <div class="text"><span class="left">触发器总执行次数:</span><span class="right">{{ props.row.triggerList.dailyrepeatcount }} 次</span></div>
+                    <div class="text"><span class="left">执行日选择(星期):</span><span class="right">{{ props.row.triggerList.dailyworkday }}</span></div>
+                  </div>
+                  <div v-else-if="props.row.type === 'CalendarIntervalTriggerImpl'">
+                    <div class="text"><span class="left">触发器时间间隔单位:</span><span class="right">{{ props.row.triggerList.calendartime }}</span></div>
+                    <div class="text"><span class="left">触发器间隔数:</span><span class="right">{{ props.row.triggerList.calendarnum }}</span></div>
+                    <div class="text"><span class="left">是否使用夏令时:</span><span class="right">{{ props.row.triggerList.preserveHourOfDayAcrossDaylightSavings }}</span></div>
+                    <div class="text"><span class="left">是否设置当小时不存在时是否跳过这一天:</span><span class="right">{{ props.row.triggerList.skipDayIfHourDoesNotExist }}</span></div>
+                  </div>
+                  <div> 
+                    <div class="text"></div>
+                    <div class="text"></div>
+                    <div class="text"></div>
+                  </div>
+                </div>
+              </div>
             </template>
           </el-table-column>
           <el-table-column label="触发器名" prop="triggername" min-width="90"/>
@@ -664,6 +697,28 @@ export default {
   margin: 0;
   border-radius: 5px;
 }
+
+.text{
+  width: 400px;
+  font-size: 20px;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0px;
+  margin-bottom: 10px;
+  margin-left: 40px;
+}
+
+/* .left {
+  width: 200px;
+  text-align: center;
+  word-wrap: break-word;
+}
+
+.right {
+  width: 200px;
+  text-align: center;
+  word-wrap: break-word;
+} */
 
 :deep(.JobBox .cell) {
   height: auto;

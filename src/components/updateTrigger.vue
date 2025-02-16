@@ -12,7 +12,7 @@
       </div>
       <div class="title1">
         <p>触发器类型:</p>
-        <span>{{ selecttrigger }}</span>
+        <p style="text-align: right;">{{ selecttrigger }}</p>
       </div>
       <div class="title">
         <span>任务优先级:</span>
@@ -46,7 +46,7 @@
           </div>
           
 
-        <div v-show="selecttrigger === 'SimpleTrigger' && this.isCustomTrigger === false " class="detailbox">
+        <div v-show="selecttrigger === 'SimpleTriggerImpl' && this.isCustomTrigger === false " class="detailbox">
           <div class="detail">
             <span>触发时间间隔</span>
             <el-input v-model="priority" placeholder="单位为秒" />            
@@ -57,7 +57,7 @@
           </div>
         </div>
 
-        <div v-show="selecttrigger === 'CronTrigger' && this.isCustomTrigger === false" class="detailbox">
+        <div v-show="selecttrigger === 'CronTriggerImpl' && this.isCustomTrigger === false" class="detailbox">
           <div class="detail">
             <span>cron字段</span>
             <el-input class="elInput" v-model="cronexpression"  @click="openDialog" :clearable="true"  placeholder="请输入正确的cron表达式">
@@ -68,7 +68,7 @@
           </div>
         </div>
 
-        <div v-show="selecttrigger === 'CalendarIntervalTrigger' && this.isCustomTrigger === false" class="detailbox">
+        <div v-show="selecttrigger === 'CalendarIntervalTriggerImpl' && this.isCustomTrigger === false" class="detailbox">
           <div class="detail">
             <span>触发器时间间隔单位</span>
             <el-select v-model="calendartime" placeholder="Select">
@@ -95,7 +95,7 @@
           </div>
         </div>
 
-        <div v-show="selecttrigger === 'DailyTimeIntervalTrigger' && this.isCustomTrigger === false" class="detailbox">
+        <div v-show="selecttrigger === 'DailyTimeIntervalTriggerImpl' && this.isCustomTrigger === false" class="detailbox">
           <div class="detail">
             <span>触发器时间间隔单位</span>
             <el-select v-model="dailytime" placeholder="Select">
@@ -158,7 +158,7 @@ export default {
   },
   data() {
     return {
-      selecttrigger: 'DailyTimeIntervalTrigger',
+      selecttrigger: '',
 
       priority: "", // 任务优先级
       // 是否使用自定义触发器的选项
@@ -403,7 +403,7 @@ export default {
     this.triggername = this.jobinfo.triggername;
     this.triggergroup = this.jobinfo.triggergroup;
     this.priority = this.jobinfo.priority;
-    //this.selecttrigger = this.jobinfo.type;//slice(0, -4);
+    this.selecttrigger = this.jobinfo.type;//slice(0, -4);
   },
 };
 </script>
