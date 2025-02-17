@@ -1,40 +1,46 @@
 <template>
   <div class="unerected-list">
-    <!-- 类型切换 -->
-    <div class="type-switch">
-      <el-radio-group v-model="currentType" size="medium">
-        <el-radio-button label="class">类</el-radio-button>
-        <el-radio-button label="config">配置文件</el-radio-button>
-      </el-radio-group>
+    <!-- 搜索框和筛选框 -->
+    <div class="search-filter-type">
+      <el-input
+        v-model="searchKeyword"
+        placeholder="搜索关键字"
+        clearable
+        style="width: 300px; margin-right: 20px;"
+        @input="applyFilter"
+      >
+        <template #append>
+          <el-button type="primary" icon="Search" @click="applyFilter"></el-button>
+        </template>
+      </el-input>
+
+      <el-select
+        v-model="filterCriteria"
+        placeholder="筛选条件"
+        style="width: 200px;"
+        @change="applyFilter"
+      >
+        <el-option
+          v-for="option in filterOptions"
+          :key="option.value"
+          :label="option.label"
+          :value="option.value"
+        />
+      </el-select>
     </div>
 
     <!-- 表格 -->
     <el-table
-      :data="tableData"
+      :data="filteredTableData"
       stripe
       style="width: 100%"
       v-show="showTable"
     >
       <!-- 类名列 -->
-      <el-table-column
-        v-if="currentType === 'class'"
-        prop="className"
-        label="类名"
-        width="180"
-      />
+      <el-table-column prop="className" label="类名" width="360" />
 
-      <!-- 配置文件名列 -->
-      <el-table-column
-        v-if="currentType === 'config'"
-        prop="configName"
-        label="配置文件名"
-        width="180"
-      />
-
-      <!-- 占位列 -->
-      <el-table-column prop="placeholder1" label="列2" width="180" />
-      <el-table-column prop="placeholder2" label="列3" width="180" />
-      <el-table-column prop="placeholder3" label="列4" width="180" />
+      <!-- 类型列 -->
+      <el-table-column prop="scriptType" label="类型" width="360" />
 
       <!-- 操作列 -->
       <el-table-column label="操作">
@@ -43,10 +49,12 @@
           <div></div>
         </template>
         <template #default="scope">
-          <el-button size="small" @click="handleDelete(scope.row)">删除</el-button>
-          <el-button size="small" @click="handleEdit(scope.row)">编辑</el-button>
-          <el-button size="small" @click="handleDetail(scope.row)">查看</el-button>
-          <el-button size="small" @click="k(scope.row)">安装</el-button>
+          <div class="czbtn">
+            <el-button class="gxb" @click="handleUpdate(scope.row)">安装</el-button>
+            <el-button class="xzb" @click="handleUninstall(scope.row)">查看</el-button>
+            <el-button class="xzb" @click="handleUninstall(scope.row)">修改</el-button>
+            <el-button class="xzb" @click="handleUninstall(scope.row)">删除</el-button>
+          </div>
         </template>
       </el-table-column>
     </el-table>
@@ -59,7 +67,6 @@ import axios from 'axios';
 export default {
   name: 'UnerectedList',
   props: {
-    // 控制表格是否显示（在上一个页面标签切换时传入）
     showTable: {
       type: Boolean,
       default: false,
@@ -67,67 +74,81 @@ export default {
   },
   data() {
     return {
-      currentType: 'class', // 当前类型，初始为类
-      tableData: [], // 表格数据
+      tableData: [],
+      filteredTableData: [],
+      searchKeyword: '',
+      filterCriteria: '',
+      filterOptions: [
+        { label: '全部', value: '' },
+        { label: '状态1', value: 'status1' },
+        { label: '状态2', value: 'status2' },
+      ],
     };
   },
   methods: {
-    // 获取数据
     async fetchData() {
-        try {
-          const response = await axios.post('http://114.132.71.250:8002/groovyBean/selectAllGroovyBean');
-          this.filteredTableData = response.data;
-        } catch (error) {
-          console.error('数据获取失败:', error);
-        }
-      },
-    // 操作按钮点击事件
-    handleDelete(row) {
-      console.log('删除:', row);
-      // 删除逻辑
+      try {
+        const response = await axios.post('http://114.132.71.250:8002/groovyBean/selectAllGroovyBean');
+        console.log(response);
+        this.filteredTableData = response.data.data;
+      } catch (error) {
+        console.error('数据获取失败:', error);
+      }
     },
-    handleEdit(row) {
-      console.log('编辑:', row);
-      // 编辑逻辑
+    applyFilter() {
+      this.filteredTableData = this.tableData.filter((item) => {
+        const matchesSearch = item.className
+          ? item.className.toLowerCase().includes(this.searchKeyword.toLowerCase())
+          : true;
+        const matchesFilter = this.filterCriteria
+          ? item.status === this.filterCriteria
+          : true;
+        return matchesSearch && matchesFilter;
+      });
     },
-    handleDetail(row) {
-      console.log('查看:', row);
-      // 查看逻辑
+    handleUpdate(row) {
+      console.log('更新:', row);
     },
-  },
-  watch: {
-    // 监听类型切换，重新获取数据
-    currentType: {
-      handler() {
-        this.fetchData();
-      },
-      immediate: true,
+    handleUninstall(row) {
+      console.log('卸载:', row);
     },
   },
   mounted() {
-    // 组件挂载时获取数据
     this.fetchData();
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.unerected-list {
-  margin-top: 20px;
-  padding: 20px;
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-}
+// .unerected-list {
+//   margin-top: 20px;
+//   padding: 20px;
+//   background-color: #ffffff;
+//   border-radius: 8px;
+//   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+// }
 
-.type-switch {
+.search-filter-type {
   margin-bottom: 20px;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  gap: 20px;
 }
 
 .el-table {
   :deep(.cell) {
     text-align: center;
   }
+}
+
+// 操作按钮组
+:deep(.czbtn .el-button) {
+  background: linear-gradient(to left, rgb(53, 204, 255), rgb(4, 114, 182));
+  color: white;
+  border: none;
+}
+
+:deep(.czbtn .el-button:hover) {
+  background: linear-gradient(to right, rgb(53, 204, 255), rgb(4, 114, 182));
 }
 </style>

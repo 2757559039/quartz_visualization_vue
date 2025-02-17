@@ -1,189 +1,152 @@
 <template>
-    <div class="unerected-list">
-      <!-- 搜索框、筛选框和类型切换 -->
-      <div class="search-filter-type">
-        <el-input
-          v-model="searchKeyword"
-          placeholder="搜索关键字"
-          clearable
-          style="width: 300px; margin-right: 20px;"
-          @input="applyFilter"
-        >
-          <template #append>
-            <el-button type="primary" icon="Search" @click="applyFilter"></el-button>
-          </template>
-        </el-input>
-  
-        <el-select
-          v-model="filterCriteria"
-          placeholder="筛选条件"
-          style="width: 200px; margin-right: 20px;"
-          @change="applyFilter"
-        >
-          <el-option
-            v-for="option in filterOptions"
-            :key="option.value"
-            :label="option.label"
-            :value="option.value"
-          />
-        </el-select>
-  
-        <el-radio-group v-model="currentType" size="medium">
-          <el-radio-button label="class">类</el-radio-button>
-          <el-radio-button label="config">配置文件</el-radio-button>
-        </el-radio-group>
-      </div>
-  
-      <!-- 表格 -->
-      <el-table
-        :data="filteredTableData"
-        stripe
-        style="width: 100%"
-        v-show="showTable"
+  <div class="unerected-list">
+    <!-- 搜索框和筛选框 -->
+    <div class="search-filter-type">
+      <el-input
+        v-model="searchKeyword"
+        placeholder="搜索关键字"
+        clearable
+        style="width: 300px; margin-right: 20px;"
+        @input="applyFilter"
       >
-        <!-- 类名列 -->
-        <el-table-column
-          v-if="currentType === 'class'"
-          prop="className"
-          label="类名"
-          width="360"
-        />
-  
-        <!-- 配置文件名列 -->
-        <el-table-column
-          v-if="currentType === 'config'"
-          prop="className"
-          label="配置文件名"
-          width="360"
-        />
-  
+        <template #append>
+          <el-button type="primary" icon="Search" @click="applyFilter"></el-button>
+        </template>
+      </el-input>
 
-        <el-table-column prop="scriptType" label="类型" width="360" />
-
-  
-        <!-- 操作列 -->
-        <el-table-column label="操作">
-          <template #header>
-            <!-- 操作列不需要表头 -->
-            <div></div>
-          </template>
-          <template #default="scope">
-            <div class="czbtn">
-              <el-button class="gxb" @click="k(scope.row)">更新</el-button>
-              <el-button class="xzb" @click="k(scope.row)">卸载</el-button>
-            </div>
-          </template>
-        </el-table-column>
-      </el-table>
+      <el-select
+        v-model="filterCriteria"
+        placeholder="筛选条件"
+        style="width: 200px;"
+        @change="applyFilter"
+      >
+        <el-option
+          v-for="option in filterOptions"
+          :key="option.value"
+          :label="option.label"
+          :value="option.value"
+        />
+      </el-select>
     </div>
-  </template>
-  
-  <script>
-  import axios from 'axios';
-  
-  export default {
-    name: 'UnerectedList',
-    props: {
-      showTable: {
-        type: Boolean,
-        default: false,
-      },
-    },
-    data() {
-      return {
-        currentType: 'class',
-        tableData: [],
-        filteredTableData: [],
-        searchKeyword: '',
-        filterCriteria: '',
-        filterOptions: [
-          { label: '全部', value: '' },
-          { label: '状态1', value: 'status1' },
-          { label: '状态2', value: 'status2' },
-        ],
-      };
-    },
-    methods: {
-      async fetchData() {
-        try {
-          const response = await axios.post('http://114.132.71.250:8002/groovyBean/selectAllGroovyBean');
-          console.log(response);
-          this.filteredTableData = response.data.data;
-        } catch (error) {
-          console.error('数据获取失败:', error);
-        }
-      },
-      applyFilter() {
-        this.filteredTableData = this.tableData.filter((item) => {
-          const matchesSearch = item.className
-            ? item.className.toLowerCase().includes(this.searchKeyword.toLowerCase())
-            : true;
-          const matchesFilter = this.filterCriteria
-            ? item.status === this.filterCriteria
-            : true;
-          return matchesSearch && matchesFilter;
-        });
-      },
-      handleDelete(row) {
-        console.log('删除:', row);
-      },
-      handleEdit(row) {
-        console.log('编辑:', row);
-      },
-      handleDetail(row) {
-        console.log('查看:', row);
-      },
-    },
-    watch: {
-      currentType: {
-        handler() {
-          this.fetchData();
-        },
-        immediate: true,
-      },
-    },
-    mounted() {
-      this.fetchData();
-    },
-  };
-  </script>
-  
-  <style lang="scss" scoped>
-  .unerected-list {
-    margin-top: 20px;
-    padding: 20px;
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-  }
-  
-  .search-filter-type {
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-  }
-  
-  .el-table {
-    :deep(.cell) {
-      text-align: center;
-    }
-  }
 
-  // 类和配置文件的切换
-  :deep(.el-radio-button.is-active .el-radio-button__original-radio:not(:disabled)+.el-radio-button__inner){
-    background: linear-gradient(to left, rgb(53,204,255), rgb(4,114,182));
-    border-color:rgb(206, 206, 206);
-  }
+    <!-- 表格 -->
+    <el-table
+      :data="filteredTableData"
+      stripe
+      style="width: 100%"
+      v-show="showTable"
+    >
+      <!-- 类名列 -->
+      <el-table-column prop="className" label="类名" width="360" />
 
-  // 操作按钮组
-  :deep(.czbtn .el-button){
-    background: linear-gradient(to left, rgb(53,204,255), rgb(4,114,182));
-    color:rgb(255,255,255);
-    border:none;
-  }
-  :deep(.czbtn .el-button:hover){
-    background: linear-gradient(to right, rgb(53,204,255), rgb(4,114,182));
+      <!-- 类型列 -->
+      <el-table-column prop="scriptType" label="类型" width="360" />
 
+      <!-- 操作列 -->
+      <el-table-column label="操作">
+        <template #header>
+          <!-- 操作列不需要表头 -->
+          <div></div>
+        </template>
+        <template #default="scope">
+          <div class="czbtn">
+            <el-button class="gxb" @click="handleUpdate(scope.row)">更新</el-button>
+            <el-button class="xzb" @click="handleUninstall(scope.row)">卸载</el-button>
+          </div>
+        </template>
+      </el-table-column>
+    </el-table>
+  </div>
+</template>
+
+<script>
+import axios from 'axios';
+
+export default {
+  name: 'UnerectedList',
+  props: {
+    showTable: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  data() {
+    return {
+      tableData: [],
+      filteredTableData: [],
+      searchKeyword: '',
+      filterCriteria: '',
+      filterOptions: [
+        { label: '全部', value: '' },
+        { label: '状态1', value: 'status1' },
+        { label: '状态2', value: 'status2' },
+      ],
+    };
+  },
+  methods: {
+    async fetchData() {
+      try {
+        const response = await axios.post('http://114.132.71.250:8002/groovyBean/selectAllGroovyBean');
+        console.log(response);
+        this.filteredTableData = response.data.data;
+      } catch (error) {
+        console.error('数据获取失败:', error);
+      }
+    },
+    applyFilter() {
+      this.filteredTableData = this.tableData.filter((item) => {
+        const matchesSearch = item.className
+          ? item.className.toLowerCase().includes(this.searchKeyword.toLowerCase())
+          : true;
+        const matchesFilter = this.filterCriteria
+          ? item.status === this.filterCriteria
+          : true;
+        return matchesSearch && matchesFilter;
+      });
+    },
+    handleUpdate(row) {
+      console.log('更新:', row);
+    },
+    handleUninstall(row) {
+      console.log('卸载:', row);
+    },
+  },
+  mounted() {
+    this.fetchData();
+  },
+};
+</script>
+
+<style lang="scss" scoped>
+// .unerected-list {
+//   margin-top: 20px;
+//   padding: 20px;
+//   background-color: #ffffff;
+//   border-radius: 8px;
+//   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+// }
+
+.search-filter-type {
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.el-table {
+  :deep(.cell) {
+    text-align: center;
   }
-  </style>
+}
+
+// 操作按钮组
+:deep(.czbtn .el-button) {
+  background: linear-gradient(to left, rgb(53, 204, 255), rgb(4, 114, 182));
+  color: white;
+  border: none;
+}
+
+:deep(.czbtn .el-button:hover) {
+  background: linear-gradient(to right, rgb(53, 204, 255), rgb(4, 114, 182));
+}
+</style>
