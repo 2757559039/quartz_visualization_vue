@@ -1,14 +1,14 @@
 <template>
   <el-dialog
     v-model="isVisible"
-    title="类编辑器"
+    title="配置文件编辑器"
     @close="back"
     :before-close="back"
   >
     <div>
-      <CodeEditor :modelValue="editorContent" language="java" @update:modelValue="onCodeChange" />
+      <CodeEditor :modelValue="editorContent" language="json" @update:modelValue="onCodeChange" />
       <div class="buttonbox"> 
-        <el-button type="primary" @click="update">上传类</el-button>
+        <el-button type="primary" @click="update">上传配置</el-button>
         <el-button  @click="back" class="back-btn">返回</el-button>
       </div>
     </div>
@@ -37,7 +37,7 @@
         this.isVisible = false;
         this.$emit('close');
       },
-      uploadModal(){
+      uploadConfigModal(){
         this.isVisible = true;
       }
     }
