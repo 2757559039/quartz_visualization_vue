@@ -87,18 +87,18 @@
               <el-row :gutter="20">
                 <el-col :span="12">
                   <el-row>
-                    <el-button @click="handleClick">按钮1</el-button>
+                    <el-button @click="uploadModal('job')">Job</el-button>
                   </el-row>
                   <el-row>
-                    <el-button @click="handleClick">按钮2</el-button>
+                    <el-button @click="uploadModal('jobDetail')">JobDetail</el-button>
                   </el-row>
                 </el-col>
                 <el-col :span="12">
                   <el-row>
-                    <el-button @click="handleClick">按钮3</el-button>
+                    <el-button @click="uploadModal('trigger')">Trigger</el-button>
                   </el-row>
                   <el-row>
-                    <el-button @click="handleClick">按钮4</el-button>
+                    <el-button @click="uploadModal('updateTrigger')">UpdateTrigger</el-button>
                   </el-row>
                 </el-col>
               </el-row>
@@ -108,7 +108,7 @@
       </el-tab-pane>
     </el-tabs>
 
-    <UpLoad ref="uploadModal" class="uploadmod" />
+    <UpLoad ref="uploadModal" class="uploadmod" :uploadType="uploadType"/>
     <div class="bottom-buttons">
       <el-button type="primary" @click="Go('JobIndex')">任务管理<el-icon><Link /></el-icon></el-button>
       <el-button type="danger" @click="Go('TriggerIndex')">触发器管理<el-icon><Link /></el-icon></el-button>
@@ -132,17 +132,19 @@ export default {
     return {
       // 默认选中的标签
       activeTab: '已安装',
-
       // 编辑类型
       editType: 'config', // 默认为配置文件
+      // 上传类型
+      uploadType: '',
     };
   },
   methods: {
     Go(address){
       this.$router.push({ path: '/'+address });
     },
-    uploadModal() {
-      this.$refs.uploadModal.uploadModal();
+    uploadModal(type) {
+      this.uploadType = type; // 设置上传类型
+      this.$refs.uploadModal.uploadModal(); // 打开上传弹窗
     },
 
     editConfig() {
@@ -175,11 +177,12 @@ export default {
   --el-tabs-tab-font-size: 16px;
   --el-tabs-tab-line-height: 1;
   --el-tabs-tab-vertical-flex: flex-end;
-  border-radius: 20px 20px 0 0;
+  border-radius: 20px;
   background-color: #fff;
   width: 60%; /* 增加宽度 */
   height: 700px;
   margin: 0 auto;
+  margin-top:50px;
 }
 
 /* 配置文件/上传类切换样式 */
@@ -208,8 +211,9 @@ export default {
 /* 上传类 */
 .upload-content .el-button{
   margin: 10px auto 10px auto;
-  width: 300px;
+  width: 500px;
   height: 200px;
+  font-size: 40px;
 }
 
 /* 其他样式 */
@@ -236,12 +240,18 @@ export default {
   font-size: 24px;
 }
 
-.el-dialog.uploadmod {
+:deep(.el-dialog.uploadmod ){
   background-color: #fefefe;
+  top:-100px;
   border: 1px solid #888;
   width: 1440px;
+  height: 800px;
   border-radius: 14px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   z-index: 4;
+}
+/* 隐藏滚动条 */
+:deep(.el-overlay-dialog){
+  overflow: hidden;
 }
 </style>

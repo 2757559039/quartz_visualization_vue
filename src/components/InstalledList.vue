@@ -35,6 +35,7 @@
       stripe
       style="width: 100%"
       v-show="showTable"
+      max-height="520"
     >
       <!-- 类名列 -->
       <el-table-column prop="className" label="类名" width="360" />
@@ -86,8 +87,7 @@ export default {
   methods: {
     async fetchData() {
       try {
-        const response = await axios.post('http://114.132.71.250:8002/groovyBean/selectAllGroovyBean');
-        console.log(response);
+        const response = await axios.post('http://114.132.71.250:8002/groovyBean/selectAllLoadGroovyBean');
         this.filteredTableData = response.data.data;
       } catch (error) {
         console.error('数据获取失败:', error);
