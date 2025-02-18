@@ -51,10 +51,10 @@
         </template>
         <template #default="scope">
           <div class="czbtn">
-            <el-button class="gxb" @click="handleUpdate(scope.row)">安装</el-button>
-            <el-button class="xzb" @click="handleUninstall(scope.row)">查看</el-button>
-            <el-button class="xzb" @click="handleUninstall(scope.row)">修改</el-button>
-            <el-button class="xzb" @click="handleUninstall(scope.row)">删除</el-button>
+            <el-button class="gxb" @click="handleInstall(scope.row)">安装</el-button>
+            <el-button class="xzb">查看</el-button>
+            <el-button class="xzb">修改</el-button>
+            <el-button class="xzb" @click="handleDelete(scope.row)">删除</el-button>
           </div>
         </template>
       </el-table-column>
@@ -106,11 +106,89 @@ export default {
         return matchesSearch && matchesFilter;
       });
     },
-    handleUpdate(row) {
-      console.log('更新:', row);
+    handleInstall(row) {
+      ElMessageBox.confirm(
+        `确定要安装类 ${row.className} 吗？`,
+        '确认安装',
+        {
+          confirmButtonText: '确认',
+          cancelButtonText: '取消',
+          type: 'warning',
+        }
+      )
+        .then(() => {
+          const className = row.className;
+          axios.post(`http://114.132.71.250:8002/groovyBean/loadGroovyBean?className=${className}`)
+            .then(response => {
+              if (response.data.code === '200') {
+                ElMessage({
+                  message: '安装成功',
+                  type: 'success',
+                });
+                this.fetchData(); // 重新加载数据
+              } else {
+                ElMessage({
+                  message: '安装失败',
+                  type: 'error',
+                });
+              }
+            })
+            .catch(error => {
+              console.error('安装失败:', error);
+              ElMessage({
+                message: '安装失败',
+                type: 'error',
+              });
+            });
+        })
+        .catch(() => {
+          ElMessage({
+            type: 'info',
+            message: '已取消安装',
+          });
+        });
     },
-    handleUninstall(row) {
-      console.log('卸载:', row);
+    handleDelete(row) {
+      ElMessageBox.confirm(
+        `确定要删除类 ${row.className} 吗？`,
+        '确认删除',
+        {
+          confirmButtonText: '确认',
+          cancelButtonText: '取消',
+          type: 'error',
+        }
+      )
+        .then(() => {
+          const id = row.id;
+          axios.post(`http://114.132.71.250:8002/scriptBuilder/deleteScript?id=${id}`)
+            .then(response => {
+              if (response.data.code === '200') {
+                ElMessage({
+                  message: '删除成功',
+                  type: 'success',
+                });
+                this.fetchData(); // 重新加载数据
+              } else {
+                ElMessage({
+                  message: '删除失败',
+                  type: 'error',
+                });
+              }
+            })
+            .catch(error => {
+              console.error('删除失败:', error);
+              ElMessage({
+                message: '删除失败',
+                type: 'error',
+              });
+            });
+        })
+        .catch(() => {
+          ElMessage({
+            type: 'info',
+            message: '已取消删除',
+          });
+        });
     },
   },
   mounted() {

@@ -196,13 +196,16 @@ export default {
 }
 
 /* 按钮样式 */
-.el-button {
+/* .el-button {
   background: linear-gradient(to left, rgb(53, 204, 255), rgb(4, 114, 182));
   color: #ffffff;
   border: none;
-}
+} */
 /* 配置文件 */
 .config-content .el-button{
+  background: linear-gradient(to left, rgb(53, 204, 255), rgb(4, 114, 182));
+  color: #ffffff;
+  border: none;
   margin: 10px auto 10px auto;
   width: 400px;
   height: 70px;
