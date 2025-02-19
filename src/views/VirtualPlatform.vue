@@ -39,6 +39,7 @@
               <el-select
                 v-model="selectedButton"
                 placeholder="选择类型"
+                @change="fetchConfigData"
               >
                 <el-option
                   v-for="option in buttonOptions"
@@ -72,12 +73,12 @@
 
             <!-- 配置文件内容 -->
             <div v-if="editType === 'config'" class="config-content">
-              <CodeEditor :modelValue="editorContent" language="json" />
+              <CodeEditor :modelValue="editorContent" language="json" @update:modelValue="onCodeChange"/>
             </div>
 
             <!-- 上传类内容 -->
             <div v-if="editType === 'upload'" class="upload-content">
-              <CodeEditor :modelValue="editorContent" language="java" />
+              <CodeEditor :modelValue="editorContent" language="java" @update:modelValue="onCodeChange"/>
             </div>
           </div>
         </div>
@@ -97,6 +98,8 @@ import UnerectedList from '../components/UnerectedList.vue';
 import InstalledList from '../components/InstalledList.vue';
 import UpLoad from '../components/upload.vue';
 import CodeEditor from '../components/CodeEditor.vue';
+import axios from 'axios';
+import { ElMessage, ElMessageBox } from 'element-plus';
 
 export default {
   name: 'MainPage',
@@ -125,6 +128,7 @@ export default {
             { label: 'dataSourceProperties', value: 'dataSourceProperties' },
           ];
           this.selectedButton = 'triggerListener'; // 配置文件的默认值
+          this.fetchConfigData(); 
         } else if (newVal === 'upload') {
           this.buttonOptions = [
             { label: 'Job', value: 'Job' },
@@ -147,9 +151,13 @@ export default {
       uploadType: '',
       selectedButton: '', // 默认值
       buttonOptions: [], // 动态按钮选项
+      editorContent: '',
     };
   },
   methods: {
+    onCodeChange(newVal) {
+        this.editorContent = newVal;
+      },
     Go(address) {
       this.$router.push({ path: '/' + address });
     },
@@ -169,14 +177,157 @@ export default {
         }, 0);
       }
     },
+    fetchConfigData() {
+      if (this.editType !== 'config') {
+        return;
+      }
+
+      const configUrlMap = {
+        triggerListener: 'http://114.132.71.250:8002/QuartzProperties/triggerListener',
+        threadPoolProperties: 'http://114.132.71.250:8002/QuartzProperties/threadPoolProperties',
+        schedulerProperties: 'http://114.132.71.250:8002/QuartzProperties/schedulerProperties',
+        saveQuartzProperties: 'http://114.132.71.250:8002/QuartzProperties/saveQuartzProperties',
+        refresh: 'http://114.132.71.250:8002/QuartzProperties/refresh',
+        pluginProperties: 'http://114.132.71.250:8002/QuartzProperties/pluginProperties',
+        jobStoreProperties: 'http://114.132.71.250:8002/QuartzProperties/jobStoreProperties',
+        jobListener: 'http://114.132.71.250:8002/QuartzProperties/jobListener',
+        getgroup: 'http://114.132.71.250:8002/QuartzProperties/getgroup',
+        dataSourceProperties: 'http://114.132.71.250:8002/QuartzProperties/dataSourceProperties',
+      };
+
+      const selectedUrl = configUrlMap[this.selectedButton];
+      if (!selectedUrl) {
+        ElMessage.error('请选择有效类型后提交');
+        return;
+      }
+
+      axios.get(selectedUrl)
+        .then(response => {
+          this.editorContent = response.data; // 假设接口返回的数据是字符串
+        })
+        .catch(error => {
+          console.error('获取数据失败:', error);
+          ElMessage({
+            message: '获取数据失败',
+            type: 'error',
+          });
+        });
+    },
     submit() {
-      console.log('提交按钮点击');
+      // 显示二级弹窗确认提交
+      ElMessageBox.confirm(
+        '确定要提交吗？',
+        '确认提交',
+        {
+          confirmButtonText: '确认',
+          cancelButtonText: '取消',
+          type: 'warning',
+        }
+      )
+        .then(() => {
+          // 获取选择的按钮对应的接口
+          const urlMap = {
+            Job: 'http://114.132.71.250:8002/scriptBuilder/saveJobToDB',
+            JobDetail: 'http://114.132.71.250:8002/scriptBuilder/saveJobDetailToDB',
+            Trigger: 'http://114.132.71.250:8002/scriptBuilder/saveTriggerToDB',
+            UpdateTrigger: 'http://114.132.71.250:8002/scriptBuilder/saveUpdateTriggerToDB',
+          };
+          const selectedUrl = urlMap[this.selectedButton];
+          if (!selectedUrl) {
+            ElMessage.error('请选择有效类型后提交');
+            return;
+          }
+          axios.post(selectedUrl, {
+            code: this.editorContent,
+          })
+            .then(response => {
+              if (response.data.code === '200') {
+                ElMessage({
+                  message: '提交成功',
+                  type: 'success',
+                });
+                if(editType === 'upload'){
+                  // 清空输入框
+                  this.editorContent = '';
+                }
+              } else {
+                ElMessage({
+                  message: '提交失败',
+                  type: 'error',
+                });
+              }
+            })
+            .catch(error => {
+              console.error('提交失败:', error);
+              ElMessage({
+                message: '提交失败',
+                type: 'error',
+              });
+            });
+        })
+        .catch(() => {
+          ElMessage({
+            type: 'info',
+            message: '已取消提交',
+          });
+        });
     },
     reset() {
-      console.log('重置按钮点击');
+    ElMessageBox.confirm(
+      '确定要重置为最近一次提交的内容吗？',
+      '确认重置',
+      {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }
+    )
+      .then(() => {
+        this.fetchConfigData()
+          .then(() => {
+            // 如果数据获取成功，显示成功消息
+            ElMessage({
+              message: '内容已重置为最近一次提交的内容',
+              type: 'success',
+            });
+          })
+          .catch(() => {
+            // 如果数据获取失败，不显示成功消息
+            console.error('重置失败, 数据获取失败');
+          });
+      })
+      // .catch(() => {
+      //   ElMessage({
+      //     message: '已取消重置',
+      //     type: 'info',
+      //   });
+      // });
     },
     clear() {
-      console.log('清空按钮点击');
+      ElMessageBox.confirm(
+        '确定要清空输入框内容吗？',
+        '确认清空',
+        {
+          confirmButtonText: '确认',
+          cancelButtonText: '取消',
+          type: 'warning',
+        }
+      )
+        .then(() => {
+          // 用户点击“确认”按钮的逻辑
+          this.editorContent = '';
+          ElMessage({
+            message: '内容已清空',
+            type: 'success',
+          });
+        })
+        .catch(() => {
+          // 用户点击“取消”或关闭弹窗的逻辑
+          ElMessage({
+            message: '已取消清空',
+            type: 'info',
+          });
+        });
     },
   },
 };
