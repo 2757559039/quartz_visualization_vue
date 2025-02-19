@@ -38,7 +38,7 @@
             <div class="edit-header">
               <el-select
                 v-model="selectedButton"
-                placeholder="选择按钮"
+                placeholder="选择类型"
               >
                 <el-option
                   v-for="option in buttonOptions"
@@ -142,10 +142,10 @@ export default {
       // 默认选中的标签
       activeTab: '已安装',
       // 编辑类型
-      editType: 'config', // 默认为配置文件
+      editType: 'upload', // 默认为上传类，但是点击编辑会切换成config，解决输入框问题
       // 上传类型
       uploadType: '',
-      selectedButton: 'triggerListener', // 默认值
+      selectedButton: '', // 默认值
       buttonOptions: [], // 动态按钮选项
     };
   },
@@ -161,7 +161,13 @@ export default {
       console.log('按钮点击事件');
     },
     handleTabClick(tab) {
-      console.log('切换到标签:', tab.label);
+      console.log('切换到标签:', tab.props.name);
+      if (tab.props.name === '编辑') {
+        // 延迟 0 秒后切换 editType
+        setTimeout(() => {
+          this.editType = 'config';
+        }, 0);
+      }
     },
     submit() {
       console.log('提交按钮点击');
@@ -215,6 +221,8 @@ export default {
 /* 配置文件/上传类切换样式 */
 .config-upload-switch {
   flex: 1;
+  display: flex;
+  justify-content: center; 
 }
 
 :deep(.el-radio-button.is-active .el-radio-button__original-radio:not(:disabled)+.el-radio-button__inner){

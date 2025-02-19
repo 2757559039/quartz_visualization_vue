@@ -1,5 +1,6 @@
 <template>
-    <div class="code-editor"  :class="{ 'multi-line': lineten >= 1 }">
+    <div class="code-editor">
+    <!-- <div class="code-editor"  :class="{ 'multi-line': lineten >= 1 }"> -->
       <Codemirror
         v-model:value="code"
         :options="cmOptions"
@@ -46,8 +47,8 @@
       return {
         code: this.modelValue || '',
         editorInstance: null, // 保存编辑器实例
-        lineCount: 0,
-        lineten:0,
+        // lineCount: 0,
+        // lineten:0,
       };
     },
     computed: {
@@ -90,12 +91,12 @@
             cm.showHint();
           }
         });
-        editor.on('change', () => {// 监听内容变化
-          this.lineCount = editor.lineCount();
-          if(this.lineCount>=10){
-            this.lineten = 1;
-          }
-        });
+        // editor.on('change', () => {// 监听内容变化
+        //   this.lineCount = editor.lineCount();
+        //   if(this.lineCount>=10){
+        //     this.lineten = 1;
+        //   }
+        // });
       },
     },
     watch: {
@@ -129,10 +130,10 @@
   :deep(.CodeMirror-gutters){
     width: 30px;
   }
-  :deep(.CodeMirror-lines) {
+  /* :deep(.CodeMirror-lines) {
     padding-left: 30px;
   }
-  /* 当行数 >= 10 时的样式 */
+
   .code-editor.multi-line :deep(.CodeMirror-lines) {
     padding-left: 0px;
   }
@@ -141,7 +142,7 @@
   }
   .code-editor.multi-line :deep(.CodeMirror-gutter-elt) {
     left:0px !important;
-  }
+  } */
   :deep(.CodeMirror-hints){
     z-index: 10111;
   }
