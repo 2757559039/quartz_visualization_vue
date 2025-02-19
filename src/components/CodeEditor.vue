@@ -1,5 +1,5 @@
 <template>
-    <div class="code-editor">
+    <div class="code-editor"  :class="{ 'multi-line': lineten >= 1 }">
       <Codemirror
         v-model:value="code"
         :options="cmOptions"
@@ -46,6 +46,8 @@
       return {
         code: this.modelValue || '',
         editorInstance: null, // 保存编辑器实例
+        lineCount: 0,
+        lineten:0,
       };
     },
     computed: {
@@ -73,17 +75,25 @@
       getMode(language) {
         const modes = {
           java: 'text/x-java',
+          json: 'text/x-json',
         };
-        return modes[language] || modes.java;
+        return modes[language] || modes.java|| modes.json;
       },
       onReady(editor) {
         this.editorInstance = editor; // 保存编辑器实例
+        this.lineCount = editor.lineCount();// 初始化时获取行数
         // 初始化折叠功能
         editor.foldCode(CodeMirror.Pos(0, 0));
         // 设置输入监听以触发自动补全
         editor.on('inputRead', (cm, location) => {
           if (/[a-zA-Z]/.test(location.text[0])) {
             cm.showHint();
+          }
+        });
+        editor.on('change', () => {// 监听内容变化
+          this.lineCount = editor.lineCount();
+          if(this.lineCount>=10){
+            this.lineten = 1;
           }
         });
       },
@@ -107,13 +117,32 @@
   
   <style scoped>
   .code-editor {
-    width: 100%;
-    height: 600px;
+    width: 90%;
+    height: 500px;
     /* overflow: auto; */
     border: 1px solid #ddd;
-    border-radius: 5px;
-    margin-top: 20px;
-
+    /* border-radius: 5px; */
+    /* margin-top: 20px; */
     font-size: 20px;
+  }
+
+  :deep(.CodeMirror-gutters){
+    width: 30px;
+  }
+  :deep(.CodeMirror-lines) {
+    padding-left: 30px;
+  }
+  /* 当行数 >= 10 时的样式 */
+  .code-editor.multi-line :deep(.CodeMirror-lines) {
+    padding-left: 0px;
+  }
+  :deep(.CodeMirror-gutter-elt){
+    left:-30px !important;
+  }
+  .code-editor.multi-line :deep(.CodeMirror-gutter-elt) {
+    left:0px !important;
+  }
+  :deep(.CodeMirror-hints){
+    z-index: 10111;
   }
   </style>

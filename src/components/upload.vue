@@ -167,7 +167,7 @@
 }
 
   /* 全局修正对话框行号对齐问题 */
-  .el-dialog .CodeMirror-gutters {
+  /* .el-dialog .CodeMirror-gutters {
     left: 0 !important;
     z-index: 1;
     width: 30px;
@@ -180,7 +180,7 @@
     left:-30px !important;
   }.CodeMirror-hints{
     z-index: 10111;
-  }
+  } */
 
 
 </style>

@@ -4,7 +4,7 @@
     <div class="search-filter-type">
       <el-input
         v-model="searchKeyword"
-        placeholder="搜索关键字"
+        placeholder="搜索类名"
         clearable
         style="width: 300px; margin-right: 20px;"
         @input="applyFilter"
@@ -16,7 +16,7 @@
 
       <el-select
         v-model="filterCriteria"
-        placeholder="筛选条件"
+        placeholder="类型：全部"
         style="width: 200px;"
         @change="applyFilter"
       >
@@ -80,31 +80,32 @@ export default {
       searchKeyword: '',
       filterCriteria: '',
       filterOptions: [
-        { label: '全部', value: '' },
-        { label: '状态1', value: 'status1' },
-        { label: '状态2', value: 'status2' },
+        { label: '类型：全部', value: '' },
+        { label: '类型：job', value: 'job' },
+        { label: '类型：job_detail', value: 'job_detail' },
+        { label: '类型：trigger', value: 'trigger' },
+        { label: '类型：update_trigger', value: 'update_trigger' },
       ],
     };
   },
   methods: {
     async fetchData() {
       try {
-        const response = await axios.post('http://114.132.71.250:8002/scriptBuilder/selectAllScript');
+        const response = await axios.post(
+          'http://114.132.71.250:8002/groovyBean/selectAllUnloadGroovyBean',
+          {
+            keywords: this.searchKeyword,
+            filterCriteria: this.filterCriteria,
+          }
+        );
         this.filteredTableData = response.data.data;
       } catch (error) {
         console.error('数据获取失败:', error);
       }
     },
     applyFilter() {
-      this.filteredTableData = this.tableData.filter((item) => {
-        const matchesSearch = item.className
-          ? item.className.toLowerCase().includes(this.searchKeyword.toLowerCase())
-          : true;
-        const matchesFilter = this.filterCriteria
-          ? item.status === this.filterCriteria
-          : true;
-        return matchesSearch && matchesFilter;
-      });
+      this.fetchData();
+      console.log("123");
     },
     handleInstall(row) {
       ElMessageBox.confirm(

@@ -34,74 +34,50 @@
         <!-- 编辑类的内容 -->
         <div class="content">
           <div class="edit">
-            <!-- 配置文件/上传类切换 -->
-            <div class="config-upload-switch">
-              <el-radio-group v-model="editType" fill="#333">
-                <el-radio-button label="config">配置文件</el-radio-button>
-                <el-radio-button label="upload">上传类</el-radio-button>
-              </el-radio-group>
+            <!-- 下拉框、配置文件/上传类切换、按钮 -->
+            <div class="edit-header">
+              <el-select
+                v-model="selectedButton"
+                placeholder="选择按钮"
+              >
+                <el-option
+                  v-for="option in buttonOptions"
+                  :key="option.value"
+                  :label="option.label"
+                  :value="option.value"
+                />
+              </el-select>
+              <div class="config-upload-switch">
+                <el-radio-group v-model="editType" fill="#333">
+                  <el-radio-button label="config">配置文件</el-radio-button>
+                  <el-radio-button label="upload">上传类</el-radio-button>
+                </el-radio-group>
+              </div>
+              <div class="edit-buttons">
+                <el-button type="primary" @click="submit">提交</el-button>
+                <el-button
+                  v-if="editType === 'config'"
+                  @click="reset"
+                >
+                  重置
+                </el-button>
+                <el-button
+                  v-else
+                  @click="clear"
+                >
+                  清空
+                </el-button>
+              </div>
             </div>
 
             <!-- 配置文件内容 -->
             <div v-if="editType === 'config'" class="config-content">
-              <el-row :gutter="20">
-                <el-col :span="12">
-                  <el-row>
-                    <el-button @click="handleClick">triggerListener</el-button>
-                  </el-row>
-                  <el-row>
-                    <el-button @click="handleClick">threadPoolProperties</el-button>
-                  </el-row>
-                  <el-row>
-                    <el-button @click="handleClick">schedulerProperties</el-button>
-                  </el-row>
-                  <el-row>
-                    <el-button @click="handleClick">saveQuartzProperties</el-button>
-                  </el-row>
-                  <el-row>
-                    <el-button @click="handleClick">refresh</el-button>
-                  </el-row>
-                </el-col>
-                <el-col :span="12">
-                  <el-row>
-                    <el-button @click="handleClick">pluginProperties</el-button>
-                  </el-row>
-                  <el-row>
-                    <el-button @click="handleClick">jobStoreProperties</el-button>
-                  </el-row>
-                  <el-row>
-                    <el-button @click="handleClick">jobListener</el-button>
-                  </el-row>
-                  <el-row>
-                    <el-button @click="handleClick">getgroup</el-button>
-                  </el-row>
-                  <el-row>
-                    <el-button @click="handleClick">dataSourceProperties</el-button>
-                  </el-row>
-                </el-col>
-              </el-row>
+              <CodeEditor :modelValue="editorContent" language="json" />
             </div>
 
             <!-- 上传类内容 -->
             <div v-if="editType === 'upload'" class="upload-content">
-              <el-row :gutter="20">
-                <el-col :span="12">
-                  <el-row>
-                    <el-button @click="uploadModal('job')">Job</el-button>
-                  </el-row>
-                  <el-row>
-                    <el-button @click="uploadModal('jobDetail')">JobDetail</el-button>
-                  </el-row>
-                </el-col>
-                <el-col :span="12">
-                  <el-row>
-                    <el-button @click="uploadModal('trigger')">Trigger</el-button>
-                  </el-row>
-                  <el-row>
-                    <el-button @click="uploadModal('updateTrigger')">UpdateTrigger</el-button>
-                  </el-row>
-                </el-col>
-              </el-row>
+              <CodeEditor :modelValue="editorContent" language="java" />
             </div>
           </div>
         </div>
@@ -120,6 +96,7 @@
 import UnerectedList from '../components/UnerectedList.vue';
 import InstalledList from '../components/InstalledList.vue';
 import UpLoad from '../components/upload.vue';
+import CodeEditor from '../components/CodeEditor.vue';
 
 export default {
   name: 'MainPage',
@@ -127,6 +104,38 @@ export default {
     UnerectedList,
     InstalledList,
     UpLoad,
+    CodeEditor,
+  },
+  watch: {
+    editType: {
+      immediate: true, // 立即执行一次
+      handler(newVal) {
+        // 根据编辑类型动态设置按钮选项
+        if (newVal === 'config') {
+          this.buttonOptions = [
+            { label: 'triggerListener', value: 'triggerListener' },
+            { label: 'threadPoolProperties', value: 'threadPoolProperties' },
+            { label: 'schedulerProperties', value: 'schedulerProperties' },
+            { label: 'saveQuartzProperties', value: 'saveQuartzProperties' },
+            { label: 'refresh', value: 'refresh' },
+            { label: 'pluginProperties', value: 'pluginProperties' },
+            { label: 'jobStoreProperties', value: 'jobStoreProperties' },
+            { label: 'jobListener', value: 'jobListener' },
+            { label: 'getgroup', value: 'getgroup' },
+            { label: 'dataSourceProperties', value: 'dataSourceProperties' },
+          ];
+          this.selectedButton = 'triggerListener'; // 配置文件的默认值
+        } else if (newVal === 'upload') {
+          this.buttonOptions = [
+            { label: 'Job', value: 'Job' },
+            { label: 'JobDetail', value: 'JobDetail' },
+            { label: 'Trigger', value: 'Trigger' },
+            { label: 'UpdateTrigger', value: 'UpdateTrigger' },
+          ];
+          this.selectedButton = 'Job'; // 上传类的默认值
+        }
+      },
+    },
   },
   data() {
     return {
@@ -136,27 +145,32 @@ export default {
       editType: 'config', // 默认为配置文件
       // 上传类型
       uploadType: '',
+      selectedButton: 'triggerListener', // 默认值
+      buttonOptions: [], // 动态按钮选项
     };
   },
   methods: {
-    Go(address){
-      this.$router.push({ path: '/'+address });
+    Go(address) {
+      this.$router.push({ path: '/' + address });
     },
     uploadModal(type) {
-      this.uploadType = type; // 设置上传类型
-      this.$refs.uploadModal.uploadModal(); // 打开上传弹窗
+      this.uploadType = type;
+      this.$refs.uploadModal.uploadModal();
     },
-
-    editConfig() {
-      console.log('开始编辑配置文件');
+    handleClick() {
+      console.log('按钮点击事件');
     },
-
     handleTabClick(tab) {
       console.log('切换到标签:', tab.label);
     },
-
-    handleClick() {
-      console.log('按钮点击事件');
+    submit() {
+      console.log('提交按钮点击');
+    },
+    reset() {
+      console.log('重置按钮点击');
+    },
+    clear() {
+      console.log('清空按钮点击');
     },
   },
 };
@@ -173,36 +187,66 @@ export default {
   --el-tabs-header-height: 56px;
   --el-tabs-header-padding: 0;
   --el-tabs-header-border-color: transparent;
-  --el-tabs-tab-active-color: #333; /* 选中标签文字颜色 */
+  --el-tabs-tab-active-color: #333;
   --el-tabs-tab-font-size: 16px;
   --el-tabs-tab-line-height: 1;
   --el-tabs-tab-vertical-flex: flex-end;
   border-radius: 20px;
   background-color: #fff;
-  width: 60%; /* 增加宽度 */
+  width: 60%;
   height: 700px;
   margin: 0 auto;
-  margin-top:50px;
+  margin-top: 50px;
+}
+
+.edit-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  width: 90%;
+  padding-left: 5%;
+  justify-content: space-between;
+}
+
+:deep(.edit-header .el-select) {
+  flex: 1;
 }
 
 /* 配置文件/上传类切换样式 */
 .config-upload-switch {
-  margin-bottom: 20px;
+  flex: 1;
 }
+
 :deep(.el-radio-button.is-active .el-radio-button__original-radio:not(:disabled)+.el-radio-button__inner){
   background: linear-gradient(to left, rgb(53,204,255), rgb(4,114,182));
-  border-color:rgb(220, 223, 230) !important;
+  border-color: rgb(220, 223, 230) !important;
   box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0.5) !important;
 }
 
+:deep(.edit-buttons) {
+  flex: 1;
+}
+
+:deep(.edit-buttons .el-button) {
+  margin: 0px;
+  width: 70px;
+  margin-right: 30px;
+}
+
 /* 按钮样式 */
-/* .el-button {
+.el-button {
   background: linear-gradient(to left, rgb(53, 204, 255), rgb(4, 114, 182));
   color: #ffffff;
   border: none;
-} */
-/* 配置文件 */
-.config-content .el-button{
+}
+
+.config-content,
+.upload-content{
+  display: flex;
+  justify-content: center;
+}
+
+.config-content .el-button {
   background: linear-gradient(to left, rgb(53, 204, 255), rgb(4, 114, 182));
   color: #ffffff;
   border: none;
@@ -211,8 +255,8 @@ export default {
   height: 70px;
   font-size: 20px;
 }
-/* 上传类 */
-.upload-content .el-button{
+
+.upload-content .el-button {
   margin: 10px auto 10px auto;
   width: 500px;
   height: 200px;
@@ -222,7 +266,7 @@ export default {
 /* 其他样式 */
 .content {
   padding: 20px;
-  text-align: center;
+  /* text-align: center; */
   border-radius: 0 0 20px 20px;
 }
 
@@ -230,7 +274,7 @@ export default {
 .bottom-buttons {
   display: flex;
   gap: 20px;
-  padding-top:30px;
+  padding-top: 30px;
   justify-content: center;
 }
 
@@ -243,9 +287,9 @@ export default {
   font-size: 24px;
 }
 
-:deep(.el-dialog.uploadmod ){
+:deep(.el-dialog.uploadmod) {
   background-color: #fefefe;
-  top:-100px;
+  top: -100px;
   border: 1px solid #888;
   width: 1440px;
   height: 800px;
@@ -253,8 +297,8 @@ export default {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   z-index: 4;
 }
-/* 隐藏滚动条 */
-:deep(.el-overlay-dialog){
+
+:deep(.el-overlay-dialog) {
   overflow: hidden;
 }
 </style>
