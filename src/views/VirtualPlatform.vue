@@ -119,8 +119,8 @@ export default {
             { label: 'triggerListener', value: 'triggerListener' },
             { label: 'threadPoolProperties', value: 'threadPoolProperties' },
             { label: 'schedulerProperties', value: 'schedulerProperties' },
-            { label: 'saveQuartzProperties', value: 'saveQuartzProperties' },
-            { label: 'refresh', value: 'refresh' },
+            // { label: 'saveQuartzProperties', value: 'saveQuartzProperties' },
+            // { label: 'refresh', value: 'refresh' },
             { label: 'pluginProperties', value: 'pluginProperties' },
             { label: 'jobStoreProperties', value: 'jobStoreProperties' },
             { label: 'jobListener', value: 'jobListener' },
@@ -137,6 +137,7 @@ export default {
             { label: 'UpdateTrigger', value: 'UpdateTrigger' },
           ];
           this.selectedButton = 'Job'; // 上传类的默认值
+          this.editorContent = '';
         }
       },
     },
@@ -183,16 +184,16 @@ export default {
       }
 
       const configUrlMap = {
-        triggerListener: 'http://114.132.71.250:8002/QuartzProperties/triggerListener',
-        threadPoolProperties: 'http://114.132.71.250:8002/QuartzProperties/threadPoolProperties',
-        schedulerProperties: 'http://114.132.71.250:8002/QuartzProperties/schedulerProperties',
-        saveQuartzProperties: 'http://114.132.71.250:8002/QuartzProperties/saveQuartzProperties',
-        refresh: 'http://114.132.71.250:8002/QuartzProperties/refresh',
-        pluginProperties: 'http://114.132.71.250:8002/QuartzProperties/pluginProperties',
-        jobStoreProperties: 'http://114.132.71.250:8002/QuartzProperties/jobStoreProperties',
-        jobListener: 'http://114.132.71.250:8002/QuartzProperties/jobListener',
-        getgroup: 'http://114.132.71.250:8002/QuartzProperties/getgroup',
-        dataSourceProperties: 'http://114.132.71.250:8002/QuartzProperties/dataSourceProperties',
+        triggerListener: 'http://114.132.71.250:8002/quartzConfig/triggerListener',
+        threadPoolProperties: 'http://114.132.71.250:8002/quartzConfig/threadPoolProperties',
+        schedulerProperties: 'http://114.132.71.250:8002/quartzConfig/schedulerProperties',
+        saveQuartzProperties: 'http://114.132.71.250:8002/quartzConfig/saveQuartzProperties',
+        refresh: 'http://114.132.71.250:8002/quartzConfig/refresh',
+        pluginProperties: 'http://114.132.71.250:8002/quartzConfig/pluginProperties',
+        jobStoreProperties: 'http://114.132.71.250:8002/quartzConfig/jobStoreProperties',
+        jobListener: 'http://114.132.71.250:8002/quartzConfig/jobListener',
+        getgroup: 'http://114.132.71.250:8002/quartzConfig/getgroup',
+        dataSourceProperties: 'http://114.132.71.250:8002/quartzConfig/dataSourceProperties',
       };
 
       const selectedUrl = configUrlMap[this.selectedButton];
@@ -201,9 +202,15 @@ export default {
         return;
       }
 
-      axios.get(selectedUrl)
+      return axios.get(selectedUrl) // 返回 axios.get 的 Promise
         .then(response => {
-          this.editorContent = response.data; // 假设接口返回的数据是字符串
+          // 如果响应数据是 JSON 格式，将其转换为字符串
+          if (typeof response.data === 'object') {
+            this.editorContent = JSON.stringify(response.data, null, 2); // 格式化 JSON
+          } else {
+            this.editorContent = response.data; // 直接赋值
+          }
+          return Promise.resolve(); // 返回一个成功的 Promise
         })
         .catch(error => {
           console.error('获取数据失败:', error);
@@ -211,6 +218,7 @@ export default {
             message: '获取数据失败',
             type: 'error',
           });
+          return Promise.reject(); // 返回一个失败的 Promise
         });
     },
     submit() {
@@ -246,7 +254,7 @@ export default {
                   message: '提交成功',
                   type: 'success',
                 });
-                if(editType === 'upload'){
+                if(this.editType === 'upload'){
                   // 清空输入框
                   this.editorContent = '';
                 }

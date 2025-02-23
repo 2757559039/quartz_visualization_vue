@@ -51,10 +51,10 @@
         </template>
         <template #default="scope">
           <div class="czbtn">
-            <el-button class="gxb" @click="handleInstall(scope.row)">安装</el-button>
-            <el-button class="xzb">查看</el-button>
-            <el-button class="xzb">修改</el-button>
-            <el-button class="xzb" @click="handleDelete(scope.row)">删除</el-button>
+            <el-button class="azb" @click="handleInstall(scope.row)">安装</el-button>
+            <el-button class="ckb">查看</el-button>
+            <el-button class="xgb">修改</el-button>
+            <el-button class="scb" @click="handleDelete(scope.row)">删除</el-button>
           </div>
         </template>
       </el-table-column>
@@ -105,7 +105,7 @@ export default {
     },
     applyFilter() {
       this.fetchData();
-      console.log("123");
+      console.log(this.searchKeyword);
     },
     handleInstall(row) {
       ElMessageBox.confirm(
@@ -121,6 +121,7 @@ export default {
           const className = row.className;
           axios.post(`http://114.132.71.250:8002/groovyBean/loadGroovyBean?className=${className}`)
             .then(response => {
+              console.log(response);
               if (response.data.code === '200') {
                 ElMessage({
                   message: '安装成功',

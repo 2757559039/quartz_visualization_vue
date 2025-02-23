@@ -87,7 +87,11 @@ export default {
   methods: {
     async fetchData() {
       try {
-        const response = await axios.post('http://114.132.71.250:8002/groovyBean/selectAllLoadGroovyBean');
+        const response = await axios.post('http://114.132.71.250:8002/groovyBean/selectAllLoadGroovyBean',
+          {
+            keywords: this.searchKeyword,
+            filterCriteria: this.filterCriteria,
+          });
         this.filteredTableData = response.data.data;
       } catch (error) {
         console.error('数据获取失败:', error);
