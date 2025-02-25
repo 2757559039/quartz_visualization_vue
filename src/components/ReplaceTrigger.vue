@@ -309,7 +309,7 @@ export default {
       },
     async getTrigger() {
       try {
-         const response = await axios.post("http://114.132.71.250:8002/task/Reflect/triggerclass");
+         const response = await axios.post("/task/Reflect/triggerclass");
         console.log(response);
         this.triggers = response.data.data;
 
@@ -329,7 +329,7 @@ export default {
         console.log(this.Info);
         try {
         const response = await axios.post(
-          "http://114.132.71.250:8002/task/Update/updateTrigger?oldtriggername=" +this.oldtriggername+"&oldtriggergroup="+this.oldtriggergroup,this.Info
+          "/task/Update/updateTrigger?oldtriggername=" +this.oldtriggername+"&oldtriggergroup="+this.oldtriggergroup,this.Info
         );
         console.log(response);
 
@@ -362,7 +362,7 @@ export default {
       }else if(this.selecttrigger === "CronTrigger"){
         if (this.cronexpression !== "") {
           const response = await axios.post(
-            "http://114.132.71.250:8002/task/Util/cron-check?cron=" +
+            "/task/Util/cron-check?cron=" +
               this.cronexpression
           );
           console.log(response);

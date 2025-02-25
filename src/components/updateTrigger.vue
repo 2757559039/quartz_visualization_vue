@@ -213,7 +213,7 @@ export default {
     async getTrigger() {
       try {
         const response = await axios.post(
-          "http://114.132.71.250:8002/task/Reflect/triggerclass"
+          "/task/Reflect/triggerclass"
         );
         console.log(response);
         this.triggers = response.data.data;
@@ -230,7 +230,7 @@ export default {
         this.builInfo();
         try {
           const response = await axios.post(
-            "http://114.132.71.250:8002/task/Update/updatetrigeerargument",
+            "/task/Update/updatetrigeerargument",
             this.Info
           );
           console.log(response);
@@ -263,7 +263,7 @@ export default {
       } else if (this.selecttrigger === "CronTrigger") {
         if (this.cronexpression !== "") {
           const response = await axios.post(
-            "http://114.132.71.250:8002/task/Util/cron-check?cron=" +
+            "/task/Util/cron-check?cron=" +
               this.cronexpression
           );
           console.log(response);

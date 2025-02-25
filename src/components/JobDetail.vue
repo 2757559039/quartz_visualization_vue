@@ -83,7 +83,7 @@ export default {
     async getJob() {
       try {
         const response = await axios.post(
-          "http://114.132.71.250:8002/task/Reflect/jobclass"
+          "/task/Reflect/jobclass"
         );
         console.log(response);
         this.jobClassNameGroup = response.data.data;
@@ -99,7 +99,7 @@ export default {
       console.log("getJobDetail");
       try {
         const response = await axios.post(
-          "http://114.132.71.250:8002/task/Reflect/jobdetailclass"
+          "/task/Reflect/jobdetailclass"
         );
         console.log(response);
         this.JobDetails = response.data.data;
@@ -114,7 +114,7 @@ export default {
 
     async update() {
       try {
-        const response = await axios.post("http://114.132.71.250:8002/task/Update/updatejob",null,{
+        const response = await axios.post("/task/Update/updatejob",null,{
           params:{
             jobname:this.jobName,
             jobgroup:this.jobGroup,

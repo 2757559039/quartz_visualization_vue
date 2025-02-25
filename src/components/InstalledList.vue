@@ -4,7 +4,7 @@
     <div class="search-filter-type">
       <el-input
         v-model="searchKeyword"
-        placeholder="搜索关键字"
+        placeholder="搜索类名"
         clearable
         style="width: 300px; margin-right: 20px;"
         @input="applyFilter"
@@ -16,7 +16,7 @@
 
       <el-select
         v-model="filterCriteria"
-        placeholder="筛选条件"
+        placeholder="类型：全部"
         style="width: 200px;"
         @change="applyFilter"
       >
@@ -78,9 +78,11 @@ export default {
       searchKeyword: '',
       filterCriteria: '',
       filterOptions: [
-        { label: '全部', value: '' },
-        { label: '状态1', value: 'status1' },
-        { label: '状态2', value: 'status2' },
+        { label: '类型：全部', value: '' },
+        { label: '类型：job', value: 'job' },
+        { label: '类型：job_detail', value: 'job_detail' },
+        { label: '类型：trigger', value: 'trigger' },
+        { label: '类型：update_trigger', value: 'update_trigger' },
       ],
     };
   },
@@ -98,21 +100,53 @@ export default {
       }
     },
     applyFilter() {
-      this.filteredTableData = this.tableData.filter((item) => {
-        const matchesSearch = item.className
-          ? item.className.toLowerCase().includes(this.searchKeyword.toLowerCase())
-          : true;
-        const matchesFilter = this.filterCriteria
-          ? item.status === this.filterCriteria
-          : true;
-        return matchesSearch && matchesFilter;
-      });
+      this.fetchData();
+      console.log('筛选条件：', this.filterCriteria);
     },
     handleUpdate(row) {
       console.log('更新:', row);
     },
     handleUninstall(row) {
-      console.log('卸载:', row);
+      ElMessageBox.confirm(
+        `确定要卸载类 ${row.className} 吗？`,
+        '确认卸载',
+        {
+          confirmButtonText: '确认',
+          cancelButtonText: '取消',
+          type: 'error',
+        }
+      )
+        .then(() => {
+          const className = row.className;
+          axios.post(`/groovyBean/unloadGroovyBean?classNam=${className}`)
+            .then(response => {
+              if (response.data.code === '200') {
+                ElMessage({
+                  message: '卸载成功',
+                  type: 'success',
+                });
+                this.fetchData(); // 重新加载数据
+              } else {
+                ElMessage({
+                  message: '卸载失败',
+                  type: 'error',
+                });
+              }
+            })
+            .catch(error => {
+              console.error('卸载失败:', error);
+              ElMessage({
+                message: '卸载失败',
+                type: 'error',
+              });
+            });
+        })
+        .catch(() => {
+          ElMessage({
+            type: 'info',
+            message: '已取消卸载',
+          });
+        });
     },
   },
   mounted() {

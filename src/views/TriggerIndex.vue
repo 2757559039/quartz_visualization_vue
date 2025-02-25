@@ -251,7 +251,7 @@ export default {
     row.triggerList = row.triggerList || [];
     row.loadDetails = row.loadDetails !== undefined ? row.loadDetails : false;
 
-    axios.post(`http://114.132.71.250:8002/task/Select/triggerDetail`, null, {
+    axios.post(`/task/Select/triggerDetail`, null, {
       params: {
         triggername: row.triggername,
         triggergroup: row.triggergroup
@@ -316,13 +316,13 @@ export default {
       }
       try {
         const response = await axios.post(
-          "http://114.132.71.250:8002/task/Select/FINDtriggerBYgroup?triggergroup=" + this.selectGroup)
+          "/task/Select/FINDtriggerBYgroup?triggergroup=" + this.selectGroup)
           this.trigger = response.data.data;
           this.expandedRows = [];
 
         this.selectName = null;
         const response1 = await axios.post(
-          "http://114.132.71.250:8002/task/Select/Triggername?triggergroup=" + this.selectGroup);
+          "/task/Select/Triggername?triggergroup=" + this.selectGroup);
           console.log(response1);
           this.names = response1.data.data;
           this.defaultName = '请选择触发器名';
@@ -336,7 +336,7 @@ export default {
     async getUsedTrigger() {
       try {
         const response = await axios.post(
-          "http://114.132.71.250:8002/task/Select/triggers"
+          "/task/Select/triggers"
         );
         console.log(response);
         this.trigger = response.data.data;
@@ -351,7 +351,7 @@ export default {
     async getGroups() {
       try {
         const response = await axios.post(
-          "http://114.132.71.250:8002/task/Select/triggergroupall"
+          "/task/Select/triggergroupall"
         );
         console.log(response);
         this.groups = response.data.data;
@@ -417,7 +417,7 @@ export default {
     async resumeAllJob() {
       try {
         const response = await axios.post(
-          "http://114.132.71.250:8002/task/Start/resumeall"
+          "/task/Start/resumeall"
         );
         console.log(response);
         // 重置表单
@@ -431,7 +431,7 @@ export default {
     async pauseAllJob() {
       try {
         const response = await axios.post(
-          "http://114.132.71.250:8002/task/Pause/alljob"
+          "/task/Pause/alljob"
         );
         console.log(response);
 
@@ -446,7 +446,7 @@ export default {
     async deleteAllJob() {
       try {
         const response = await axios.post(
-          "http://114.132.71.250:8002/task/Delete/alljob"
+          "/task/Delete/alljob"
         );
         console.log(response);
 
@@ -462,7 +462,7 @@ export default {
     async resumeJob(row) {
       try {
         const response = await axios.post(
-          "http://114.132.71.250:8002/task/Start/resumetri?triname=" +
+          "/task/Start/resumetri?triname=" +
           row.triggername +
             "&trigroup=" +
             row.triggergroup
@@ -480,7 +480,7 @@ export default {
     async pauseJob(row) {
       try {
         const response = await axios.post(
-          "http://114.132.71.250:8002/task/Pause/trigger?triname=" +
+          "/task/Pause/trigger?triname=" +
           row.triggername +
             "&trigroup=" +
             row.triggergroup
@@ -498,7 +498,7 @@ export default {
     async deleteJob(row) {
       try {
         const response = await axios.post(
-          "http://114.132.71.250:8002/task/Delete/jobUNtri?triggername=" +
+          "/task/Delete/jobUNtri?triggername=" +
           row.triggername +
             "&triggergroup=" +
             row.triggergroup

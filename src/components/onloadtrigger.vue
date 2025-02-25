@@ -233,7 +233,7 @@ export default {
     },
     async getjobgroups() {
       try {
-        const response = await axios.post("http://114.132.71.250:8002/task/Select/jobgroupall");
+        const response = await axios.post("/task/Select/jobgroupall");
         this.jobgroups = response.data.data;
       } catch (error) {
         console.error("请求失败，请检查网络连接");
@@ -242,7 +242,7 @@ export default {
     async select(jobgroup) {
       try {
         const response = await axios.post(
-          "http://114.132.71.250:8002/task/Select/FINDjobBYgroup?group=" + jobgroup
+          "/task/Select/FINDjobBYgroup?group=" + jobgroup
         );
         this.jobs = response.data.data;
       } catch (error) {
@@ -251,7 +251,7 @@ export default {
     },
     async getTrigger() {
       try {
-        const response = await axios.post("http://114.132.71.250:8002/task/Reflect/triggerclass");
+        const response = await axios.post("/task/Reflect/triggerclass");
         this.triggers = response.data.data;
       } catch (error) {
         console.error("请求失败，请检查网络连接");

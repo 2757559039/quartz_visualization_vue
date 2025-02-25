@@ -118,7 +118,7 @@ export default {
       )
         .then(() => {
           const className = row.className;
-          axios.post(`http://114.132.71.250:8002/groovyBean/loadGroovyBean?className=${className}`)
+          axios.post(`/groovyBean/loadGroovyBean?className=${className}`)
             .then(response => {
               console.log(response);
               if (response.data.code === '200') {
@@ -161,7 +161,7 @@ export default {
       )
         .then(() => {
           const id = row.id;
-          axios.post(`http://114.132.71.250:8002/scriptBuilder/deleteScript?id=${id}`)
+          axios.post(`/scriptBuilder/deleteScript?id=${id}`)
             .then(response => {
               if (response.data.code === '200') {
                 ElMessage({
