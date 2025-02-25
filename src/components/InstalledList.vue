@@ -87,7 +87,7 @@ export default {
   methods: {
     async fetchData() {
       try {
-        const response = await axios.post('http://114.132.71.250:8002/groovyBean/selectAllLoadGroovyBean',
+        const response = await axios.post('/groovyBean/selectAllLoadGroovyBean',
           {
             keywords: this.searchKeyword,
             filterCriteria: this.filterCriteria,

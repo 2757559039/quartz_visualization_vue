@@ -375,7 +375,7 @@ export default {
         deleteAllJob: '删除所有任务'
       };
 
-      const isAllPaused = (await axios.post('http://114.132.71.250:8002/task/Select/isAllPaused')).data.data;
+      const isAllPaused = (await axios.post('/task/Select/isAllPaused')).data.data;
       if(isAllPaused && (action === 'startNow' || action === 'pauseJob')){
         const message = '所有任务已冻结,请先解冻再操作';
       ElMessageBox.confirm(message, '确认操作', {

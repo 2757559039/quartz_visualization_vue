@@ -69,10 +69,10 @@
       handleUpload() {
         // 根据 uploadType 确定接口地址
         const urlMap = {
-          job: 'http://114.132.71.250:8002/scriptBuilder/saveJobToDB',
-          trigger: 'http://114.132.71.250:8002/scriptBuilder/saveTriggerToDB',
-          jobDetail: 'http://114.132.71.250:8002/scriptBuilder/saveJobDetailToDB',
-          updateTrigger: 'http://114.132.71.250:8002/scriptBuilder/saveUpdateTriggerToDB',
+          job: '/scriptBuilder/saveJobToDB',
+          trigger: '/scriptBuilder/saveTriggerToDB',
+          jobDetail: '/scriptBuilder/saveJobDetailToDB',
+          updateTrigger: '/scriptBuilder/saveUpdateTriggerToDB',
         };
 
         const url = urlMap[this.uploadType];

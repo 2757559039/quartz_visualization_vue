@@ -184,16 +184,16 @@ export default {
       }
 
       const configUrlMap = {
-        triggerListener: 'http://114.132.71.250:8002/quartzConfig/triggerListener',
-        threadPoolProperties: 'http://114.132.71.250:8002/quartzConfig/threadPoolProperties',
-        schedulerProperties: 'http://114.132.71.250:8002/quartzConfig/schedulerProperties',
-        saveQuartzProperties: 'http://114.132.71.250:8002/quartzConfig/saveQuartzProperties',
-        refresh: 'http://114.132.71.250:8002/quartzConfig/refresh',
-        pluginProperties: 'http://114.132.71.250:8002/quartzConfig/pluginProperties',
-        jobStoreProperties: 'http://114.132.71.250:8002/quartzConfig/jobStoreProperties',
-        jobListener: 'http://114.132.71.250:8002/quartzConfig/jobListener',
-        getgroup: 'http://114.132.71.250:8002/quartzConfig/getgroup',
-        dataSourceProperties: 'http://114.132.71.250:8002/quartzConfig/dataSourceProperties',
+        triggerListener: '/quartzConfig/triggerListener',
+        threadPoolProperties: '/quartzConfig/threadPoolProperties',
+        schedulerProperties: '/quartzConfig/schedulerProperties',
+        saveQuartzProperties: '/quartzConfig/saveQuartzProperties',
+        refresh: '/quartzConfig/refresh',
+        pluginProperties: '/quartzConfig/pluginProperties',
+        jobStoreProperties: '/quartzConfig/jobStoreProperties',
+        jobListener: '/quartzConfig/jobListener',
+        getgroup: '/quartzConfig/getgroup',
+        dataSourceProperties: '/quartzConfig/dataSourceProperties',
       };
 
       const selectedUrl = configUrlMap[this.selectedButton];
@@ -235,10 +235,10 @@ export default {
         .then(() => {
           // 获取选择的按钮对应的接口
           const urlMap = {
-            Job: 'http://114.132.71.250:8002/scriptBuilder/saveJobToDB',
-            JobDetail: 'http://114.132.71.250:8002/scriptBuilder/saveJobDetailToDB',
-            Trigger: 'http://114.132.71.250:8002/scriptBuilder/saveTriggerToDB',
-            UpdateTrigger: 'http://114.132.71.250:8002/scriptBuilder/saveUpdateTriggerToDB',
+            Job: '/scriptBuilder/saveJobToDB',
+            JobDetail: '/scriptBuilder/saveJobDetailToDB',
+            Trigger: '/scriptBuilder/saveTriggerToDB',
+            UpdateTrigger: '/scriptBuilder/saveUpdateTriggerToDB',
           };
           const selectedUrl = urlMap[this.selectedButton];
           if (!selectedUrl) {

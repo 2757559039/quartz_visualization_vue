@@ -52,8 +52,7 @@
         <template #default="scope">
           <div class="czbtn">
             <el-button class="azb" @click="handleInstall(scope.row)">安装</el-button>
-            <el-button class="ckb">查看</el-button>
-            <el-button class="xgb">修改</el-button>
+            <el-button class="ckb">查看/修改</el-button>
             <el-button class="scb" @click="handleDelete(scope.row)">删除</el-button>
           </div>
         </template>
@@ -92,7 +91,7 @@ export default {
     async fetchData() {
       try {
         const response = await axios.post(
-          'http://114.132.71.250:8002/groovyBean/selectAllUnloadGroovyBean',
+          '/groovyBean/selectAllUnloadGroovyBean',
           {
             keywords: this.searchKeyword,
             filterCriteria: this.filterCriteria,
