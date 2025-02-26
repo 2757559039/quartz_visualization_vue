@@ -4,6 +4,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import JobIndex from '../views/JobIndex.vue'
 import TriggerIndex from '../views/TriggerIndex.vue'
 import test from '../components/test.vue'
+import VirtualPlatform from '../views/VirtualPlatform.vue'
 
 const routes = [
   {
@@ -26,6 +27,11 @@ const routes = [
     name: 'TriggerIndex',
     component: TriggerIndex
   },
+  {
+    path: '/VirtualPlatform',
+    name: 'VirtualPlatform',
+    component: VirtualPlatform
+  }
 ]
 
 const router = createRouter({

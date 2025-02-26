@@ -8,6 +8,9 @@ import Vue3CronPlusPicker from 'vue3-cron-plus-picker' // 引入组件
 import 'vue3-cron-plus-picker/style.css' //引入组件相关样式
 //全局引用路由
 import router from './router'
+import axios from 'axios'
+
+axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL
 
 const app = createApp(App)
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {

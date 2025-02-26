@@ -1,14 +1,14 @@
 <template>
   <el-dialog
     v-model="isVisible"
-    title="代码编辑器"
+    title="类编辑器"
     @close="back"
     :before-close="back"
   >
     <div>
       <CodeEditor :modelValue="editorContent" language="java" @update:modelValue="onCodeChange" />
       <div class="buttonbox"> 
-        <el-button type="primary" @click="update">上传类</el-button>
+        <el-button type="primary" @click="confirmUpload">上传类</el-button>
         <el-button  @click="back" class="back-btn">返回</el-button>
       </div>
     </div>
@@ -17,10 +17,18 @@
   
   <script>
   import CodeEditor from './CodeEditor.vue';
+  import axios from 'axios';
+  import { ElMessage, ElMessageBox } from 'element-plus';
   
   export default {
     components: {
       CodeEditor,
+    },
+    props: {
+      uploadType: {
+        type: String,
+        required: true,
+      },
     },
     data() {
       return {
@@ -39,7 +47,68 @@
       },
       uploadModal(){
         this.isVisible = true;
-      }
+      },
+      confirmUpload() {
+        // 大小写转换有点多余说实在的
+        const uploadTypeText = this.uploadType.charAt(0).toUpperCase() + this.uploadType.slice(1);
+        ElMessageBox.confirm(
+          `确定要上传 ${uploadTypeText} 吗？`,
+          '确认上传',
+          {
+            confirmButtonText: '提交',
+            cancelButtonText: '取消',
+          },
+        )
+          .then(() => {
+            this.handleUpload();
+          })
+          .catch(() => {
+            // 取消上传
+          });
+      },
+      handleUpload() {
+        // 根据 uploadType 确定接口地址
+        const urlMap = {
+          job: '/scriptBuilder/saveJobToDB',
+          trigger: '/scriptBuilder/saveTriggerToDB',
+          jobDetail: '/scriptBuilder/saveJobDetailToDB',
+          updateTrigger: '/scriptBuilder/saveUpdateTriggerToDB',
+        };
+
+        const url = urlMap[this.uploadType];
+        if (!url) {
+          ElMessage.error('未知的上传类型');
+          return;
+        }
+
+        const data = {
+          code: this.editorContent,
+        };
+
+        axios.post(url, data)
+          .then(response => {
+            if (response.data.code === '200') {
+              ElMessage({
+                message: `${this.uploadType}代码上传成功`,
+                type: 'success',
+              });
+              this.editorContent = ''; // 清空输入框
+              this.back(); // 关闭弹窗
+            } else {
+              ElMessage({
+                message: '代码上传失败',
+                type: 'error',
+              });
+            }
+          })
+          .catch(error => {
+            console.error('代码上传失败:', error);
+            ElMessage({
+              message: '代码上传失败',
+              type: 'error',
+            });
+          });
+        },
     }
   };
   </script>
@@ -98,7 +167,7 @@
 }
 
   /* 全局修正对话框行号对齐问题 */
-  .el-dialog .CodeMirror-gutters {
+  /* .el-dialog .CodeMirror-gutters {
     left: 0 !important;
     z-index: 1;
     width: 30px;
@@ -111,7 +180,7 @@
     left:-30px !important;
   }.CodeMirror-hints{
     z-index: 10111;
-  }
+  } */
 
 
 </style>
