@@ -69,10 +69,10 @@ export default {
 
 
       // 触发器类型选择
-      isCustomJobDetail: "false",
+      isCustomJobDetail: false,
       // 自定义JobDetail输入
       JobDetails:[],
-      jobDetail: "",
+      jobDetail: null,
     };
   },
   methods: {
@@ -114,17 +114,47 @@ export default {
 
     async update() {
       try {
-        const response = await axios.post("/task/Update/updatejob",null,{
-          params:{
-            jobname:this.jobName,
-            jobgroup:this.jobGroup,
-            jobclassname:this.jobClassName,
-            description:this.jobDescription,
-            isCustomJobDetail:this.isCustomJobDetail,
-            jobDetail:this.jobDetail
+        let info = {};
+        if(this.isCustomJobDetail){
+          if(this.jobDetail == null || this.jobDetail == "" || this.jobDetail == undefined){
+            this.$message({
+              message: "请选择自定义JobDetail",
+              type: "error"
+              });
+            return;
           }
+          info.jobDetail = this.jobDetail;
+        }
+        info.jobname = this.jobName;
+        info.jobgroup = this.jobGroup;
+        if(this.jobClassName == "" || this.jobClassName == null || this.jobClassName == undefined){
+          this.$message({
+            message: "请选择任务类名",
+            type: "error"
+            });
+          return;
+        }else{
+          info.jobclassname = this.jobClassName;
+        }
+        info.description = this.jobDescription;
+        info.isCustomJobDetail = this.isCustomJobDetail;
+
+        const response = await axios.post("/task/Update/updatejob",null,{
+          params: info
         });
         console.log(response);
+        if(response.data.data === 'success'){
+          this.$message({
+            message: "更新成功",
+            type: "success"
+            });
+          this.$emit('close');
+          }else{
+            this.$message({
+              message: "更新失败",
+              type: "error"
+              });
+          }
       } catch (error) {
         // 处理网络错误或其他错误
         this.errorMessage = "请求失败，请检查网络连接";
@@ -140,7 +170,7 @@ export default {
     this.jobGroup = this.jobinfo.jobgroup;
     this.jobClassName = this.jobinfo.jobclassname;
     this.jobDescription = this.jobinfo.description;
-    this.isCustomJobDetail = this.jobinfo.isCustomJobDetail;
+    this.isCustomJobDetail = this.jobinfo.isCustomJobDetail ? true : false;
     this.jobDetail = this.jobinfo.jobDetail;
   },
 };

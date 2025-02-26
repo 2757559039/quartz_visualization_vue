@@ -39,7 +39,7 @@
             />
           </el-form-item>
           <el-form-item label="JobDetail">
-            <el-select v-model="jobDetail" :disabled="isCustomJobDetail">
+            <el-select v-model="jobDetail" :disabled="isCustomJobDetail === 'false'">
               <el-option
                 v-for="(JobDetail, index) in JobDetails"
                 :key="index"
@@ -53,7 +53,7 @@
         </div>
         <div class="right">
           <el-form-item label="选择触发器">
-            <el-select v-model="trigger">
+            <el-select v-model="trigger" @change="getTrigger()">
               <el-option label="SimpleTrigger" value="SimpleTrigger" />
               <el-option label="CronTrigger" value="CronTrigger" />
               <el-option label="DailyTimeIntervalTrigger" value="DailyTimeIntervalTrigger" />
@@ -94,7 +94,7 @@
           </el-form-item>
 
             <el-form-item label="任务优先级" v-if="isCustomTrigger === 'false'">
-            <el-input-number v-model="priority" :min="0" :max="999"/>
+            <el-input-number v-model="priority" :min="1" :max="999"/>
             </el-form-item>
 
           <el-form-item label="开始任务时间" v-if="isCustomTrigger === 'false'">
@@ -116,6 +116,10 @@
               placeholder="选择结束日期"
               :disabled-date="disabledEndDate"
             />
+          </el-form-item>
+
+          <el-form-item v-if="isCustomTrigger === 'false'" label="设置时区">
+            <el-input v-model="timezone" placeholder="请设置时区" />
           </el-form-item>
 
           <!-- SimpleTrigger -->
@@ -157,22 +161,34 @@
               <el-option label="second" value="second" />
               <el-option label="minute" value="minute" />
               <el-option label="hour" value="hour" />
-              <el-option label="day" value="day" />
+              <!-- <el-option label="day" value="day" />
               <el-option label="month" value="month" />
-              <el-option label="year" value="year" />
+              <el-option label="year" value="year" /> -->
             </el-select>
           </el-form-item>
           <el-form-item
             v-if="trigger === 'DailyTimeIntervalTrigger' && isCustomTrigger === 'false'"
-            label="总执行次数"
+            label="请输入间隔次数"
           >
-            <el-input v-model="dailyrepeatcount" placeholder="请输入总执行次数" />
+            <el-input v-model="dailynum" placeholder="请输入间隔次数" />
           </el-form-item>
           <el-form-item
             v-if="trigger === 'DailyTimeIntervalTrigger' && isCustomTrigger === 'false'"
             label="总执行次数"
           >
             <el-input v-model="dailyrepeatcount" placeholder="请输入总执行次数" />
+          </el-form-item>
+          <el-form-item
+            v-if="trigger === 'DailyTimeIntervalTrigger' && isCustomTrigger === 'false'"
+            label="当天开始时间"
+          >
+            <el-time-picker v-model="DayStartTime" placeholder="Arbitrary time" format="HH:mm:ss" value-format="HH:mm:ss" />
+          </el-form-item>
+          <el-form-item
+            v-if="trigger === 'DailyTimeIntervalTrigger' && isCustomTrigger === 'false'"
+            label="当天结束时间"
+          >
+          <el-time-picker v-model="DayEndTime" placeholder="Arbitrary time" format="HH:mm:ss" value-format="HH:mm:ss" />
           </el-form-item>
           <el-form-item
             v-if="trigger === 'DailyTimeIntervalTrigger' && isCustomTrigger === 'false'"
@@ -266,40 +282,51 @@ export default {
   },
   data() {
     return {
-      triggers: [],
       jobName: "",
       jobGroup: "",
       jobClassName: "",
       jobClassNameGroup: [],
       jobDescription: "",
-      startTime: "",
-      endTime: "",
-      priority: 5,
-      selecttrigger: "",
-      trigger: "SimpleTrigger",
       isCustomJobDetail: "false",
       JobDetails: [],
       jobDetail: "",
+
+      trigger: "SimpleTrigger",
+
       isCustomTrigger: "false",
+      triggers: [],
+      selecttrigger: "",
+
+      startTime: "",
+      endTime: "",
+      priority: 5,
+      timezone: "Asia/Shanghai",
       triggername: "",
       triggergroup: "",
+      
       simpletimesecond: "",
       repeatcount: "",
+
       cronexpression: "",
+
       calendartime: "second",
       calendarnum: "",
       preserveHourOfDayAcrossDaylightSavings: false,
       skipDayIfHourDoesNotExist: false,
-      timezone: "Asia/Shanghai",
+      
       dailytime: "second",
       dailynum: "",
       dailyrepeatcount: "",
+      DayStartTime: "", // 当天开始时间
+      DayEndTime: "", // 当天结束时间
       dailyworkday: [],
       workday: false,
       weekend: false,
       all: false,
       options: ["1", "2", "3", "4", "5", "6", "7", "workday", "weekend", "all"],
+
       Info: {},
+
       isVisible: false,
       showCronDialog: false
     };
@@ -307,7 +334,11 @@ export default {
   methods: {
     async getTrigger() {
       try {
-        const response = await axios.post("/task/Reflect/triggerclass");
+        const response = await axios.post("/task/Reflect/triggerclass",null, {
+          params: {
+            type: this.trigger,
+          },
+        });
         console.log(response);
         this.triggers = response.data.data;
       } catch (error) {
@@ -340,26 +371,12 @@ export default {
       if (this.jobClassName === "") {
         tip = tip + "任务类名不能为空\n";
       }
-      if (this.priority > 999 || this.priority < 0) {
-        tip = tip + "优先级范围为0~999\n";
-      }
-      if (this.startTime === "" || this.endTime === "") {
-        tip = tip + "任务时间不能为空\n";
-      }
+
       if (this.trigger === "") {
         tip = tip + "触发器类型不能为空\n";
       }
       if (this.isCustomJobDetail === "true" && this.jobDetail === "") {
         tip = tip + "你已开启自定义的jobdetail,请选择你的自定义jobdetail\n";
-      }
-      if (this.isCustomTrigger === "true" && this.selecttrigger === "") {
-        tip = tip + "你已开启自定义的触发器,请选择你的自定义触发器\n";
-      }
-      if (
-        this.isCustomTrigger === "false" &&
-        (this.triggername === "" || this.triggergroup === "")
-      ) {
-        tip = tip + "你未开启自定义的触发器,请选择输入触发器名及触发器分组\n";
       }
       if (tip !== "") {
         alert(tip);
@@ -368,53 +385,55 @@ export default {
       console.log('yes');
       return "true";
     },
+
+
+
     async checkTrigger() {
+      let tip = "";
       if (this.isCustomTrigger === "true") {
-        return true;
-      } else if (this.trigger === "SimpleTrigger") {
-        if (
-          !(
-            (this.simpletimesecond === "" && this.repeatcount === "") ||
-            (this.simpletimesecond !== "" && this.repeatcount !== "")
-          )
-        ) {
-          alert("请输入完整参数或请清空输入使用默认参数");
-          return false;
+        if(this.selecttrigger === ""){
+          tip = tip + "请选择触发器实现类\n";
+          alert(tip);
+          return "false";
+        }
+      return "true";
+      } else {
+      if (this.triggername === "" || this.triggergroup === "") {
+        tip = tip + "触发器名或触发器组不能为空\n";
+      }
+      if (this.startTime === "") {
+        tip = tip + "开始时间不能为空\n";
+      }
+      if(this.priority >= 999 || this.priority < 0){
+        tip = tip + "优先级范围为1~999\n";
+      }
+      
+      if (this.trigger === "SimpleTrigger") {
+        if ( this.simpletimesecond === "" || this.repeatcount === "") {
+        tip = tip + "请输入完整参数\n";
         }
       } else if (this.trigger === "CronTrigger") {
         if (this.cronexpression !== "") {
-          const response = await axios.post(
-            "/task/Util/cron-check?cron=" + this.cronexpression
-          );
-          if (response.data.message === "cron表达式格式错误！") {
-            alert("cron表达式不合法");
-            return false;
-          }
+        const response = await axios.post(
+          "/task/Util/cron-check?cron=" + this.cronexpression
+        );
+        if (response.data.message === "cron表达式格式错误！") {
+          tip = tip + "cron表达式不合法\n";
+        }
         }
       } else if (this.trigger === "CalendarIntervalTrigger") {
-        if (
-          !(
-            (this.calendarnum === "" && this.timezone === "") ||
-            (this.calendarnum !== "" && this.timezone !== "")
-          )
-        ) {
-          alert("请输入完整参数或请清空输入使用默认参数");
-          return false;
+        if ( this.calendarnum === "" || this.calendartime === "") {
+        tip = tip + "请输入完整参数\n";
         }
       } else if (this.trigger === "DailyTimeIntervalTrigger") {
-        if (
-          !(
-            (this.dailynum === "" &&
-              this.dailyrepeatcount === "" &&
-              this.dailyworkday.length === 0) ||
-            (this.dailynum !== "" &&
-              this.dailyrepeatcount !== "" &&
-              this.dailyworkday.length !== 0)
-          )
-        ) {
-          alert("请输入完整参数或请清空输入使用默认参数");
-          return false;
+        if ( this.dailytime === "" || this.dailynum === "" || this.dailyrepeatcount === "" || this.dailyworkday.length === 0 || this.DayStartTime === "") {
+        tip = tip + "请输入完整参数或请清空输入使用默认参数\n";
         }
+      }
+      }
+      if (tip !== "") {
+      alert(tip);
+      return "false";
       }
       console.log('yes');
       return "true";
@@ -441,9 +460,7 @@ export default {
       this.Info.jobclassname = this.jobClassName;
       this.Info.description = this.jobDescription;
       this.Info.type = this.trigger;
-      this.Info.startime = this.startTime;
-      this.Info.endtime = this.endTime;
-      this.Info.priority = this.priority;
+
       this.Info.isCustomJobDetail = this.isCustomJobDetail;
       if (this.isCustomJobDetail === "true") {
         this.Info.jobDetail = this.jobDetail;
@@ -452,6 +469,12 @@ export default {
       if (this.isCustomTrigger === "true") {
         this.Info.trigger = this.selecttrigger;
       } else {
+        this.Info.startime = this.startTime;
+        if (this.endTime !== "") {
+          this.Info.endtime = this.endTime;
+        }
+        this.Info.priority = this.priority;
+        this.Info.timezone = this.timezone;
         this.Info.triggername = this.triggername;
         this.Info.triggergroup = this.triggergroup;
         if (
@@ -468,25 +491,29 @@ export default {
           this.Info.cronexpression = this.cronexpression;
         } else if (
           this.trigger === "CalendarIntervalTrigger" &&
-          this.calendarnum !== "" &&
-          this.timezone !== ""
+          this.calendarnum !== ""
         ) {
           this.Info.calendartime = this.calendartime;
           this.Info.calendarnum = this.calendarnum;
           this.Info.preserveHourOfDayAcrossDaylightSavings =
             this.preserveHourOfDayAcrossDaylightSavings;
           this.Info.skipDayIfHourDoesNotExist = this.skipDayIfHourDoesNotExist;
-          this.Info.timezone = this.timezone;
+
         } else if (
           this.trigger === "DailyTimeIntervalTrigger" &&
           this.dailynum !== "" &&
           this.dailyrepeatcount !== "" &&
-          this.dailyworkday.length !== 0
+          this.dailyworkday.length !== 0 &&
+          this.DayStartTime !==""
         ) {
           this.Info.dailytime = this.dailytime;
           this.Info.dailynum = this.dailynum;
           this.Info.dailyrepeatcount = this.dailyrepeatcount;
           this.Info.dailyworkday = this.dailyworkday;
+          this.Info.dailystarttime = this.DayStartTime;
+          if(this.DayEndTime){
+            this.Info.dailyendtime = this.DayEndTime;
+          }
         }
       }
     },
@@ -494,18 +521,17 @@ export default {
       console.log(this.Info);
       const if1 = this.checkBaseInfo() === "true";
       const if2 = await this.checkTrigger() === "true";
-      // console.log(this.checkBaseInfo());//这个会弹两次弹窗
-      console.log(this.checkTrigger().PromiseResult);
-      console.log(if1, if2);
       if (if1 && if2) {
-        console.log('yes');
-        console.log(this.Info);
         this.builInfo();
         console.log(this.Info);
         const response = await axios.post("/task/Add/job", this.Info);
         console.log(response);
-        this.Info = {};
-        this.closeModal();
+        if( response.data.data === "添加任务失败！"){
+          alert("添加任务失败！请检查参数是否正常,组,名是否重复");
+        }else{
+          this.Info = {};
+          this.closeModal();
+        }
       }
     },
     async addfreejob() {
@@ -532,6 +558,9 @@ export default {
             }
           );
           console.log(response);
+          if(response.data.data === "任务已存在！"){
+            alert("任务已存在！请勿添加重复任务")
+          }
           this.Info = {};
           this.closeModal();
         }

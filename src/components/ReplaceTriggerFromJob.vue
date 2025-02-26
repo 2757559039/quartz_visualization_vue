@@ -4,8 +4,30 @@
       <div class="typeselect">
           <p>触发器类型选择</p>
           <div class="title">
+          <span>需替换的触发器分组: </span>
+          <el-select v-model="oldtriggergroups" placeholder="Select">
+            <el-option
+              v-for="(trigger, index) in triggers"
+              :key="index"
+              :label="trigger"
+              :value="trigger"
+            />
+          </el-select>
+        </div>
+        <div class="title">
+          <span>需替换的触发器名称: </span>
+          <el-select v-model="oldtriggernames" placeholder="Select">
+            <el-option
+              v-for="(trigger, index) in triggers"
+              :key="index"
+              :label="trigger"
+              :value="trigger"
+            />
+          </el-select>
+        </div>
+          <div class="title">
           <span>触发器类型: </span>
-          <el-select v-model="selecttrigger" placeholder="Select" @change="getTrigger()">
+          <el-select v-model="selecttrigger" placeholder="Select">
             <el-option :label="'SimpleTrigger'" :value="'SimpleTrigger'"/>
             <el-option :label="'CronTrigger'" :value="'CronTrigger'"/>
             <el-option :label="'DailyTimeIntervalTrigger'" :value="'DailyTimeIntervalTrigger'"/>
@@ -68,12 +90,12 @@
       <div class="triggerdetail">
         <p>触发器详情</p>
         <div class="detailbox">
-          <div class="detail" v-if="isCustomTrigger === false">
+          <div class="detail">
             <span>触发器名称</span>
             <el-input v-model="triggername" placeholder="请输入触发器名称" />
           </div>
 
-          <div class="detail" v-if="isCustomTrigger === false">
+          <div class="detail">
             <span>触发器分组</span>
             <el-input v-model="triggergroup" placeholder="请输入触发器分组" />
           </div>
@@ -97,8 +119,7 @@
             </el-input>
             <el-dialog v-model="showCron">
               <Vue3CronPlusPicker @hide="closeDialog" @fill="fillValue" :expression="expression"/>
-            </el-dialog> 
-            
+            </el-dialog>            
           </div>
         </div>
 
@@ -155,7 +176,7 @@
           </div>
           <div class="detail">
             <span>当天结束时间</span>
-            <el-time-picker v-model="DayEndTime" placeholder="Arbitrary time" format="HH:mm:ss" value-format="HH:mm:ss"/>
+            <el-time-picker v-model="DayEndTime" placeholder="Arbitrary time" format="HH:mm:ss" value-format="HH:mm:ss" />
           </div>
           <div class="detail1">
             <span>执行日选择(星期)</span>
@@ -189,25 +210,16 @@
   
 <script>
 import axios from 'axios';
-import { Vue3CronPlusPicker } from 'vue3-cron-plus-picker';
-import 'vue3-cron-plus-picker/style.css';
+import 'vue3-cron-plus-picker/style.css'
+import {Vue3CronPlusPicker} from 'vue3-cron-plus-picker'
 import { tr } from 'element-plus/es/locales.mjs';
 
 export default {
-
-  components: {
-    Vue3CronPlusPicker
-  },
-  props: {
-    jobinfo: {
-      type: Object,
-      required: true,
-      // 默认值是一个空对象，避免直接修改父组件传递的对象
-      default: () => ({}),
-    },
-  },
+  components : {"Vue3CronPlusPicker":Vue3CronPlusPicker,},
   data() {
     return {
+      oldtriggergroups: "",
+      oldtriggernames: "",
       oldtriggername:"",
       oldtriggergroup:"",
 
@@ -255,18 +267,6 @@ export default {
     };
   },
   watch: {
-    jobinfo: {
-      immediate: true,
-      handler(newVal) {
-        if (newVal) {
-          this.selecttrigger = newVal.selecttrigger || "";
-          this.priority = newVal.priority || "";
-          this.isCustomTrigger = newVal.isCustomTrigger || false;
-          this.triggers = newVal.triggers || [];
-          this.trigger = newVal.trigger || "";
-        }
-      }
-    }
   },
   methods: {
     openDialog () {
@@ -353,11 +353,7 @@ export default {
       },
     async getTrigger() {
       try {
-         const response = await axios.post("/task/Reflect/triggerclass",null,{
-          params: {
-            type: this.selecttrigger,
-          },
-         });
+         const response = await axios.post("/task/Reflect/triggerclass");
         console.log(response);
         this.triggers = response.data.data;
 
@@ -397,7 +393,7 @@ export default {
       
     },
     async checkTrigger(){
-      if(this.isCustomTrigger === true){
+      if(this.isCustomTrigger === "true"){
         if(this.trigger === ""){
           alert("请选择自定义触发器");
           return false;
@@ -452,16 +448,15 @@ export default {
     },
 
     builInfo(){
-
-      this.Info.type = this.selecttrigger;
-      this.Info.isCustomTrigger = this.isCustomTrigger;
-      if(this.isCustomTrigger === true){
-          this.Info.trigger = this.trigger;
-      }else{
-        this.Info.triggername = this.triggername;
+      this.Info.triggername = this.triggername;
       this.Info.triggergroup = this.triggergroup;
 
       this.Info.priority = this.priority;
+      this.Info.type = this.selecttrigger;
+      this.Info.isCustomTrigger = this.isCustomTrigger;
+      if(this.isCustomTrigger === "true"){
+          this.Info.trigger = this.trigger;
+      }else{
         this.Info.startTime = this.startTime;
         if(this.endTime){
           this.Info.endTime = this.endTime;
@@ -491,11 +486,6 @@ export default {
 },
   created() {
     this.getTrigger();
-    console.log(this.jobinfo);
-    this.oldtriggername = this.jobinfo.triggername;
-    this.oldtriggergroup = this.jobinfo.triggergroup;
-    this.triggername = this.jobinfo.triggername;
-    this.triggergroup = this.jobinfo.triggergroup;
   },
 };
 </script>
@@ -503,7 +493,7 @@ export default {
 <style scoped>
 .container {
   width: 750px;
-  height: 560px;
+  height: 510px;
   padding: 10px;
   flex-direction: column;
   display: flex;
@@ -517,7 +507,7 @@ export default {
 .box {
   display: flex;
   flex-direction: row;
-  height: 600px;
+  height: 510px;
 }
 
 .box p {

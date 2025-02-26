@@ -53,7 +53,7 @@
         <el-table :data="Table" class="JobBox" @expand-change="handleExpandChange" :expand-row-keys="expandedRows" :row-key="getRowKey">
           <el-table-column type="expand">
             <template #default="props">
-              <el-table :data="props.row.triggerList" class="c">
+              <el-table :data="props.row.triggerList" class="c" empty-text="暂时无数据,请确认该任务是否有触发器" v-loading="!props.row.loadDetails" element-loading-text="加载中..."  element-loading-background="rgba(255, 255, 255)">
                 <el-table-column label="触发器分组" sortable prop="triggergroup" min-width="16" align="center"/>
                 <el-table-column label="触发器名" sortable prop="triggername" min-width="16" align="center"/>
                 <el-table-column label="任务类型" sortable prop="type" min-width="16" align="center"/>
@@ -101,7 +101,7 @@
                 </div>
                 <div class="b2"> 
                   <div class="button2Box"> 
-                    <el-button type="info" @click="replacetrigger(scope.row)">替换触发器</el-button>
+                    <el-button type="info" @click="replacetrigger(scope.row)" :disabled="true">替换触发器</el-button>
                   </div>
                   <div class="button2Box"> 
                     <el-button type="info" @click="updatejob(scope.row)">修改任务详情</el-button>
@@ -114,7 +114,7 @@
       </div>
     </div>
     
-    <TriggerModal ref="triggerModal" class="trmod"/>
+    <TriggerModal ref="triggerModal" class="trmod" />
     <JobModal ref="jobModal" class="jobmod"/>
     <UpLoad ref="uploadModal" class="uploadmod"/>
     <transition name="modal">
@@ -166,6 +166,7 @@
 </template>
     
   <script>
+  // 回调
 import axios from "axios";
 import ReplaceTrigger from "../components/ReplaceTrigger.vue";
 import JobDetail from "../components/JobDetail.vue";
@@ -188,7 +189,7 @@ export default {
     names: [],
     selectedJob: {},
     selectGroup: "",
-    defaultName:'请选择任务分组',
+    defaultName:'请先选择任务分组',
     selectName: null,
     selected: "",
     showModal: false,
@@ -206,10 +207,17 @@ export default {
     }
   },
   methods: {
-    search() {
+    async search() {
       if (this.selected !== "") {
         const searchTerm = this.selected.toLowerCase();
-        this.Jobs = this.Jobs.filter(job => 
+        let url;
+        if (this.selectGroup) {
+          url =  "/task/Select/FINDjobBYgroup?group=" + this.selectGroup;
+        }
+        else{
+          url =  "/task/Select/jobs";
+        }
+        this.Jobs = (await axios.post(url)).data.data.filter(job => 
           job.jobname.toLowerCase().includes(searchTerm) ||
           job.jobgroup.toLowerCase().includes(searchTerm) ||
           job.jobclassname.toLowerCase().includes(searchTerm) ||
@@ -226,6 +234,7 @@ export default {
         // 如果行被展开，则将其加入到 expandedRows 数组中
         if (!this.expandedRows.includes(rowKey)) {
           this.expandedRows.push(rowKey);
+          this.load(row);
         }
         else {
         console.log(this.expandedRows);
@@ -234,9 +243,9 @@ export default {
         }
        }
 
-      if (!row.loadDetails && expanded) {  // 根据loadDetails判定是否已经加载了数据，并且只有在展开时才加载数据
-        this.load(row);
-      }
+      // if (expanded) {  // 根据loadDetails判定是否已经加载了数据，并且只有在展开时才加载数据
+      //   this.load(row);
+      // }
     },
     getRowKey(row) {
       // 返回行的唯一标识，可以是任意唯一的字段
@@ -246,7 +255,7 @@ export default {
       console.log('load')
       // 动态添加 triggerList 和 loadDetails 属性
       row.triggerList = row.triggerList || [];
-      row.loadDetails = row.loadDetails !== undefined ? row.loadDetails : false;
+      row.loadDetails = false;
 
       axios.post(`/task/Select/FINDtriBYjob`, null, {
         params: {
@@ -322,13 +331,13 @@ export default {
 
     async SelectGroup() {
       console.log(this.selectGroup);
-      if(this.selectGroup == null){
+      if(this.selectGroup == null || this.selectGroup == "" || this.selectGroup == undefined){
         this.getUsedJob();
         this.expandedRows = [];
         this.names = [];
         this.selectName = null;
         this.selected = "";
-        this.defaultName = '请选择任务分组';
+        this.defaultName = '请先选择任务分组';
         return;
       }
       try {
@@ -371,7 +380,12 @@ export default {
               type: 'error'
             });
           }
-          this.load(row)
+        //   const rowKey = this.getRowKey(row);
+
+        //   console.log(this.expandedRows.includes(rowKey));
+        // if (this.expandedRows.includes(rowKey)) {
+        //   this.load(row);
+        // }
         })
         
         // 重置表单
@@ -403,7 +417,10 @@ export default {
             type: 'error'
           });
         }
-        this.load(row)
+        const rowKey = this.getRowKey(row);
+        if (this.expandedRows.includes(rowKey)) {
+          this.load(row);
+        }
         });
 
 
@@ -438,7 +455,10 @@ export default {
               type: 'error'
             });
           }
-          this.load(row)
+          const rowKey = this.getRowKey(row);
+        if (this.expandedRows.includes(rowKey)) {
+          this.load(row);
+        }
           // 重置表单
         })
         
@@ -496,6 +516,7 @@ export default {
     },
     closeshowjobDetail() {
       // 关闭弹窗
+      this.SelectGroup();
       this.showjobDetail = false;
     },
 
@@ -553,7 +574,8 @@ export default {
           "/task/Start/resumeall"
         );
         console.log(response);
-        this.getUsedJob();
+        //this.getUsedJob();
+        this.expandedRows = [];
         this.resumeall = [];
         this.checkAllPaused()
         // 重置表单
@@ -569,7 +591,8 @@ export default {
           "/task/Pause/alljob"
         );
         console.log(response);
-        this.getUsedJob();
+        //this.getUsedJob();
+        this.expandedRows = [];
         this.resumeall = [];
         this.checkAllPaused()
         // 重置表单
@@ -606,6 +629,18 @@ export default {
     console.error("请求失败，请检查网络连接", error);
     this.isAllPaused = false; 
   }
+},
+watch: {
+  showModal(newVal) {
+    if (!newVal) {
+      this.SelectGroup();
+    }
+  },
+  showjobDetail(newVal) {
+    if (!newVal) {
+      this.SelectGroup();
+    }
+  },
 },
 
   init(){
@@ -801,6 +836,7 @@ export default {
 
 .c{
   width: 1483px;
+  min-height: 120px;
 }
 
 :deep(.c .cell){
@@ -1011,8 +1047,9 @@ export default {
   background-color: #fefefe;
   border: 1px solid #888;
   width: 864px;
-  height: 780px;
+  height: 920px;
   border-radius: 14px;
+  margin-top: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   z-index: 4;
 }
@@ -1020,9 +1057,10 @@ export default {
   background-color: #fefefe;
   border: 1px solid #888;
   width: 460px;
-  height: 768px;
+  height: 928px;
   border-radius: 14px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
   z-index: 4;
 }
 :deep(.el-dialog.uploadmod ){

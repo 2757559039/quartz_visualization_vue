@@ -51,9 +51,9 @@
 
       <div class="box"> 
         <el-table :data="Table" class="JobBox" @expand-change="handleExpandChange" :expand-row-keys="expandedRows" :row-key="getRowKey">
-          <el-table-column type="expand">
+          <el-table-column type="expand" >
             <template #default="props">
-              <div>
+              <div v-if="props.row.triggerList" v-loading="!props.row.loadDetails" element-loading-text="加载中..."  element-loading-background="rgba(255, 255, 255)">
                 <!-- <p>{{ props.row.triggerList }}</p> -->
                 <div class="text">
                   <span class="left">是否使用自定义触发器:</span><span class="right">{{ props.row.triggerList.isConcurrentExectionDisallowed }}</span>
@@ -63,87 +63,121 @@
                   <span class="left">自定义触发器:</span><span class="right">{{ props.row.triggerList.trigger }}</span>
                 </div>
                 <div v-if="props.row.triggerList.isConcurrentExectionDisallowed === 'false'">
-                  <div v-if="props.row.type === 'SimpleTriggerImpl'">
+                  <div v-if="props.row.type === 'SimpleTrigger'">
                     <div class="text">
-                      <span class="left">触发间隔时间:</span><span class="right">{{ props.row.triggerList.simpletimesecond }} 秒</span>
+                      <span class="left">触发间隔时间:</span><span class="right">{{ props.row.triggerList.simpletimesecond }} 毫秒</span>
                     </div>
                     <div class="text">
                       <span class="left">触发器执行次数:</span><span class="right">{{ props.row.triggerList.repeatcount }} 次</span>
                     </div>
                   </div>
-                  <div v-else-if="props.row.type === 'CronTriggerImpl'">
+                  <div v-else-if="props.row.type === 'CronTrigger'">
                     <div class="text">
                       <span class="left">cron表达式:</span><span class="right">{{ props.row.triggerList.cronexpression }}</span>
                     </div>
                   </div>
-                  <div v-else-if="props.row.type === 'DailyTimeIntervalTriggerImpl'">
+                  <div v-else-if="props.row.type === 'DailyTimeIntervalTrigger'">
                     <div class="text"><span class="left">触发器时间间隔单位:</span><span class="right">{{ props.row.triggerList.dailytime }}</span></div>
-                    <div class="text"><span class="left">触发器间隔数:</span><span class="right">{{ props.row.triggerList.dailytimenum }}</span></div>
+                    <div class="text"><span class="left">触发器间隔数:</span><span class="right">{{ props.row.triggerList.dailynum }}</span></div>
                     <div class="text"><span class="left">触发器总执行次数:</span><span class="right">{{ props.row.triggerList.dailyrepeatcount }} 次</span></div>
                     <div class="text"><span class="left">执行日选择(星期):</span><span class="right">{{ props.row.triggerList.dailyworkday }}</span></div>
                   </div>
-                  <div v-else-if="props.row.type === 'CalendarIntervalTriggerImpl'">
+                  <div v-else-if="props.row.type === 'CalendarIntervalTrigger'">
                     <div class="text"><span class="left">触发器时间间隔单位:</span><span class="right">{{ props.row.triggerList.calendartime }}</span></div>
                     <div class="text"><span class="left">触发器间隔数:</span><span class="right">{{ props.row.triggerList.calendarnum }}</span></div>
                     <div class="text"><span class="left">是否使用夏令时:</span><span class="right">{{ props.row.triggerList.preserveHourOfDayAcrossDaylightSavings }}</span></div>
                     <div class="text"><span class="left">是否设置当小时不存在时是否跳过这一天:</span><span class="right">{{ props.row.triggerList.skipDayIfHourDoesNotExist }}</span></div>
                   </div>
                   <div> 
-                    <div class="text"></div>
-                    <div class="text"></div>
-                    <div class="text"></div>
+                    <div class="text"><span class="left">是否禁止并发执行:</span><span class="right">{{ props.row.triggerList.isConcurrentExectionDisallowed ?props.row.triggerList.isConcurrentExectionDisallowed :'暂无' }}</span></div>
+                    <div class="text"><span class="left">上次触发时间:</span><span class="right">{{ props.row.triggerList.previousFireTime ?  props.row.triggerList.previousFireTime : '暂无'}}</span></div>
+                    <div class="text"><span class="left">下次触发时间:</span><span class="right">{{ props.row.triggerList.NextFireTime ? props.row.triggerList.NextFireTime : '暂无'}}</span></div>
+                    <div class="text"><span class="left">最终触发时间:</span><span class="right">{{  props.row.triggerList.finalFireTime ?props.row.triggerList.finalFireTime :'暂无' }}</span></div>
+                    <div class="text"><span class="left">过时策略:</span><span class="right">{{ props.row.triggerList.misfireInstruction }}</span></div>
                   </div>
                 </div>
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="触发器名" prop="triggername" min-width="90"/>
-          <el-table-column label="触发器分组" sortable prop="triggergroup" min-width="120"/>
-          <el-table-column label="触发器类型" sortable prop="type" min-width="120"/>
-          <el-table-column label="优先级" sortable prop="priority" min-width="80" />
-          <el-table-column label="触发器状态" sortable prop="triggers_state" min-width="120"/>
-          <el-table-column label="开始时间" sortable prop="startime" min-width="120"/>
-          <el-table-column label="结束时间" sortable prop="endtime" min-width="120"/>
-          <el-table-column label="任务操作" min-width="151">
+          <el-table-column label="触发器名" sortable prop="triggername" min-width="90" align="center"/>
+          <el-table-column label="触发器分组" sortable prop="triggergroup" min-width="120" align="center"/>
+            <el-table-column label="触发器类型" sortable prop="type" min-width="120" align="center"/>
+          <el-table-column label="优先级" sortable prop="priority" min-width="80" align="center"/>
+          <el-table-column label="触发器状态" sortable prop="triggers_state" min-width="120" align="center"/>
+          <el-table-column label="开始时间" sortable prop="startime" min-width="120" align="center"/>
+          <el-table-column label="结束时间" sortable prop="endtime" min-width="120" align="center"/>
+          <el-table-column label="触发器操作" min-width="151" >
             <template #default="scope">
               <div class="buttonBox">
                 <div class="button3Box"> 
-                  <el-tooltip content="恢复任务" placement="top">
+                  <el-tooltip content="恢复触发器" placement="top">
                     <el-button type="success" @click="showConfirm('startNow', scope.row)" size="large" circle>
                       <el-icon :size="24"><VideoPlay /></el-icon>
                     </el-button>
                   </el-tooltip>
-                  <el-tooltip content="暂停任务" placement="top">
+                  <el-tooltip content="暂停触发器" placement="top">
                     <el-button type="warning" @click="showConfirm('pauseJob', scope.row)" size="large" circle>
                       <el-icon :size="24"><VideoPause /></el-icon>
                     </el-button>
                   </el-tooltip>
-                  <el-tooltip content="删除任务" placement="top">
+                  <el-tooltip content="删除触发器" placement="top">
                     <el-button type="danger" @click="showConfirm('deleteJob', scope.row)" size="large" circle>
                       <el-icon :size="24"><Delete /></el-icon>
                     </el-button>
                   </el-tooltip>
+                  <el-tooltip content="查询下一次触发时间" placement="top">
+                    <el-button type="danger" @click="dialogVisible = true; selectrow = scope.row" size="large" circle>
+                      <el-icon :size="24"><AlarmClock /></el-icon>
+                    </el-button>
+                  </el-tooltip>
                 </div>
                 <div class="button2Box"> 
-                  <el-button type="info" @click="replacetrigger(scope.row)">更改触发器参数</el-button>
+                    <el-button type="info" @click="replacetrigger(scope.row)">替换触发器</el-button>
+                  </div>
+                <div class="button2Box"> 
+                  <el-button type="info" @click="updatatrigger(scope.row)">更改触发器参数</el-button>
                 </div>
+
               </div>
             </template>
           </el-table-column>
         </el-table>
       </div>
+
+      <el-dialog
+        v-model="dialogVisible"
+        title="查询下一次触发时间"
+        width="30%"
+      >
+      <div class="selecttimebox"> 
+      <el-date-picker
+              v-model="selectTime"
+              type="datetime"
+              format="YYYY/MM/DD HH:mm:ss"
+              value-format="YYYY-MM-DD HH:mm:ss"
+              placeholder="选择开始日期"
+              :disabled-date="disabledStartDate"
+            />
+      </div>
+      <template #footer>
+      <div class="button-container">
+        <el-button  type="info" @click="selectNextTime">查询</el-button>
+      </div>
+    </template>
+    </el-dialog>
+
     <TriggerModal ref="triggerModal" class="trmod"/>
     <JobModal ref="jobModal" class="jobmod"/>
     <UpLoad ref="uploadModal" class="uploadmod"/>
     <transition name="modal">
-      <div v-if="showModal" class="modal-mask">
+      <div v-if="showUpdata" class="modal-mask">
         <div class="modal-wrapper">
           <div class="modal-container">
             <div class="modal-body">
               <!-- 动态插入子组件 -->
               <updateTrigger
                 :jobinfo="selectedJob"
-                v-if="showModal"
+                v-if="showUpdata"
                 @close="closeModal"
               ></updateTrigger>
             </div>
@@ -163,6 +197,22 @@
             </div>
           </div>
         </div>
+    </transition>
+
+    <transition name="modal">
+      <div v-if="showReplace" class="modal-mask">
+        <div class="modal-wrapper">
+          <div class="modal-container2">
+            <div class="modal-body2">
+              <ReplaceTrigger
+                :jobinfo="selectedJob"
+                v-if="showReplace"
+                @close="closereModal"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
     </transition>
   </div>
   </div>
@@ -191,44 +241,84 @@ export default {
       selectGroup: "",
       selectName: "",
       selected: "",
-      defaultName: '请选择触发器分组',
+      defaultName: '请先选择触发器分组',
       selectedJObName: "",
       expandedRows: [],
-      showModal: false,
+      showReplace:false,
+      showUpdata: false,
       showupload: false,
+
+      selectTime: "",
+      dialogVisible: false,
+
+      selectrow: null,
     };
   },
 
   computed: {
     Table() {
-      if (this.selectName) {
-      return this.trigger.filter(trigger => trigger.triggername === this.selectName);
+      if (this.selectName && this.trigger !== null && this.trigger !== undefined) {
+      return this.trigger.filter(trigger => trigger.triggername === this.selectName) ;
       }
       return this.trigger;
     }
   },
   methods: {
-    search() {
+    async selectNextTime() {
+      console.log(this.selectrow);
+      try {
+        const response = await axios.post("/task/Select/nextFireTime",null,{
+          params: {
+            triggername: this.selectrow.triggername,
+            triggergroup: this.selectrow.triggergroup,
+            specifiedtime : this.selectTime
+          }
+        })
+            console.log(response);
+            ElMessageBox.alert(response.data.data, '下一次触发时间', {
+            confirmButtonText: '确定',
+            type: 'info'
+          });
+        
+        // 重置表单
+      } catch (error) {
+        // 处理网络错误或其他错误
+        this.errorMessage = "请求失败，请检查网络连接";
+        console.error;
+      }
+    },
+
+    async search() {
+     
       if (this.selected !== "") {
         const searchTerm = this.selected.toLowerCase();
-        this.trigger = this.trigger.filter(trigger => 
+        let ex_url;
+        if(this.selectGroup !== null && this.selectGroup !== undefined && this.selectGroup !== ""){
+          ex_url = "?triggergroup=" + this.selectGroup;
+        } else {
+          ex_url = "";
+        }
+          this.expandedRows = [];
+        this.trigger = (await axios.post(
+          "/task/Select/triggers" + ex_url)).data.data.filter(trigger => 
         trigger.triggername.toLowerCase().includes(searchTerm) ||
         trigger.triggergroup.toLowerCase().includes(searchTerm) ||
         trigger.priority.toLowerCase().includes(searchTerm) ||
         trigger.type.toLowerCase().includes(searchTerm)
         );
       } else {
-        this.getUsedTrigger();
+       
       }
     },
 
     handleExpandChange(row, expanded) {
       const rowKey = this.getRowKey(row);
-
+      
       if (expanded) {
         // 如果行被展开，则将其加入到 expandedRows 数组中
         if (!this.expandedRows.includes(rowKey)) {
           this.expandedRows.push(rowKey);
+          this.load(row);
         }
         else {
         console.log(this.expandedRows);
@@ -236,10 +326,6 @@ export default {
         this.expandedRows = this.expandedRows.filter(key => key !== rowKey);
         }
        }
-
-      if (!row.loadDetails && expanded) {  // 根据loadDetails判定是否已经加载了数据，并且只有在展开时才加载数据
-        this.load(row);
-      }
     },
     getRowKey(row) {
       // 返回行的唯一标识，可以是任意唯一的字段
@@ -249,7 +335,7 @@ export default {
     console.log('load');
     // 动态添加 triggerList 和 loadDetails 属性
     row.triggerList = row.triggerList || [];
-    row.loadDetails = row.loadDetails !== undefined ? row.loadDetails : false;
+    row.loadDetails = false;
 
     axios.post(`/task/Select/triggerDetail`, null, {
       params: {
@@ -270,6 +356,7 @@ export default {
         this.$message({
           showClose: true,
           message: '数据加载成功',
+          grouping: true,
           type: 'success'
         });
     }).catch(error => {
@@ -277,12 +364,23 @@ export default {
       this.$message({
         showClose: true,
         message: '数据加载失败',
+        grouping: true,
         type: 'error'
       });
     });
     console.log(row)
   },
 
+  replacetrigger(row) {
+      // 设置要恢复的作业信息
+      this.selectedJob = row;
+      this.showReplace = true;
+    },
+    closereModal() {
+      // 关闭弹窗
+      this.SelectGroup();
+      this.showReplace = false;
+    },
     onloadModal() {
       this.$refs.triggerModal.onloadModal();
     },
@@ -294,6 +392,7 @@ export default {
     },
     closeshowupload() {
       // 关闭弹窗
+      this.SelectGroup();
       this.showupload = false;
     },
     uploadModal() {
@@ -305,18 +404,19 @@ export default {
 
     async SelectGroup() {
       console.log(this.selectGroup);
-      if(this.selectGroup == null){
+      if(this.selectGroup == null || this.selectGroup == "" || this.selectGroup == undefined ){ 
         this.getUsedTrigger();
         this.expandedRows = [];
         this.names = [];
         this.selectName = null;
         this.selected = "";
-        this.defaultName = '请选择触发器分组';
+        this.defaultName = '请先选择触发器分组';
         return;
       }
       try {
         const response = await axios.post(
-          "/task/Select/FINDtriggerBYgroup?triggergroup=" + this.selectGroup)
+          "/task/Select/triggers?triggergroup=" + this.selectGroup);
+          console.log(response);
           this.trigger = response.data.data;
           this.expandedRows = [];
 
@@ -370,14 +470,15 @@ export default {
         startNow: '恢复',
         pauseJob: '暂停',
         deleteJob: '删除',
-        resumeAllJob: '恢复所有任务',
-        pauseAllJob: '停止所有任务',
-        deleteAllJob: '删除所有任务'
+        resumeAllJob: '恢复所有触发器',
+        pauseAllJob: '停止所有触发器',
+        deleteAllJob: '删除所有触发器',
+        checkNextTime: '查询下一次触发时间'
       };
 
       const isAllPaused = (await axios.post('/task/Select/isAllPaused')).data.data;
       if(isAllPaused && (action === 'startNow' || action === 'pauseJob')){
-        const message = '所有任务已冻结,请先解冻再操作';
+        const message = '所有触发器已冻结,请先解冻再操作';
       ElMessageBox.confirm(message, '确认操作', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -407,6 +508,8 @@ export default {
           this.pauseAllJob();
         } else if (action === 'deleteAllJob') {
           this.deleteAllJob();
+        } else if (action === 'checkNextTime') {
+          this.checkNextTime(row);
         }
       }).catch(() => {
         // 用户点击“取消”按钮
@@ -414,6 +517,19 @@ export default {
       });
       }
     },
+
+    async checkNextTime(row) {
+      try {
+        const response = await axios.post();
+        console.log(response);
+        // 重置表单
+      } catch (error) {
+        // 处理网络错误或其他错误
+        this.errorMessage = "请求失败，请检查网络连接";
+        console.error;
+      }
+    },
+
     async resumeAllJob() {
       try {
         const response = await axios.post(
@@ -465,7 +581,7 @@ export default {
           "/task/Start/resumetri?triname=" +
           row.triggername +
             "&trigroup=" +
-            row.triggergroup
+            row.triggergroup 
         );
         console.log(response);
 
@@ -514,14 +630,15 @@ export default {
       this.getUsedTrigger();
     },
 
-    replacetrigger(row) {
+    updatatrigger(row) {
       // 设置要恢复的作业信息
       this.selectedJob = row;
-      this.showModal = true;
+      this.showUpdata = true;
     },
     closeModal() {
       // 关闭弹窗
-      this.showModal = false;
+      this.SelectGroup();
+      this.showUpdata = false;
     },
     init() {
       this.getUsedTrigger();
@@ -698,14 +815,38 @@ export default {
   border-radius: 5px;
 }
 
+:deep(.JobBox .cell) {
+  height: auto;
+  color: #000;
+  font-size: 16px;
+  padding: 10px;
+  /* display: flex;
+  justify-content: center; */
+}
+
+:deep(.JobBox .el-table__cell){
+  border-top: 1px solid #000;
+  padding: 10px;
+}
+
 .text{
-  width: 400px;
+  width: 100%;
   font-size: 20px;
   display: flex;
   justify-content: space-between;
   margin-top: 0px;
   margin-bottom: 10px;
-  margin-left: 40px;
+  padding-left: 250px;
+  padding-right: 250px;
+}
+
+.left{
+  width: 400px;
+}
+
+.right{
+  width: 400px;
+  text-align: right;
 }
 
 /* .left {
@@ -720,14 +861,14 @@ export default {
   word-wrap: break-word;
 } */
 
-:deep(.JobBox .cell) {
+/* :deep(.JobBox .cell) {
   height: auto;
   color: #000;
   font-size: 16px;
   padding: 0;
   display: flex;
   justify-content: center;
-}
+} */
 
 :deep(.JobBox .caret-wrapper){
   width: 0px;
@@ -756,7 +897,10 @@ export default {
   background: rgb(255, 255, 255);
 }
 
+
 .button3Box{
+  display: flex;
+  justify-content: space-between;
   margin-top: 10px;
 }
 
@@ -769,7 +913,7 @@ export default {
 
 .button2Box button{
   font-size: 18px;
-  width: 144px;
+  width: 95%;
   height: 40px;
   background: linear-gradient(to left, rgb(53,204,255), rgb(4,114,182)); /* 从浅蓝色到深蓝色 */
   border: none; /* 去除边框 */
@@ -782,7 +926,7 @@ export default {
 
 
 .buttonBox {
-  width: 144px;
+  width: 100%;
   /* white-space: normal; */
 }
 
@@ -814,7 +958,8 @@ export default {
 
 .modal-container {
   width: 850px;
-  height: 600px;
+  height: 656px;
+  
   margin: 0px auto;
   padding: 20px 30px;
   background-color: #fff;
@@ -822,6 +967,23 @@ export default {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
   transition: all 0.3s ease;
   font-family: Helvetica, Arial, sans-serif;
+}
+
+.modal-container2 {
+  width: 913px;
+  height: 800px;
+  margin: 0px auto;
+  padding: 20px 30px;
+  background-color: #fff;
+  border-radius: 2px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
+  transition: all 0.3s ease;
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+.modal-body2 {
+  height: 760px;
+  margin: 20px 0;
 }
 
 .modal-header h3 {
@@ -851,22 +1013,25 @@ export default {
   transform: scale(1.1);
 }
 
+
 :deep(.el-dialog.jobmod){
   background-color: #fefefe;
   border: 1px solid #888;
   width: 864px;
-  height: 780px;
+  height: 920px;
   border-radius: 14px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 30px;
   z-index: 4;
 }
 :deep(.el-dialog.trmod ){
   background-color: #fefefe;
   border: 1px solid #888;
   width: 460px;
-  height: 768px;
+  height: 920px;
   border-radius: 14px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
   z-index: 4;
 }
 :deep(.el-dialog.uploadmod ){
@@ -915,4 +1080,37 @@ export default {
 :deep(.el-link__inner){
   color:rgb(0,119,194);
 }
+
+.selecttimebox{
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+:deep(.selecttimebox .el-input){
+  width: 280px;
+  height: 40px;
+  font-size: 20px;
+}
+
+.button-container {
+  display: flex;
+  justify-content: end;
+  padding-right: 20px;
+  margin-top: 20px;
+}
+
+.button-container button{
+  font-size: 18px;
+  width: 95%;
+  height: 40px;
+  background: linear-gradient(to left, rgb(53,204,255), rgb(4,114,182)); /* 从浅蓝色到深蓝色 */
+  border: none; /* 去除边框 */
+  border-radius: 4px; /* 圆角 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 阴影 */
+}
+.button-container button:hover{
+  background: linear-gradient(to right, rgb(53,204,255), rgb(4,114,182)); /* 从浅蓝色到深蓝色 */
+}
+
 </style>
