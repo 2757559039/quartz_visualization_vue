@@ -83,7 +83,7 @@ export default {
     async getJob() {
       try {
         const response = await axios.post(
-          "http://172.17.170.107:8002/task/Reflect/jobclass"
+          "/task/Reflect/jobclass"
         );
         console.log(response);
         this.jobClassNameGroup = response.data.data;
@@ -99,7 +99,7 @@ export default {
       console.log("getJobDetail");
       try {
         const response = await axios.post(
-          "http://172.17.170.107:8002/task/Reflect/jobdetailclass"
+          "/task/Reflect/jobdetailclass"
         );
         console.log(response);
         this.JobDetails = response.data.data;
@@ -139,7 +139,7 @@ export default {
         info.description = this.jobDescription;
         info.isCustomJobDetail = this.isCustomJobDetail;
 
-        const response = await axios.post("http://172.17.170.107:8002/task/Update/updatejob",null,{
+        const response = await axios.post("/task/Update/updatejob",null,{
           params: info
         });
         console.log(response);

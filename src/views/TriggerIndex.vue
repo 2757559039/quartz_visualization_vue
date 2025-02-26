@@ -266,7 +266,7 @@ export default {
   methods: {
     async selectNextTime() {
       try {
-        const response = (await axios.post("http://172.17.170.107:8002/task/Select/nextFireTime",null,{
+        const response = (await axios.post("/task/Select/nextFireTime",null,{
           params: {
             triggername: this.selectrow.triggername,
             triggergroup: this.selectrow.triggergroup,
@@ -299,7 +299,7 @@ export default {
         }
           this.expandedRows = [];
         this.trigger = (await axios.post(
-          "http://172.17.170.107:8002/task/Select/triggers" + ex_url)).data.data.filter(trigger => 
+          "/task/Select/triggers" + ex_url)).data.data.filter(trigger => 
         trigger.triggername.toLowerCase().includes(searchTerm) ||
         trigger.triggergroup.toLowerCase().includes(searchTerm) ||
         trigger.priority.toLowerCase().includes(searchTerm) ||
@@ -336,7 +336,7 @@ export default {
     row.triggerList = row.triggerList || [];
     row.loadDetails = false;
 
-    axios.post(`http://172.17.170.107:8002/task/Select/triggerDetail`, null, {
+    axios.post(`/task/Select/triggerDetail`, null, {
       params: {
         triggername: row.triggername,
         triggergroup: row.triggergroup
@@ -414,14 +414,14 @@ export default {
       }
       try {
         const response = await axios.post(
-          "http://172.17.170.107:8002/task/Select/triggers?triggergroup=" + this.selectGroup);
+          "/task/Select/triggers?triggergroup=" + this.selectGroup);
           console.log(response);
           this.trigger = response.data.data;
           this.expandedRows = [];
 
         this.selectName = null;
         const response1 = await axios.post(
-          "http://172.17.170.107:8002/task/Select/Triggername?triggergroup=" + this.selectGroup);
+          "/task/Select/Triggername?triggergroup=" + this.selectGroup);
           console.log(response1);
           this.names = response1.data.data;
           this.defaultName = '请选择触发器名';
@@ -435,7 +435,7 @@ export default {
     async getUsedTrigger() {
       try {
         const response = await axios.post(
-          "http://172.17.170.107:8002/task/Select/triggers"
+          "/task/Select/triggers"
         );
         console.log(response);
         this.trigger = response.data.data;
@@ -450,7 +450,7 @@ export default {
     async getGroups() {
       try {
         const response = await axios.post(
-          "http://172.17.170.107:8002/task/Select/triggergroupall"
+          "/task/Select/triggergroupall"
         );
         console.log(response);
         this.groups = response.data.data;
@@ -475,7 +475,7 @@ export default {
         checkNextTime: '查询下一次触发时间'
       };
 
-      const isAllPaused = (await axios.post('http://172.17.170.107:8002/task/Select/isAllPaused')).data.data;
+      const isAllPaused = (await axios.post('/task/Select/isAllPaused')).data.data;
       if(isAllPaused && (action === 'startNow' || action === 'pauseJob')){
         const message = '所有触发器已冻结,请先解冻再操作';
       ElMessageBox.confirm(message, '确认操作', {
@@ -532,7 +532,7 @@ export default {
     async resumeAllJob() {
       try {
         const response = await axios.post(
-          "http://172.17.170.107:8002/task/Start/resumeall"
+          "/task/Start/resumeall"
         );
         console.log(response);
         // 重置表单
@@ -546,7 +546,7 @@ export default {
     async pauseAllJob() {
       try {
         const response = await axios.post(
-          "http://172.17.170.107:8002/task/Pause/alljob"
+          "/task/Pause/alljob"
         );
         console.log(response);
 
@@ -561,7 +561,7 @@ export default {
     async deleteAllJob() {
       try {
         const response = await axios.post(
-          "http://172.17.170.107:8002/task/Delete/alljob"
+          "/task/Delete/alljob"
         );
         console.log(response);
 
@@ -577,7 +577,7 @@ export default {
     async resumeJob(row) {
       try {
         const response = await axios.post(
-          "http://172.17.170.107:8002/task/Start/resumetri?triname=" +
+          "/task/Start/resumetri?triname=" +
           row.triggername +
             "&trigroup=" +
             row.triggergroup
@@ -595,7 +595,7 @@ export default {
     async pauseJob(row) {
       try {
         const response = await axios.post(
-          "http://172.17.170.107:8002/task/Pause/trigger?triname=" +
+          "/task/Pause/trigger?triname=" +
           row.triggername +
             "&trigroup=" +
             row.triggergroup
@@ -613,7 +613,7 @@ export default {
     async deleteJob(row) {
       try {
         const response = await axios.post(
-          "http://172.17.170.107:8002/task/Delete/jobUNtri?triggername=" +
+          "/task/Delete/jobUNtri?triggername=" +
           row.triggername +
             "&triggergroup=" +
             row.triggergroup

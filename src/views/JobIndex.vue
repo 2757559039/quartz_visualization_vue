@@ -212,10 +212,10 @@ export default {
         const searchTerm = this.selected.toLowerCase();
         let url;
         if (this.selectGroup) {
-          url =  "http://172.17.170.107:8002/task/Select/FINDjobBYgroup?group=" + this.selectGroup;
+          url =  "/task/Select/FINDjobBYgroup?group=" + this.selectGroup;
         }
         else{
-          url =  "http://172.17.170.107:8002/task/Select/jobs";
+          url =  "/task/Select/jobs";
         }
         this.Jobs = (await axios.post(url)).data.data.filter(job => 
           job.jobname.toLowerCase().includes(searchTerm) ||
@@ -257,7 +257,7 @@ export default {
       row.triggerList = row.triggerList || [];
       row.loadDetails = false;
 
-      axios.post(`http://172.17.170.107:8002/task/Select/FINDtriBYjob`, null, {
+      axios.post(`/task/Select/FINDtriBYjob`, null, {
         params: {
           jobname: row.jobname,
           jobgroup: row.jobgroup
@@ -303,7 +303,7 @@ export default {
     async getUsedJob() {
       try {
         const response = await axios.post(
-          "http://172.17.170.107:8002/task/Select/jobs"
+          "/task/Select/jobs"
         );
         console.log(response);
         this.Jobs = response.data.data;
@@ -318,7 +318,7 @@ export default {
     async getGroups() {
       try {
         const response = await axios.post(
-          "http://172.17.170.107:8002/task/Select/jobgroupall"
+          "/task/Select/jobgroupall"
         );
         this.groups = response.data.data;
         // 重置表单
@@ -342,13 +342,13 @@ export default {
       }
       try {
         const response = await axios.post(
-          "http://172.17.170.107:8002/task/Select/FINDjobBYgroup?group=" + this.selectGroup)
+          "/task/Select/FINDjobBYgroup?group=" + this.selectGroup)
           this.Jobs = response.data.data;
           this.expandedRows = [];
 
         this.selectName = null;
         const response1 = await axios.post(
-          "http://172.17.170.107:8002/task/Select/jobDetailname?jobgroup=" + this.selectGroup);
+          "/task/Select/jobDetailname?jobgroup=" + this.selectGroup);
           this.names = response1.data.data;
           this.defaultName = '请选择任务名';
       } catch (error) {
@@ -361,7 +361,7 @@ export default {
     async resumeJob(row) {
       try {
         const response = await axios.post(
-          "http://172.17.170.107:8002/task/Start/resumeNow?name=" +
+          "/task/Start/resumeNow?name=" +
           row.jobname +
             "&group=" +
           row.jobgroup
@@ -398,7 +398,7 @@ export default {
     async startNow(row) {
       try {
         const response = await axios.post(
-          "http://172.17.170.107:8002/task/Start/resume?name=" +
+          "/task/Start/resume?name=" +
           row.jobname +
             "&group=" +
           row.jobgroup
@@ -435,7 +435,7 @@ export default {
     async pauseJob(row) {
       try {
         const response = await axios.post(
-          "http://172.17.170.107:8002/task/Pause/job?jobname=" +
+          "/task/Pause/job?jobname=" +
           row.jobname +
             "&jobgroup=" +
           row.jobgroup
@@ -471,7 +471,7 @@ export default {
     async deleteJob(row) {
       try {
         const response = await axios.post(
-          "http://172.17.170.107:8002/task/Delete/job?name=" +
+          "/task/Delete/job?name=" +
           row.jobname +
             "&group=" +
           row.jobgroup
@@ -570,7 +570,7 @@ export default {
     async resumeAllJob() {
       try {
         const response = await axios.post(
-          "http://172.17.170.107:8002/task/Start/resumeall"
+          "/task/Start/resumeall"
         );
         console.log(response);
         //this.getUsedJob();
@@ -587,7 +587,7 @@ export default {
     async pauseAllJob() {
       try {
         const response = await axios.post(
-          "http://172.17.170.107:8002/task/Pause/alljob"
+          "/task/Pause/alljob"
         );
         console.log(response);
         //this.getUsedJob();
@@ -604,7 +604,7 @@ export default {
     async deleteAllJob() {
       try {
         const response = await axios.post(
-          "http://172.17.170.107:8002/task/Delete/alljob"
+          "/task/Delete/alljob"
         );
         console.log(response);
         this.getUsedJob();
@@ -620,7 +620,7 @@ export default {
     async checkAllPaused() {
   try {
     const response = await axios.post(
-      "http://172.17.170.107:8002/task/Select/isAllPaused"
+      "/task/Select/isAllPaused"
     );
     console.log(response);
     this.isAllPaused = response.data.data; 

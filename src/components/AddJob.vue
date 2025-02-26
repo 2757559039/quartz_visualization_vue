@@ -311,7 +311,7 @@ export default {
   methods: {
     async getTrigger() {
       try {
-        const response = await axios.post("http://172.17.170.107:8002/task/Reflect/triggerclass");
+        const response = await axios.post("/task/Reflect/triggerclass");
         console.log(response);
         this.triggers = response.data.data;
       } catch (error) {
@@ -320,7 +320,7 @@ export default {
     },
     async getJob() {
       try {
-        const response = await axios.post("http://172.17.170.107:8002/task/Reflect/jobclass");
+        const response = await axios.post("/task/Reflect/jobclass");
         console.log(response);
         this.jobClassNameGroup = response.data.data;
       } catch (error) {
@@ -329,7 +329,7 @@ export default {
     },
     async getJobDetail() {
       try {
-        const response = await axios.post("http://172.17.170.107:8002/task/Reflect/jobdetailclass");
+        const response = await axios.post("/task/Reflect/jobdetailclass");
         console.log(response);
         this.JobDetails = response.data.data;
       } catch (error) {
@@ -387,7 +387,7 @@ export default {
       } else if (this.trigger === "CronTrigger") {
         if (this.cronexpression !== "") {
         const response = await axios.post(
-          "http://172.17.170.107:8002/task/Util/cron-check?cron=" + this.cronexpression
+          "/task/Util/cron-check?cron=" + this.cronexpression
         );
         if (response.data.message === "cron表达式格式错误！") {
           tip = tip + "cron表达式不合法\n";
@@ -490,7 +490,7 @@ export default {
       if (if1 && if2) {
         this.builInfo();
         console.log(this.Info);
-        const response = await axios.post("http://172.17.170.107:8002/task/Add/job", this.Info);
+        const response = await axios.post("/task/Add/job", this.Info);
         console.log(response);
         this.Info = {};
         this.closeModal();
@@ -513,7 +513,7 @@ export default {
           this.Info.isCustomJobDetail = this.isCustomJobDetail;
           this.Info.jobDetail = this.jobDetail;
           const response = await axios.post(
-            "http://172.17.170.107:8002/task/Add/jobdetail",
+            "/task/Add/jobdetail",
             null,
             {
               params: this.Info,
