@@ -1,3 +1,4 @@
+<!-- 脚本控制 -->
 <template>
   <div class="unerected-list">
     <!-- 搜索框和筛选框 -->
@@ -27,6 +28,20 @@
           :value="option.value"
         />
       </el-select>
+
+      <el-select
+        v-model="filterCriteria2"
+        placeholder="状态：全部"
+        style="width: 200px;"
+        @change="applyFilter"
+      >
+        <el-option
+          v-for="option2 in filterOptions2"
+          :key="option2.value"
+          :label="option2.label"
+          :value="option2.value"
+        />
+      </el-select>
     </div>
 
     <!-- 表格 -->
@@ -41,7 +56,10 @@
       <el-table-column prop="className" label="类名" width="360" />
 
       <!-- 类型列 -->
-      <el-table-column prop="scriptType" label="类型" width="360" />
+      <el-table-column prop="scriptType" label="类型" width="240" />
+
+      <!-- 状态列 -->
+      <el-table-column prop="beanState" label="状态" width="120" :formatter="formatBeanState"/>
 
       <!-- 操作列 -->
       <el-table-column label="操作">
@@ -51,8 +69,8 @@
         </template>
         <template #default="scope">
           <div class="czbtn">
-            <el-button class="azb" @click="handleInstall(scope.row)">安装</el-button>
-            <el-button class="ckb">查看/修改</el-button>
+            <el-button class="azb" @click="handleInstall(scope.row)" :disabled="scope.row.beanState">安装</el-button>
+            <el-button class="ckb" @click="handleAlter(scope.row)">查看/修改</el-button>
             <el-button class="scb" @click="handleDelete(scope.row)">删除</el-button>
           </div>
         </template>
@@ -78,12 +96,24 @@ export default {
       filteredTableData: [],
       searchKeyword: '',
       filterCriteria: '',
+      filterCriteria2: '',
       filterOptions: [
         { label: '类型：全部', value: '' },
         { label: '类型：job', value: 'job' },
         { label: '类型：job_detail', value: 'job_detail' },
-        { label: '类型：trigger', value: 'trigger' },
-        { label: '类型：update_trigger', value: 'update_trigger' },
+        { label: '类型：SimpleTrigger', value: 'SimpleTrigger' },
+        { label: '类型：CalendarIntervalTrigger', value: 'CalendarIntervalTrigger' },
+        { label: '类型：DailyTimeIntervalTrigger', value: 'DailyTimeIntervalTrigger' },
+        { label: '类型：CronTrigger', value: 'CronTrigger' },
+        { label: '类型：SimpleUpdateTrigger', value: 'SimpleUpdateTrigger' },
+        { label: '类型：CalendarUpdateIntervalTrigger', value: 'CalendarUpdateIntervalTrigger' },
+        { label: '类型：DailyUpdateTimeIntervalTrigger', value: 'DailyUpdateTimeIntervalTrigger' },
+        { label: '类型：CronUpdateTrigger', value: 'CronUpdateTrigger' },
+      ],
+      filterOptions2: [
+        { label: '状态：全部', value: '' },
+        { label: '状态：已安装', value: 'true' },
+        { label: '状态：未安装', value: 'false' },
       ],
     };
   },
@@ -91,10 +121,11 @@ export default {
     async fetchData() {
       try {
         const response = await axios.post(
-          '/groovyBean/selectAllUnloadGroovyBean',
+          '/scriptBuilder/selectAllScript',
           {
             keywords: this.searchKeyword,
-            filterCriteria: this.filterCriteria,
+            type: this.filterCriteria,
+            state:this.state
           }
         );
         this.filteredTableData = response.data.data;
@@ -105,6 +136,9 @@ export default {
     applyFilter() {
       this.fetchData();
       console.log(this.searchKeyword);
+    },
+    formatBeanState(row, column, cellValue) {
+      return cellValue ? '已安装' : '未安装';
     },
     handleInstall(row) {
       ElMessageBox.confirm(
@@ -192,6 +226,9 @@ export default {
         });
     },
   },
+  handleAlter(row) {
+
+  },
   mounted() {
     this.fetchData();
   },
@@ -229,5 +266,9 @@ export default {
 
 :deep(.czbtn .el-button:hover) {
   background: linear-gradient(to right, rgb(53, 204, 255), rgb(4, 114, 182));
+}
+
+:deep(.czbtn .el-button:disabled) {
+  background: linear-gradient(to right, rgb(119, 119, 119), rgb(119,119,119));
 }
 </style>
