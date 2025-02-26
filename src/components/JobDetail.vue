@@ -143,6 +143,18 @@ export default {
           params: info
         });
         console.log(response);
+        if(response.data.data === 'success'){
+          this.$message({
+            message: "更新成功",
+            type: "success"
+            });
+          this.$emit('close');
+          }else{
+            this.$message({
+              message: "更新失败",
+              type: "error"
+              });
+          }
       } catch (error) {
         // 处理网络错误或其他错误
         this.errorMessage = "请求失败，请检查网络连接";

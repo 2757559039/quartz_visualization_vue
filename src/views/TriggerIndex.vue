@@ -53,7 +53,7 @@
         <el-table :data="Table" class="JobBox" @expand-change="handleExpandChange" :expand-row-keys="expandedRows" :row-key="getRowKey">
           <el-table-column type="expand" >
             <template #default="props">
-              <div  v-loading="!props.row.loadDetails" element-loading-text="加载中..."  element-loading-background="rgba(255, 255, 255)">
+              <div v-if="props.row.triggerList" v-loading="!props.row.loadDetails" element-loading-text="加载中..."  element-loading-background="rgba(255, 255, 255)">
                 <!-- <p>{{ props.row.triggerList }}</p> -->
                 <div class="text">
                   <span class="left">是否使用自定义触发器:</span><span class="right">{{ props.row.triggerList.isConcurrentExectionDisallowed }}</span>
@@ -89,10 +89,10 @@
                     <div class="text"><span class="left">是否设置当小时不存在时是否跳过这一天:</span><span class="right">{{ props.row.triggerList.skipDayIfHourDoesNotExist }}</span></div>
                   </div>
                   <div> 
-                    <div class="text"><span class="left">是否禁止并发执行:</span><span class="right">{{ props.row.triggerList.isConcurrentExectionDisallowed }}</span></div>
-                    <div class="text"><span class="left">上次触发时间:</span><span class="right">{{ props.row.triggerList.previousFireTime }}</span></div>
-                    <div class="text"><span class="left">下次触发时间:</span><span class="right">{{ props.row.triggerList.NextFireTime }}</span></div>
-                    <div class="text"><span class="left">最终触发时间:</span><span class="right">{{ props.row.triggerList.finalFireTime }}</span></div>
+                    <div class="text"><span class="left">是否禁止并发执行:</span><span class="right">{{ props.row.triggerList.isConcurrentExectionDisallowed ?props.row.triggerList.isConcurrentExectionDisallowed :'暂无' }}</span></div>
+                    <div class="text"><span class="left">上次触发时间:</span><span class="right">{{ props.row.triggerList.previousFireTime ?  props.row.triggerList.previousFireTime : '暂无'}}</span></div>
+                    <div class="text"><span class="left">下次触发时间:</span><span class="right">{{ props.row.triggerList.NextFireTime ? props.row.triggerList.NextFireTime : '暂无'}}</span></div>
+                    <div class="text"><span class="left">最终触发时间:</span><span class="right">{{  props.row.triggerList.finalFireTime ?props.row.triggerList.finalFireTime :'暂无' }}</span></div>
                     <div class="text"><span class="left">过时策略:</span><span class="right">{{ props.row.triggerList.misfireInstruction }}</span></div>
                   </div>
                 </div>
@@ -111,22 +111,22 @@
               <div class="buttonBox">
                 <div class="button3Box"> 
                   <el-tooltip content="恢复触发器" placement="top">
-                    <el-button type="success" @click="showConfirm('startNow', scope.row)" circle>
+                    <el-button type="success" @click="showConfirm('startNow', scope.row)" size="large" circle>
                       <el-icon :size="24"><VideoPlay /></el-icon>
                     </el-button>
                   </el-tooltip>
                   <el-tooltip content="暂停触发器" placement="top">
-                    <el-button type="warning" @click="showConfirm('pauseJob', scope.row)" circle>
+                    <el-button type="warning" @click="showConfirm('pauseJob', scope.row)" size="large" circle>
                       <el-icon :size="24"><VideoPause /></el-icon>
                     </el-button>
                   </el-tooltip>
                   <el-tooltip content="删除触发器" placement="top">
-                    <el-button type="danger" @click="showConfirm('deleteJob', scope.row)" circle>
+                    <el-button type="danger" @click="showConfirm('deleteJob', scope.row)" size="large" circle>
                       <el-icon :size="24"><Delete /></el-icon>
                     </el-button>
                   </el-tooltip>
                   <el-tooltip content="查询下一次触发时间" placement="top">
-                    <el-button type="danger" @click="dialogVisible = true; selectrow = scope.row" circle>
+                    <el-button type="danger" @click="dialogVisible = true; selectrow = scope.row" size="large" circle>
                       <el-icon :size="24"><AlarmClock /></el-icon>
                     </el-button>
                   </el-tooltip>
@@ -161,7 +161,7 @@
       </div>
       <template #footer>
       <div class="button-container">
-        <el-button @click="selectNextTime">查询</el-button>
+        <el-button  type="info" @click="selectNextTime">查询</el-button>
       </div>
     </template>
     </el-dialog>
@@ -265,19 +265,20 @@ export default {
   },
   methods: {
     async selectNextTime() {
+      console.log(this.selectrow);
       try {
-        const response = (await axios.post("/task/Select/nextFireTime",null,{
+        const response = await axios.post("/task/Select/nextFireTime",null,{
           params: {
             triggername: this.selectrow.triggername,
             triggergroup: this.selectrow.triggergroup,
-            selectTime: this.selectTime
+            specifiedtime : this.selectTime
           }
-        })).success( response => {
+        })
+            console.log(response);
             ElMessageBox.alert(response.data.data, '下一次触发时间', {
             confirmButtonText: '确定',
             type: 'info'
           });
-        });
         
         // 重置表单
       } catch (error) {
@@ -580,7 +581,7 @@ export default {
           "/task/Start/resumetri?triname=" +
           row.triggername +
             "&trigroup=" +
-            row.triggergroup
+            row.triggergroup 
         );
         console.log(response);
 
@@ -898,6 +899,8 @@ export default {
 
 
 .button3Box{
+  display: flex;
+  justify-content: space-between;
   margin-top: 10px;
 }
 
@@ -955,7 +958,7 @@ export default {
 
 .modal-container {
   width: 850px;
-  height: 600px;
+  height: 656px;
   
   margin: 0px auto;
   padding: 20px 30px;
@@ -968,7 +971,7 @@ export default {
 
 .modal-container2 {
   width: 913px;
-  height: 710px;
+  height: 800px;
   margin: 0px auto;
   padding: 20px 30px;
   background-color: #fff;
@@ -979,6 +982,7 @@ export default {
 }
 
 .modal-body2 {
+  height: 760px;
   margin: 20px 0;
 }
 
@@ -1014,19 +1018,20 @@ export default {
   background-color: #fefefe;
   border: 1px solid #888;
   width: 864px;
-  height: 840px;
+  height: 920px;
   border-radius: 14px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 30px;
   z-index: 4;
 }
 :deep(.el-dialog.trmod ){
   background-color: #fefefe;
   border: 1px solid #888;
   width: 460px;
-  height: 928px;
+  height: 920px;
   border-radius: 14px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin-top: 40px;
+  margin-top: 20px;
   z-index: 4;
 }
 :deep(.el-dialog.uploadmod ){
@@ -1075,4 +1080,37 @@ export default {
 :deep(.el-link__inner){
   color:rgb(0,119,194);
 }
+
+.selecttimebox{
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+:deep(.selecttimebox .el-input){
+  width: 280px;
+  height: 40px;
+  font-size: 20px;
+}
+
+.button-container {
+  display: flex;
+  justify-content: end;
+  padding-right: 20px;
+  margin-top: 20px;
+}
+
+.button-container button{
+  font-size: 18px;
+  width: 95%;
+  height: 40px;
+  background: linear-gradient(to left, rgb(53,204,255), rgb(4,114,182)); /* 从浅蓝色到深蓝色 */
+  border: none; /* 去除边框 */
+  border-radius: 4px; /* 圆角 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 阴影 */
+}
+.button-container button:hover{
+  background: linear-gradient(to right, rgb(53,204,255), rgb(4,114,182)); /* 从浅蓝色到深蓝色 */
+}
+
 </style>

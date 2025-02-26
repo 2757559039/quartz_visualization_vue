@@ -331,7 +331,7 @@ export default {
 
     async SelectGroup() {
       console.log(this.selectGroup);
-      if(this.selectGroup == null){
+      if(this.selectGroup == null || this.selectGroup == "" || this.selectGroup == undefined){
         this.getUsedJob();
         this.expandedRows = [];
         this.names = [];
@@ -516,6 +516,7 @@ export default {
     },
     closeshowjobDetail() {
       // 关闭弹窗
+      this.SelectGroup();
       this.showjobDetail = false;
     },
 
@@ -1046,8 +1047,9 @@ watch: {
   background-color: #fefefe;
   border: 1px solid #888;
   width: 864px;
-  height: 840px;
+  height: 920px;
   border-radius: 14px;
+  margin-top: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   z-index: 4;
 }
@@ -1058,7 +1060,7 @@ watch: {
   height: 928px;
   border-radius: 14px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin-top: 40px;
+  margin-top: 20px;
   z-index: 4;
 }
 :deep(.el-dialog.uploadmod ){

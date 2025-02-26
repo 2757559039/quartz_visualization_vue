@@ -50,7 +50,8 @@
             />
           </el-select>
         </div>
-        <div class="title">
+
+        <div class="title" v-if="isCustomTrigger === false">
           <span>任务优先级: </span>
           <el-input-number v-model="priority" :min="1" :max="999" />
         </div>
@@ -76,13 +77,19 @@
               :disabled-date="disabledEndDate"
             />
           </div>
+
+          <div class="title" v-if="isCustomTrigger === false">
+            <span>设置时区</span>
+            <el-input v-model="timezone" placeholder="请设置时区" />            
+          </div>
+        
       </div>
 
       <div class="fg"></div>
 
       <div class="triggerdetail">
         <p>触发器详情</p>
-        <div v-if="isCustomTrigger === false" class="detailbox">
+        <div class="detailbox">
           <div class="detail">
             <span>触发器名称</span>
             <el-input v-model="triggername" placeholder="请输入触发器名称" />
@@ -93,13 +100,8 @@
             <el-input v-model="triggergroup" placeholder="请输入触发器分组" />
           </div>
 
-          <div class="detail">
-            <span>设置时区</span>
-            <el-input v-model="timezone" placeholder="请设置时区" />            
-          </div>
-          
 
-        <div v-show="selecttrigger === 'SimpleTrigger' && this.isCustomTrigger === false " class="detailbox">
+        <div v-if="selecttrigger === 'SimpleTrigger' && this.isCustomTrigger === false " class="detailbox">
           <div class="detail">
             <span>触发时间间隔</span>
             <el-input v-model="simpletimesecond" placeholder="单位为秒" />            
@@ -110,7 +112,7 @@
           </div>
         </div>
 
-        <div v-show="selecttrigger === 'CronTrigger' && this.isCustomTrigger === false" class="detailbox">
+        <div v-if="selecttrigger === 'CronTrigger' && this.isCustomTrigger === false" class="detailbox">
           <div class="detail">
             <span>cron字段</span>
             <el-input class="elInput" v-model="cronexpression"  @click="openDialog" :clearable="true"  placeholder="请输入正确的cron表达式">
@@ -121,7 +123,7 @@
           </div>
         </div>
 
-        <div v-show="selecttrigger === 'CalendarIntervalTrigger' && this.isCustomTrigger === false" class="detailbox">
+        <div v-if="selecttrigger === 'CalendarIntervalTrigger' && this.isCustomTrigger === false" class="detailbox">
           <div class="detail">
             <span>触发器时间间隔单位</span>
             <el-select v-model="calendartime" placeholder="Select">
@@ -148,16 +150,16 @@
           </div>
         </div>
 
-        <div v-show="selecttrigger === 'DailyTimeIntervalTrigger' && this.isCustomTrigger === false" class="detailbox">
+        <div v-if="selecttrigger === 'DailyTimeIntervalTrigger' && this.isCustomTrigger === false" class="detailbox">
           <div class="detail">
             <span>触发器时间间隔单位</span>
             <el-select v-model="dailytime" placeholder="Select">
               <el-option :label="'秒钟'" :value="'second'"/>
               <el-option :label="'分钟'" :value="'minute'"/>
               <el-option :label="'小时'" :value="'hour'"/>
-              <el-option :label="'天'" :value="'day'"/>
+              <!-- <el-option :label="'天'" :value="'day'"/>
               <el-option :label="'月'" :value="'month'"/>
-              <el-option :label="'年'" :value="'year'"/>
+              <el-option :label="'年'" :value="'year'"/> -->
             </el-select>
           </div>
           <div class="detail">
@@ -167,6 +169,14 @@
           <div class="detail">
             <span>总执行次数</span>
             <el-input v-model="dailyrepeatcount"/>
+          </div>
+          <div class="detail">
+            <span>当天开始时间</span>
+            <el-time-picker v-model="DayStartTime" placeholder="Arbitrary time" format="HH:mm:ss" value-format="HH:mm:ss"/>
+          </div>
+          <div class="detail">
+            <span>当天结束时间</span>
+            <el-time-picker v-model="DayEndTime" placeholder="Arbitrary time" format="HH:mm:ss" value-format="HH:mm:ss" />
           </div>
           <div class="detail1">
             <span>执行日选择(星期)</span>
@@ -206,30 +216,22 @@ import { tr } from 'element-plus/es/locales.mjs';
 
 export default {
   components : {"Vue3CronPlusPicker":Vue3CronPlusPicker,},
-  props: {
-    jobinfo: {
-      type: Object,
-      required: true,
-      // 默认值是一个空对象，避免直接修改父组件传递的对象
-      default: () => ({}),
-    },
-  },
   data() {
     return {
-
       oldtriggergroups: "",
       oldtriggernames: "",
-
       oldtriggername:"",
       oldtriggergroup:"",
 
       priority: "", // 任务优先级
+      startTime: "", // 开始时间
+      endTime: "", // 结束时间
 
       selecttrigger: "",
       // 是否使用自定义触发器的选项
       isCustomTrigger: false,
-      triggers: [], // 触发器类型列表
-      trigger: "", // 选择的触发器
+      triggers: [], // 触发器列表
+      trigger: "", // 自定义触发器
 
       // 触发器名称和组名
       triggername: "",
@@ -255,12 +257,16 @@ export default {
       dailytime: "second", // 默认时间单位为秒
       dailynum: "", // 间隔次数
       dailyrepeatcount: "", // 总执行次数
+      DayStartTime: "", // 当天开始时间
+      DayEndTime: "", // 当天结束时间
       dailyworkday: [], // 工作日选择, 数组因为是多选框
       all: false,
       workday: false,
       weekend: false,
       Info:{},
     };
+  },
+  watch: {
   },
   methods: {
     openDialog () {
@@ -362,7 +368,8 @@ export default {
       console.log(this.oldtriggername);
       console.log(this.oldtriggergroup);
 
-      if(this.checkTrigger()){
+      console.log(this.checkTrigger());
+      if(await this.checkTrigger() === true){
         this.builInfo();
         console.log(this.Info);
         try {
@@ -386,25 +393,35 @@ export default {
       
     },
     async checkTrigger(){
-      console.log(this.isCustomTrigger);
-      if (this.priority > 999 || this.priority < 0) {
-        tip = tip + "优先级范围为0~999\n";
-      }
       if(this.isCustomTrigger === "true"){
         if(this.trigger === ""){
           alert("请选择自定义触发器");
           return false;
         }
         return true;
+      }
+      else if(this.selecttrigger === ""){
+        alert("请选择触发器类型");
+        return false;
+      }else if(this.triggername === "" || this.triggergroup === ""){
+        alert("触发器名称和分组不能为空");
+        return false;
+      }else if(this.startTime === ""){
+        alert("开始时间不能为空");
+        return false;
+      }else if(this.timezone === ""){
+        alert("时区不能为空");
+        return false;
       }else if(this.selecttrigger === "SimpleTrigger"){
-        if( !(
-            (this.simpletimesecond === "" && this.repeatcount === "") ||
-            (this.simpletimesecond !== "" && this.repeatcount !== "")
-          )){
+        if( this.simpletimesecond === "" || this.repeatcount === ""){
           alert("SimpleTrigger的时间间隔秒数或执行次数不能为空");
           return false;
         }
       }else if(this.selecttrigger === "CronTrigger"){
+        if( this.cronexpression === ""){
+          alert("请输入cron表达式");
+          return false;
+        }
         if (this.cronexpression !== "") {
           const response = await axios.post(
             "/task/Util/cron-check?cron=" +
@@ -417,27 +434,13 @@ export default {
           }
         }
       }else if(this.selecttrigger === "CalendarIntervalTrigger"){
-        if (
-          !(
-            (this.calendarnum === "" && this.timezone === "") ||
-            (this.calendarnum !== "" && this.timezone !== "")
-          )
-        ) {
-          alert("请输入完整参数或请清空输入使用默认参数");
+        if ( this.calendartime === "" || this.calendarnum === "")  {
+          alert("请输入完整参数");
           return false;
         }
       }else if(this.selecttrigger === "DailyTimeIntervalTrigger"){
-        if (
-          !(
-            (this.dailynum === "" &&
-              this.dailyrepeatcount === "" &&
-              this.dailyworkday.length === 0) ||
-            (this.dailynum !== "" &&
-              this.dailyrepeatcount !== "" &&
-              this.dailyworkday.length !== 0)
-          )
-        ) {
-          alert("请输入完整参数或请清空输入使用默认参数");
+        if ( this.dailytime === "" || this.dailynum === "" || this.dailyrepeatcount === "" || this.dailyworkday.length === 0 || this.DayStartTime === "") {
+          alert("请输入完整参数");
           return false;
         }
       }
@@ -452,10 +455,13 @@ export default {
       this.Info.type = this.selecttrigger;
       this.Info.isCustomTrigger = this.isCustomTrigger;
       if(this.isCustomTrigger === "true"){
-        this.Info.trigger = this.trigger;
+          this.Info.trigger = this.trigger;
       }else{
-        this.Info.triggername = this.triggername;
-        this.Info.triggergroup = this.triggergroup;
+        this.Info.startTime = this.startTime;
+        if(this.endTime){
+          this.Info.endTime = this.endTime;
+        }
+        this.Info.timezone = this.timezone;
         if(this.selecttrigger === "SimpleTrigger"){
           this.Info.simpletimesecond = this.simpletimesecond;
           this.Info.repeatcount = this.repeatcount;
@@ -468,7 +474,9 @@ export default {
           this.Info.skipDayIfHourDoesNotExist = this.skipDayIfHourDoesNotExist;
           this.Info.timezone = this.timezone;
       }else if(this.selecttrigger === "DailyTimeIntervalTrigger"){
-          this.Info.dailytime = this.dailytime;
+          if(this.Info.dailynum){
+            this.Info.dailytime = this.dailytime;
+          }
           this.Info.dailynum = this.dailynum;
           this.Info.dailyrepeatcount = this.dailyrepeatcount;
           this.Info.dailyworkday = this.dailyworkday;

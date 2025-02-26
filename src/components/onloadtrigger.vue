@@ -22,7 +22,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="触发器类型">
-        <el-select v-model="trigger">
+        <el-select v-model="trigger" @change="getTrigger()">
           <el-option label="SimpleTrigger" value="SimpleTrigger" />
           <el-option label="CronTrigger" value="CronTrigger" />
           <el-option label="DailyTimeIntervalTrigger" value="DailyTimeIntervalTrigger" />
@@ -83,10 +83,10 @@
       <el-form-item v-if="isCustomTrigger === 'false'" label="设置时区">
         <el-input v-model="timezone" placeholder="请设置时区" />
       </el-form-item>
-      <el-form-item  label="触发器名称">
+      <el-form-item  label="触发器名称" v-if="isCustomTrigger === 'false'">
         <el-input v-model="triggername" />
       </el-form-item>
-      <el-form-item  label="触发器分组">
+      <el-form-item  label="触发器分组" v-if="isCustomTrigger === 'false'">
         <el-input v-model="triggergroup" />
       </el-form-item>
 
@@ -129,9 +129,9 @@
           <el-option label="秒钟" value="second" />
           <el-option label="分钟" value="minute" />
           <el-option label="小时" value="hour" />
-          <el-option label="日" value="day" />
+          <!-- <el-option label="日" value="day" />
           <el-option label="月" value="month" />
-          <el-option label="年" value="year" />
+          <el-option label="年" value="year" /> -->
         </el-select>
       </el-form-item>
       <el-form-item
@@ -146,6 +146,21 @@
       >
         <el-input v-model="dailyrepeatcount" placeholder="请输入总执行次数" />
       </el-form-item>
+
+      <el-form-item
+        v-if="trigger === 'DailyTimeIntervalTrigger' && isCustomTrigger === 'false'"
+        label="当天开始时间"
+      >
+      <el-time-picker v-model="DayStartTime" placeholder="Arbitrary time" format="HH:mm:ss" value-format="HH:mm:ss"/>
+      </el-form-item>
+      <el-form-item
+        v-if="trigger === 'DailyTimeIntervalTrigger' && isCustomTrigger === 'false' "
+        label="当天结束时间"
+      >
+      <el-time-picker v-model="DayEndTime" placeholder="Arbitrary time" format="HH:mm:ss" value-format="HH:mm:ss"/>
+      </el-form-item>
+
+
       <el-form-item
         v-if="trigger === 'DailyTimeIntervalTrigger' && isCustomTrigger === 'false'"
         label="执行日选择(星期)"
@@ -233,26 +248,34 @@ export default {
       jobgroup: "",
       jobnames: [],
       jobname: "",
+
+      trigger: "",
+      isCustomTrigger: "false",
+      triggers: [],
+      selecttrigger: "",
+
       priority: 5,
       startTime: "",
       endTime: "",
-      trigger: "",
-      isCustomTrigger: "false",
+      timezone: "Asia/Shanghai",
       triggername: "",
       triggergroup: "",
-      triggers: [],
-      selecttrigger: "",
+      
       simpletimesecond: "",
       repeatcount: "",
+
       cronexpression: "",
+      
       calendartime: "second",
       calendarnum: "",
       preserveHourOfDayAcrossDaylightSavings: false,
       skipDayIfHourDoesNotExist: false,
-      timezone: "Asia/Shanghai",
+      
       dailytime: "second",
       dailynum: "",
       dailyrepeatcount: "",
+      DayStartTime: "", // 当天开始时间
+      DayEndTime: "", // 当天结束时间
       dailyworkday: [],
       workday: false,
       weekend: false,
@@ -288,7 +311,12 @@ export default {
     },
     async getTrigger() {
       try {
-        const response = await axios.post("/task/Reflect/triggerclass");
+        const response = await axios.post("/task/Reflect/triggerclass",null,{
+          params: {
+            type: this.trigger
+          }
+        });
+        console.log(response);
         this.triggers = response.data.data;
       } catch (error) {
         console.error("请求失败，请检查网络连接");
@@ -343,6 +371,10 @@ export default {
           info.dailynum = this.dailynum;
           info.dailyrepeatcount = this.dailyrepeatcount;
           info.dailyworkday = this.dailyworkday;
+          info.dailystarttime = this.DayStartTime;
+          if(this.DayEndTime){
+            info.dailyendtime = this.DayEndTime;
+          }
         }
       }
       return info;
@@ -402,6 +434,10 @@ export default {
         }
         if (this.dailyworkday.length === 0) {
         errors.push("执行日选择不能为空");
+        }
+        if(this.DayStartTime === ""){
+          console.log(this.DayStartTime);
+          errors.push("当日开始时间不能为空")
         }
       } else if (this.trigger === "CalendarIntervalTrigger") {
         if (!this.calendarnum) {
@@ -643,5 +679,9 @@ button:hover {
 
 :deep(.el-input){
   width: 286px;
+}
+
+:deep(.el-form-item){
+  margin-bottom: 12px;
 }
 </style>
