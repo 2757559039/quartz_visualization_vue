@@ -1,44 +1,97 @@
 <template>
   <div class="container">
     <div class="box">
-      <div class="trigger">
-      <div class="title">
-        <span>触发器名称:</span>
-        <span>{{ triggername }}</span>
-      </div>
-      <div class="title">
-        <span>触发器分组:</span>
-        <span>{{ triggergroup }}</span>
-      </div>
-      <div class="title1">
-        <p>触发器类型:</p>
-        <p style="text-align: right;">{{ selecttrigger }}</p>
-      </div>
-      <div class="title">
-        <span>任务优先级:</span>
-        <el-input-number v-model="priority" :min="0" :max="999" />
-      </div>
-      <div class="title">
-        <span>是否使用自定义触发器</span>
-        <el-switch v-model="isCustomTrigger" />
-      </div>
-      <div class="title1">
-        <span>自定义触发器</span>
-        <el-select v-model="trigger" :disabled="!isCustomTrigger">
-          <el-option
-            v-for="(trigger, index) in triggers"
-            :key="index"
-            :label="trigger"
-            :value="trigger"
-          />
-        </el-select>
-      </div>
-    </div>
+      <div class="typeselect">
+          <p>触发器类型选择</p>
+          <div class="title">
+          <span>需替换的触发器分组: </span>
+          <el-select v-model="oldtriggergroups" placeholder="Select">
+            <el-option
+              v-for="(trigger, index) in triggers"
+              :key="index"
+              :label="trigger"
+              :value="trigger"
+            />
+          </el-select>
+        </div>
+        <div class="title">
+          <span>需替换的触发器名称: </span>
+          <el-select v-model="oldtriggernames" placeholder="Select">
+            <el-option
+              v-for="(trigger, index) in triggers"
+              :key="index"
+              :label="trigger"
+              :value="trigger"
+            />
+          </el-select>
+        </div>
+          <div class="title">
+          <span>触发器类型: </span>
+          <el-select v-model="selecttrigger" placeholder="Select">
+            <el-option :label="'SimpleTrigger'" :value="'SimpleTrigger'"/>
+            <el-option :label="'CronTrigger'" :value="'CronTrigger'"/>
+            <el-option :label="'DailyTimeIntervalTrigger'" :value="'DailyTimeIntervalTrigger'"/>
+            <el-option :label="'CalendarIntervalTrigger'" :value="'CalendarIntervalTrigger'"/>
+          </el-select>
+        </div>
 
-    <div class="fg"></div>
+        <div class="title">
+          <span>是否使用自定义触发器: </span>
+          <el-switch v-model="isCustomTrigger"/>
+        </div>
+        <div class="title">
+          <span>自定义触发器: </span>
+          <el-select v-model="trigger" :disabled="!isCustomTrigger" placeholder="Select">
+            <el-option
+              v-for="(trigger, index) in triggers"
+              :key="index"
+              :label="trigger"
+              :value="trigger"
+            />
+          </el-select>
+        </div>
+        <div class="title">
+          <span>任务优先级: </span>
+          <el-input-number v-model="priority" :min="1" :max="999" />
+        </div>
+        <div class="title" v-if="isCustomTrigger === false">
+          <span>开始任务时间: </span>
+            <el-date-picker
+              v-model="startTime"
+              type="date"
+              format="YYYY/MM/DD"
+              value-format="YYYY-MM-DD"
+              placeholder="选择开始日期"
+              :disabled-date="disabledStartDate"
+            />
+        </div>
+          <div class="title" v-if="isCustomTrigger === false">
+            <span>结束任务时间: </span>
+            <el-date-picker
+              v-model="endTime"
+              type="date"
+              format="YYYY/MM/DD"
+              value-format="YYYY-MM-DD"
+              placeholder="选择结束日期"
+              :disabled-date="disabledEndDate"
+            />
+          </div>
+      </div>
 
-    <div class="triggerDetail">
+      <div class="fg"></div>
+
+      <div class="triggerdetail">
+        <p>触发器详情</p>
         <div v-if="isCustomTrigger === false" class="detailbox">
+          <div class="detail">
+            <span>触发器名称</span>
+            <el-input v-model="triggername" placeholder="请输入触发器名称" />
+          </div>
+
+          <div class="detail">
+            <span>触发器分组</span>
+            <el-input v-model="triggergroup" placeholder="请输入触发器分组" />
+          </div>
 
           <div class="detail">
             <span>设置时区</span>
@@ -64,7 +117,7 @@
             </el-input>
             <el-dialog v-model="showCron">
               <Vue3CronPlusPicker @hide="closeDialog" @fill="fillValue" :expression="expression"/>
-            </el-dialog>         
+            </el-dialog>            
           </div>
         </div>
 
@@ -135,19 +188,24 @@
         </div>
       </div>
     </div>
-
     </div>
-    <div class="buttonbox"> 
+
+    <div class="buttonbox">
       <el-button @click="replace">更改触发器</el-button>
       <el-button @click="back">返回</el-button>
     </div>
+
   </div>
 </template>
   
 <script>
-import axios from "axios";
-import { tr } from "element-plus/es/locales.mjs";
+import axios from 'axios';
+import 'vue3-cron-plus-picker/style.css'
+import {Vue3CronPlusPicker} from 'vue3-cron-plus-picker'
+import { tr } from 'element-plus/es/locales.mjs';
+
 export default {
+  components : {"Vue3CronPlusPicker":Vue3CronPlusPicker,},
   props: {
     jobinfo: {
       type: Object,
@@ -158,11 +216,20 @@ export default {
   },
   data() {
     return {
-      selecttrigger: '',
+
+      oldtriggergroups: "",
+      oldtriggernames: "",
+
+      oldtriggername:"",
+      oldtriggergroup:"",
 
       priority: "", // 任务优先级
+
+      selecttrigger: "",
       // 是否使用自定义触发器的选项
-      isCustomTrigger: "false",
+      isCustomTrigger: false,
+      triggers: [], // 触发器类型列表
+      trigger: "", // 选择的触发器
 
       // 触发器名称和组名
       triggername: "",
@@ -188,13 +255,11 @@ export default {
       dailytime: "second", // 默认时间单位为秒
       dailynum: "", // 间隔次数
       dailyrepeatcount: "", // 总执行次数
-      dailyworkday: [],
+      dailyworkday: [], // 工作日选择, 数组因为是多选框
+      all: false,
       workday: false,
       weekend: false,
-      all: false,
-      options: ["1", "2", "3", "4", "5", "6", "7", "workday", "weekend", "all"], // 可选工作日
-
-      Info: {},
+      Info:{},
     };
   },
   methods: {
@@ -210,126 +275,9 @@ export default {
 		fillValue(cronValue){
 			this.cronexpression = cronValue;
 		},
-    async getTrigger() {
-      try {
-        const response = await axios.post(
-          "http://172.17.170.107:8002/task/Reflect/triggerclass"
-        );
-        console.log(response);
-        this.triggers = response.data.data;
-
-        // 重置表单
-      } catch (error) {
-        // 处理网络错误或其他错误
-        this.errorMessage = "请求失败，请检查网络连接";
-        console.error;
-      }
-    },
-    async replace() {
-      if (this.checkTrigger()) {
-        this.builInfo();
-        try {
-          const response = await axios.post(
-            "http://172.17.170.107:8002/task/Update/updatetrigeerargument",
-            this.Info
-          );
-          console.log(response);
-
-          // 重置表单
-        } catch (error) {
-          // 处理网络错误或其他错误
-          this.errorMessage = "请求失败，请检查网络连接";
-          console.error;
-        }
-      }
-      // const 一个设计 jobinfo
-    },
-    async checkTrigger() {
-
-      if (this.priority > 999 || this.priority < 0) {
-        alert("优先级范围为0~999");
-        return false;
-      }
-      if (this.isCustomTrigger === "true") {
-        return true;
-      } else if (this.selecttrigger === "SimpleTrigger") {
-        if ( !(
-            (this.simpletimesecond === "" && this.repeatcount === "") ||
-            (this.simpletimesecond !== "" && this.repeatcount !== "")
-          )) {
-          alert("SimpleTrigger的时间间隔秒数或执行次数不能为空");
-          return false;
-        }
-      } else if (this.selecttrigger === "CronTrigger") {
-        if (this.cronexpression !== "") {
-          const response = await axios.post(
-            "http://172.17.170.107:8002/task/Util/cron-check?cron=" +
-              this.cronexpression
-          );
-          console.log(response);
-          if (response.data.message === "cron表达式格式错误！") {
-            alert("cron表达式不合法");
-            return false;
-          }
-        }
-      } else if (this.selecttrigger === "CalendarIntervalTrigger") {
-        if (
-          !(
-            (this.calendarnum === "" && this.timezone === "") ||
-            (this.calendarnum !== "" && this.timezone !== "")
-          )
-        ) {
-          alert("请输入完整参数或请清空输入使用默认参数");
-          return false;
-        }
-      } else if (this.selecttrigger === "DailyTimeIntervalTrigger") {
-        if (
-          !(
-            (this.dailynum === "" &&
-              this.dailyrepeatcount === "" &&
-              this.dailyworkday.length === 0) ||
-            (this.dailynum !== "" &&
-              this.dailyrepeatcount !== "" &&
-              this.dailyworkday.length !== 0)
-          )
-        ) {
-          alert("请输入完整参数或请清空输入使用默认参数");
-          return false;
-        }
-      }
-      return true;
-    },
-
-    builInfo() {
-      this.Info.triggername = this.triggername;
-      this.Info.triggergroup = this.triggergroup;
-      this.Info.priority = this.priority;
-      this.Info.type = this.selecttrigger;
-      this.Info.isCustomTrigger = this.isCustomTrigger;
-      if (this.isCustomTrigger === "true") {
-        this.Info.trigger = this.selecttrigger;
-      } else {
-        this.Info.triggername = this.triggername;
-        this.Info.triggergroup = this.triggergroup;
-        if (this.selecttrigger === "SimpleTrigger") {
-          this.Info.simpletimesecond = this.simpletimesecond;
-          this.Info.repeatcount = this.repeatcount;
-        } else if (this.selecttrigger === "CronTrigger") {
-          this.Info.cronexpression = this.cronexpression;
-        } else if (this.selecttrigger === "CalendarIntervalTrigger") {
-          this.Info.calendartime = this.calendartime;
-          this.Info.calendarnum = this.calendarnum;
-          this.Info.preserveHourOfDayAcrossDaylightSavings =
-            this.preserveHourOfDayAcrossDaylightSavings;
-          this.Info.skipDayIfHourDoesNotExist = this.skipDayIfHourDoesNotExist;
-          this.Info.timezone = this.timezone;
-        } else if (this.selecttrigger === "DailyTimeIntervalTrigger") {
-          this.Info.dailytime = this.dailytime;
-          this.Info.dailynum = this.dailynum;
-          this.Info.dailyrepeatcount = this.dailyrepeatcount;
-          this.Info.dailyworkday = this.dailyworkday;
-        }
-      }
+    filterInput(value) {
+      // 使用正则表达式替换所有非数字字符为空字符串
+      this.priority = value.replace(/\D/g, '');
     },
     checkall(){
       if(this.all){
@@ -394,72 +342,204 @@ export default {
       }
     },
     back(){
+      console.log('111')
         this.$emit('close');
       },
+    async getTrigger() {
+      try {
+         const response = await axios.post("http://172.17.170.107:8002/task/Reflect/triggerclass");
+        console.log(response);
+        this.triggers = response.data.data;
+
+        // 重置表单
+      } catch (error) {
+        // 处理网络错误或其他错误
+        this.errorMessage = "请求失败，请检查网络连接";
+        console.error;
+      }
+    },
+    async replace(){
+      console.log(this.oldtriggername);
+      console.log(this.oldtriggergroup);
+
+      if(this.checkTrigger()){
+        this.builInfo();
+        console.log(this.Info);
+        try {
+        const response = await axios.post(
+          "http://172.17.170.107:8002/task/Update/updateTrigger?oldtriggername=" +this.oldtriggername+"&oldtriggergroup="+this.oldtriggergroup,this.Info
+        );
+        console.log(response);
+        if(response.data.data == 'success'){
+          alert("更改成功");
+          this.back();
+        }
+        // 重置表单
+      } catch (error) {
+        // 处理网络错误或其他错误
+        this.errorMessage = "请求失败，请检查网络连接";
+        console.error;
+      }
+      }
+      // const 一个设计 jobinfo
+
+      
+    },
+    async checkTrigger(){
+      console.log(this.isCustomTrigger);
+      if (this.priority > 999 || this.priority < 0) {
+        tip = tip + "优先级范围为0~999\n";
+      }
+      if(this.isCustomTrigger === "true"){
+        if(this.trigger === ""){
+          alert("请选择自定义触发器");
+          return false;
+        }
+        return true;
+      }else if(this.selecttrigger === "SimpleTrigger"){
+        if( !(
+            (this.simpletimesecond === "" && this.repeatcount === "") ||
+            (this.simpletimesecond !== "" && this.repeatcount !== "")
+          )){
+          alert("SimpleTrigger的时间间隔秒数或执行次数不能为空");
+          return false;
+        }
+      }else if(this.selecttrigger === "CronTrigger"){
+        if (this.cronexpression !== "") {
+          const response = await axios.post(
+            "http://172.17.170.107:8002/task/Util/cron-check?cron=" +
+              this.cronexpression
+          );
+          console.log(response);
+          if (response.data.message === "cron表达式格式错误！") {
+            alert("cron表达式不合法");
+            return false;
+          }
+        }
+      }else if(this.selecttrigger === "CalendarIntervalTrigger"){
+        if (
+          !(
+            (this.calendarnum === "" && this.timezone === "") ||
+            (this.calendarnum !== "" && this.timezone !== "")
+          )
+        ) {
+          alert("请输入完整参数或请清空输入使用默认参数");
+          return false;
+        }
+      }else if(this.selecttrigger === "DailyTimeIntervalTrigger"){
+        if (
+          !(
+            (this.dailynum === "" &&
+              this.dailyrepeatcount === "" &&
+              this.dailyworkday.length === 0) ||
+            (this.dailynum !== "" &&
+              this.dailyrepeatcount !== "" &&
+              this.dailyworkday.length !== 0)
+          )
+        ) {
+          alert("请输入完整参数或请清空输入使用默认参数");
+          return false;
+        }
+      }
+      return true;
+    },
+
+    builInfo(){
+      this.Info.triggername = this.triggername;
+      this.Info.triggergroup = this.triggergroup;
+
+      this.Info.priority = this.priority;
+      this.Info.type = this.selecttrigger;
+      this.Info.isCustomTrigger = this.isCustomTrigger;
+      if(this.isCustomTrigger === "true"){
+        this.Info.trigger = this.trigger;
+      }else{
+        this.Info.triggername = this.triggername;
+        this.Info.triggergroup = this.triggergroup;
+        if(this.selecttrigger === "SimpleTrigger"){
+          this.Info.simpletimesecond = this.simpletimesecond;
+          this.Info.repeatcount = this.repeatcount;
+      }else if(this.selecttrigger === "CronTrigger"){
+          this.Info.cronexpression = this.cronexpression;
+      }else if(this.selecttrigger === "CalendarIntervalTrigger"){
+          this.Info.calendartime = this.calendartime;
+          this.Info.calendarnum = this.calendarnum;
+          this.Info.preserveHourOfDayAcrossDaylightSavings = this.preserveHourOfDayAcrossDaylightSavings;
+          this.Info.skipDayIfHourDoesNotExist = this.skipDayIfHourDoesNotExist;
+          this.Info.timezone = this.timezone;
+      }else if(this.selecttrigger === "DailyTimeIntervalTrigger"){
+          this.Info.dailytime = this.dailytime;
+          this.Info.dailynum = this.dailynum;
+          this.Info.dailyrepeatcount = this.dailyrepeatcount;
+          this.Info.dailyworkday = this.dailyworkday;
+      }
+    }
   },
+},
   created() {
     this.getTrigger();
-    console.log(this.jobinfo);
-    this.triggername = this.jobinfo.triggername;
-    this.triggergroup = this.jobinfo.triggergroup;
-    this.priority = this.jobinfo.priority;
-    this.selecttrigger = this.jobinfo.type;//slice(0, -4);
   },
 };
 </script>
   
 <style scoped>
-
-.container{
-  width: 690px;
-  height: 600px;
-  font-size: 20px;
-}
-
-.box{
-  /* width: 300px; */
+.container {
+  width: 750px;
+  height: 510px;
+  padding: 10px;
+  flex-direction: column;
   display: flex;
+  z-index: 500;
 }
 
 .fg{
   border-left: 1px solid #000;
 }
 
-.trigger{
-  width: 300px;
-  margin-right: 14px;
-}
-.title{
+.box {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
+  flex-direction: row;
+  height: 510px;
 }
 
-.title1{
-  margin-bottom: 20px;
-}
-
-.title1 p{
+.box p {
+  font-size: 24px;
+  margin-top: 10px;
   margin-bottom: 10px;
 }
 
-:deep(.title1 .el-select){
-  margin-top: 10px;
+.typeselect {
+  width: 350px;
+  margin-right: 14.5px;
+}
+
+.title{
+  width: 350px;
+  height: 32px;
+  display: flex;
+  justify-content: space-between;
   font-size: 20px;
-  height: 40px;
+  margin-top: 20px;
 }
 
-.triggerDetail{
-  width: 300px;
-  height: 420px;
-  margin-left: 14px;
+.typeselect .el-select{
+  width: 210px;
 }
 
+.typeselect .el-input{
+  width: 210px;
+}
+
+.triggerdetail {
+  margin-left: 14.5px;
+  width: 350px;
+}
 
 .detailbox{
   width: 350px;
   height: 32px;
   font-size: 20px;
+  margin-top: 20px;
 }
 
 .detailbox .el-select{
@@ -496,23 +576,20 @@ export default {
   font-size: 20px;
 }
 
-
-.buttonbox{
-  column-gap:0;
-  gap: 0px;
+.buttonbox {
   margin-top: 20px;
-  flex-direction: column;
   display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
 
-.buttonbox button{
-  width: 600px !important;
+.buttonbox button {
   font-size: 24px;
-  width: 128px;
+  width: 640px;
   height: 60px;
-  margin-left: 20px;
-  margin-right: 20px;
-  margin-bottom: 20px;
+  margin-left: 0;
+  /* margin: 10px 0; */
 }
 
 :deep(.detail .el-dialog){

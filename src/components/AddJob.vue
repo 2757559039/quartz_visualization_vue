@@ -94,7 +94,7 @@
           </el-form-item>
 
             <el-form-item label="任务优先级" v-if="isCustomTrigger === 'false'">
-            <el-input-number v-model="priority" :min="0" :max="999"/>
+            <el-input-number v-model="priority" :min="1" :max="999"/>
             </el-form-item>
 
           <el-form-item label="开始任务时间" v-if="isCustomTrigger === 'false'">
@@ -116,6 +116,10 @@
               placeholder="选择结束日期"
               :disabled-date="disabledEndDate"
             />
+          </el-form-item>
+
+          <el-form-item v-if="isCustomTrigger === 'false'" label="设置时区">
+            <el-input v-model="timezone" placeholder="请设置时区" />
           </el-form-item>
 
           <!-- SimpleTrigger -->
@@ -164,9 +168,9 @@
           </el-form-item>
           <el-form-item
             v-if="trigger === 'DailyTimeIntervalTrigger' && isCustomTrigger === 'false'"
-            label="总执行次数"
+            label="请输入间隔次数"
           >
-            <el-input v-model="dailyrepeatcount" placeholder="请输入总执行次数" />
+            <el-input v-model="dailynum" placeholder="请输入间隔次数" />
           </el-form-item>
           <el-form-item
             v-if="trigger === 'DailyTimeIntervalTrigger' && isCustomTrigger === 'false'"
@@ -307,7 +311,7 @@ export default {
   methods: {
     async getTrigger() {
       try {
-        const response = await axios.post("http://114.132.71.250:8002/task/Reflect/triggerclass");
+        const response = await axios.post("http://172.17.170.107:8002/task/Reflect/triggerclass");
         console.log(response);
         this.triggers = response.data.data;
       } catch (error) {
@@ -316,7 +320,7 @@ export default {
     },
     async getJob() {
       try {
-        const response = await axios.post("http://114.132.71.250:8002/task/Reflect/jobclass");
+        const response = await axios.post("http://172.17.170.107:8002/task/Reflect/jobclass");
         console.log(response);
         this.jobClassNameGroup = response.data.data;
       } catch (error) {
@@ -325,7 +329,7 @@ export default {
     },
     async getJobDetail() {
       try {
-        const response = await axios.post("http://114.132.71.250:8002/task/Reflect/jobdetailclass");
+        const response = await axios.post("http://172.17.170.107:8002/task/Reflect/jobdetailclass");
         console.log(response);
         this.JobDetails = response.data.data;
       } catch (error) {
@@ -340,26 +344,12 @@ export default {
       if (this.jobClassName === "") {
         tip = tip + "任务类名不能为空\n";
       }
-      if (this.priority > 999 || this.priority < 0) {
-        tip = tip + "优先级范围为0~999\n";
-      }
-      if (this.startTime === "" || this.endTime === "") {
-        tip = tip + "任务时间不能为空\n";
-      }
+
       if (this.trigger === "") {
         tip = tip + "触发器类型不能为空\n";
       }
       if (this.isCustomJobDetail === "true" && this.jobDetail === "") {
         tip = tip + "你已开启自定义的jobdetail,请选择你的自定义jobdetail\n";
-      }
-      if (this.isCustomTrigger === "true" && this.selecttrigger === "") {
-        tip = tip + "你已开启自定义的触发器,请选择你的自定义触发器\n";
-      }
-      if (
-        this.isCustomTrigger === "false" &&
-        (this.triggername === "" || this.triggergroup === "")
-      ) {
-        tip = tip + "你未开启自定义的触发器,请选择输入触发器名及触发器分组\n";
       }
       if (tip !== "") {
         alert(tip);
@@ -368,53 +358,54 @@ export default {
       console.log('yes');
       return "true";
     },
+
+
+
     async checkTrigger() {
+      let tip = "";
       if (this.isCustomTrigger === "true") {
-        return true;
-      } else if (this.trigger === "SimpleTrigger") {
-        if (
-          !(
-            (this.simpletimesecond === "" && this.repeatcount === "") ||
-            (this.simpletimesecond !== "" && this.repeatcount !== "")
-          )
-        ) {
-          alert("请输入完整参数或请清空输入使用默认参数");
-          return false;
+        if(this.selecttrigger === ""){
+          tip = tip + "请选择触发器实现类\n";
+          alert(tip);
+          return "false";
+        }
+      return "true";
+      } else {
+      if (this.triggername === "" || this.triggergroup === "") {
+        tip = tip + "触发器名或触发器组不能为空\n";
+      }
+      if (this.startTime === "") {
+        tip = tip + "开始时间或结束时间不能为空\n";
+      }
+      if(this.priority >= 999 || this.priority < 0){
+        tip = tip + "优先级范围为1~999\n";
+      }
+      if (this.trigger === "SimpleTrigger") {
+        if ( this.simpletimesecond === "" || this.repeatcount === "") {
+        tip = tip + "请输入完整参数\n";
         }
       } else if (this.trigger === "CronTrigger") {
         if (this.cronexpression !== "") {
-          const response = await axios.post(
-            "http://114.132.71.250:8002/task/Util/cron-check?cron=" + this.cronexpression
-          );
-          if (response.data.message === "cron表达式格式错误！") {
-            alert("cron表达式不合法");
-            return false;
-          }
+        const response = await axios.post(
+          "http://172.17.170.107:8002/task/Util/cron-check?cron=" + this.cronexpression
+        );
+        if (response.data.message === "cron表达式格式错误！") {
+          tip = tip + "cron表达式不合法\n";
+        }
         }
       } else if (this.trigger === "CalendarIntervalTrigger") {
-        if (
-          !(
-            (this.calendarnum === "" && this.timezone === "") ||
-            (this.calendarnum !== "" && this.timezone !== "")
-          )
-        ) {
-          alert("请输入完整参数或请清空输入使用默认参数");
-          return false;
+        if ( this.calendarnum === "" || this.calendartime === "") {
+        tip = tip + "请输入完整参数\n";
         }
       } else if (this.trigger === "DailyTimeIntervalTrigger") {
-        if (
-          !(
-            (this.dailynum === "" &&
-              this.dailyrepeatcount === "" &&
-              this.dailyworkday.length === 0) ||
-            (this.dailynum !== "" &&
-              this.dailyrepeatcount !== "" &&
-              this.dailyworkday.length !== 0)
-          )
-        ) {
-          alert("请输入完整参数或请清空输入使用默认参数");
-          return false;
+        if ( this.dailytime === "" || this.dailynum === "" || this.dailyrepeatcount === "" || this.dailyworkday.length === 0) {
+        tip = tip + "请输入完整参数或请清空输入使用默认参数\n";
         }
+      }
+      }
+      if (tip !== "") {
+      alert(tip);
+      return "false";
       }
       console.log('yes');
       return "true";
@@ -442,7 +433,9 @@ export default {
       this.Info.description = this.jobDescription;
       this.Info.type = this.trigger;
       this.Info.startime = this.startTime;
-      this.Info.endtime = this.endTime;
+      if (this.endTime !== "") {
+        this.Info.endtime = this.endTime;
+      }
       this.Info.priority = this.priority;
       this.Info.isCustomJobDetail = this.isCustomJobDetail;
       if (this.isCustomJobDetail === "true") {
@@ -494,15 +487,10 @@ export default {
       console.log(this.Info);
       const if1 = this.checkBaseInfo() === "true";
       const if2 = await this.checkTrigger() === "true";
-      // console.log(this.checkBaseInfo());//这个会弹两次弹窗
-      console.log(this.checkTrigger().PromiseResult);
-      console.log(if1, if2);
       if (if1 && if2) {
-        console.log('yes');
-        console.log(this.Info);
         this.builInfo();
         console.log(this.Info);
-        const response = await axios.post("http://114.132.71.250:8002/task/Add/job", this.Info);
+        const response = await axios.post("http://172.17.170.107:8002/task/Add/job", this.Info);
         console.log(response);
         this.Info = {};
         this.closeModal();
@@ -525,7 +513,7 @@ export default {
           this.Info.isCustomJobDetail = this.isCustomJobDetail;
           this.Info.jobDetail = this.jobDetail;
           const response = await axios.post(
-            "http://114.132.71.250:8002/task/Add/jobdetail",
+            "http://172.17.170.107:8002/task/Add/jobdetail",
             null,
             {
               params: this.Info,
