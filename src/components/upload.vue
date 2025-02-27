@@ -8,7 +8,7 @@
     <div>
       <CodeEditor :modelValue="editorContent" language="java" @update:modelValue="onCodeChange" />
       <div class="buttonbox"> 
-        <el-button type="primary" @click="confirmUpload">上传类</el-button>
+        <el-button type="primary" @click="confirmUpload">更新</el-button>
         <el-button  @click="back" class="back-btn">返回</el-button>
       </div>
     </div>
@@ -25,7 +25,7 @@
       CodeEditor,
     },
     props: {
-      uploadType: {
+      id: {
         type: String,
         required: true,
       },
@@ -49,13 +49,11 @@
         this.isVisible = true;
       },
       confirmUpload() {
-        // 大小写转换有点多余说实在的
-        const uploadTypeText = this.uploadType.charAt(0).toUpperCase() + this.uploadType.slice(1);
         ElMessageBox.confirm(
-          `确定要上传 ${uploadTypeText} 吗？`,
-          '确认上传',
+          `确定要更新吗？`,
+          '确认更新',
           {
-            confirmButtonText: '提交',
+            confirmButtonText: '更新',
             cancelButtonText: '取消',
           },
         )
@@ -66,49 +64,47 @@
             // 取消上传
           });
       },
-      handleUpload() {
-        // 根据 uploadType 确定接口地址
-        const urlMap = {
-          job: '/scriptBuilder/saveJobToDB',
-          trigger: '/scriptBuilder/saveTriggerToDB',
-          jobDetail: '/scriptBuilder/saveJobDetailToDB',
-          updateTrigger: '/scriptBuilder/saveUpdateTriggerToDB',
-        };
+      // handleUpload() {
+      //   // 根据 uploadType 确定接口地址
+      //   // const urlMap = {
+      //   //   job: '/scriptBuilder/saveJobToDB',
+      //   //   trigger: '/scriptBuilder/saveTriggerToDB',
+      //   //   jobDetail: '/scriptBuilder/saveJobDetailToDB',
+      //   //   updateTrigger: '/scriptBuilder/saveUpdateTriggerToDB',
+      //   // };
 
-        const url = urlMap[this.uploadType];
-        if (!url) {
-          ElMessage.error('未知的上传类型');
-          return;
-        }
+      //   // const url = urlMap[this.uploadType];
+      //   // if (!url) {
+      //   //   ElMessage.error('未知的上传类型');
+      //   //   return;
+      //   // }
 
-        const data = {
-          code: this.editorContent,
-        };
-
-        axios.post(url, data)
-          .then(response => {
-            if (response.data.code === '200') {
-              ElMessage({
-                message: `${this.uploadType}代码上传成功`,
-                type: 'success',
-              });
-              this.editorContent = ''; // 清空输入框
-              this.back(); // 关闭弹窗
-            } else {
-              ElMessage({
-                message: '代码上传失败',
-                type: 'error',
-              });
-            }
-          })
-          .catch(error => {
-            console.error('代码上传失败:', error);
-            ElMessage({
-              message: '代码上传失败',
-              type: 'error',
-            });
-          });
-        },
+      //   axios.post('/scriptBuilder/updateScript', {
+      //     script: this.editorContent,
+      //   })
+      //   .then(response => {
+      //     if (response.data.code === '200') {
+      //       ElMessage({
+      //         message: `${this.uploadType}代码更新成功`,
+      //         type: 'success',
+      //       });
+      //       this.editorContent = ''; // 清空输入框
+      //       this.back(); // 关闭弹窗
+      //     } else {
+      //       ElMessage({
+      //         message: '代码更新失败',
+      //         type: 'error',
+      //       });
+      //     }
+      //   })
+      //   .catch(error => {
+      //     console.error('代码更新失败:', error);
+      //     ElMessage({
+      //       message: '代码更新失败',
+      //       type: 'error',
+      //     });
+      //   });
+      // },
     }
   };
   </script>

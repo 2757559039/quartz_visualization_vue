@@ -7,23 +7,23 @@
       stretch
       @tab-click="handleTabClick"
     >
-      <el-tab-pane name="已安装">
+      <el-tab-pane name="bean">
         <template #label>
-          <span>已安装</span>
+          <span>bean</span>
         </template>
-        <!-- 已安装类的内容 -->
+        <!-- bean的内容 -->
         <div class="content">
-          <InstalledList :showTable="activeTab === '已安装'" />
+          <InstalledList :showTable="activeTab === 'bean'" />
         </div>
       </el-tab-pane>
 
-      <el-tab-pane label="未安装" name="未安装">
+      <el-tab-pane label="脚本" name="脚本">
         <template #label>
-          <span>未安装</span>
+          <span>脚本</span>
         </template>
-        <!-- 未安装类的内容 -->
+        <!-- 脚本的内容 -->
         <div class="content">
-          <UnerectedList :showTable="activeTab === '未安装'" />
+          <UnerectedList :showTable="activeTab === '脚本'" />
         </div>
       </el-tab-pane>
 
@@ -133,8 +133,14 @@ export default {
           this.buttonOptions = [
             { label: 'Job', value: 'Job' },
             { label: 'JobDetail', value: 'JobDetail' },
-            { label: 'Trigger', value: 'Trigger' },
-            { label: 'UpdateTrigger', value: 'UpdateTrigger' },
+            { label: 'SimpleTrigger', value: 'SimpleTrigger' },
+            { label: 'CalendarIntervalTrigger', value: 'CalendarIntervalTrigger' },
+            { label: 'DailyTimeIntervalTrigger', value: 'DailyTimeIntervalTrigger' },
+            { label: 'CronTrigger', value: 'CronTrigger' },
+            { label: 'SimpleUpdateTrigger', value: 'SimpleUpdateTrigger' },
+            { label: 'CalendarUpdateIntervalTrigger', value: 'CalendarUpdateIntervalTrigger' },
+            { label: 'DailyUpdateTimeIntervalTrigger', value: 'DailyUpdateTimeIntervalTrigger' },
+            { label: 'CronUpdateTrigger', value: 'CronUpdateTrigger' },
           ];
           this.selectedButton = 'Job'; // 上传类的默认值
           this.editorContent = '';
@@ -145,7 +151,7 @@ export default {
   data() {
     return {
       // 默认选中的标签
-      activeTab: '已安装',
+      activeTab: 'bean',
       // 编辑类型
       editType: 'upload', // 默认为上传类，但是点击编辑会切换成config，解决输入框问题
       // 上传类型
@@ -237,8 +243,14 @@ export default {
           const urlMap = {
             Job: '/scriptBuilder/saveJobToDB',
             JobDetail: '/scriptBuilder/saveJobDetailToDB',
-            Trigger: '/scriptBuilder/saveTriggerToDB',
-            UpdateTrigger: '/scriptBuilder/saveUpdateTriggerToDB',
+            SimpleTrigger: '/scriptBuilder/saveTriggerToDB?Type=SimpleTrigger',
+            CalendarIntervalTrigger: '/scriptBuilder/saveTriggerToDB?Type=CalendarIntervalTrigger',
+            DailyTimeIntervalTrigger: '/scriptBuilder/saveTriggerToDB?Type=DailyTimeIntervalTrigger',
+            CronTrigger: '/scriptBuilder/saveTriggerToDB?Type=CronTrigger',
+            SimpleUpdateTrigger: '/scriptBuilder/saveUpdateTriggerToDB?Type=SimpleUpdateTrigger',
+            CalendarUpdateIntervalTrigger: '/scriptBuilder/saveUpdateTriggerToDB?Type=CalendarUpdateIntervalTrigger',
+            DailyUpdateTimeIntervalTrigger: '/scriptBuilder/saveUpdateTriggerToDB?Type=DailyUpdateTimeIntervalTrigger',
+            CronUpdateTrigger: '/scriptBuilder/saveUpdateTriggerToDB?Type=CronUpdateTrigger',
           };
           const selectedUrl = urlMap[this.selectedButton];
           if (!selectedUrl) {

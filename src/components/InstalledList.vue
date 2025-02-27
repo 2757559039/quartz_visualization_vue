@@ -51,7 +51,6 @@
         </template>
         <template #default="scope">
           <div class="czbtn">
-            <el-button class="gxb" @click="handleUpdate(scope.row)">更新</el-button>
             <el-button class="xzb" @click="handleUninstall(scope.row)">卸载</el-button>
           </div>
         </template>
@@ -81,8 +80,14 @@ export default {
         { label: '类型：全部', value: '' },
         { label: '类型：job', value: 'job' },
         { label: '类型：job_detail', value: 'job_detail' },
-        { label: '类型：trigger', value: 'trigger' },
-        { label: '类型：update_trigger', value: 'update_trigger' },
+        { label: '类型：SimpleTrigger', value: 'SimpleTrigger' },
+        { label: '类型：CalendarIntervalTrigger', value: 'CalendarIntervalTrigger' },
+        { label: '类型：DailyTimeIntervalTrigger', value: 'DailyTimeIntervalTrigger' },
+        { label: '类型：CronTrigger', value: 'CronTrigger' },
+        { label: '类型：SimpleUpdateTrigger', value: 'SimpleUpdateTrigger' },
+        { label: '类型：CalendarUpdateIntervalTrigger', value: 'CalendarUpdateIntervalTrigger' },
+        { label: '类型：DailyUpdateTimeIntervalTrigger', value: 'DailyUpdateTimeIntervalTrigger' },
+        { label: '类型：CronUpdateTrigger', value: 'CronUpdateTrigger' },
       ],
     };
   },
@@ -103,9 +108,6 @@ export default {
       this.fetchData();
       console.log('筛选条件：', this.filterCriteria);
     },
-    handleUpdate(row) {
-      console.log('更新:', row);
-    },
     handleUninstall(row) {
       ElMessageBox.confirm(
         `确定要卸载类 ${row.className} 吗？`,
@@ -118,7 +120,7 @@ export default {
       )
         .then(() => {
           const className = row.className;
-          axios.post(`/groovyBean/unloadGroovyBean?classNam=${className}`)
+          axios.post(`/groovyBean/unloadGroovyBean?className=${className}`)
             .then(response => {
               if (response.data.code === '200') {
                 ElMessage({
