@@ -166,8 +166,8 @@
     </template>
     </el-dialog>
 
-    <TriggerModal ref="triggerModal" class="trmod"/>
-    <JobModal ref="jobModal" class="jobmod"/>
+    <TriggerModal ref="triggerModal" class="trmod"  @getWhenAdd="SelectGroup"/>
+    <JobModal ref="jobModal" class="jobmod"  @getWhenAdd="SelectGroup"/>
     <UpLoad ref="uploadModal" class="uploadmod"/>
     <transition name="modal">
       <div v-if="showUpdata" class="modal-mask">
@@ -627,7 +627,7 @@ export default {
         this.errorMessage = "请求失败，请检查网络连接";
         console.error;
       }
-      this.getUsedTrigger();
+      this.SelectGroup();
     },
 
     updatatrigger(row) {
