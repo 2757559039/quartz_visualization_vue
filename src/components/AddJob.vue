@@ -530,6 +530,7 @@ export default {
           alert("添加任务失败！请检查参数是否正常,组,名是否重复");
         }else{
           this.Info = {};
+          this.$emit('getWhenAdd');
           this.closeModal();
         }
       }
@@ -562,6 +563,7 @@ export default {
             alert("任务已存在！请勿添加重复任务")
           }
           this.Info = {};
+          this.$emit('getWhenAdd');
           this.closeModal();
         }
       } else {

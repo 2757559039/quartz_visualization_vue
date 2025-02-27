@@ -296,6 +296,7 @@ export default {
             this.Info
           );
           console.log(response);
+          this.$emit('close');
 
           // 重置表单
         } catch (error) {

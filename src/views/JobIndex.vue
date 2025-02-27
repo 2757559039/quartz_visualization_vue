@@ -101,7 +101,7 @@
                 </div>
                 <div class="b2"> 
                   <div class="button2Box"> 
-                    <el-button type="info" @click="replacetrigger(scope.row)" :disabled="true">替换触发器</el-button>
+                    <el-button type="info" @click="replacetrigger(scope.row)">替换触发器</el-button>
                   </div>
                   <div class="button2Box"> 
                     <el-button type="info" @click="updatejob(scope.row)">修改任务详情</el-button>
@@ -114,15 +114,15 @@
       </div>
     </div>
     
-    <TriggerModal ref="triggerModal" class="trmod" />
-    <JobModal ref="jobModal" class="jobmod"/>
+    <TriggerModal ref="triggerModal" class="trmod" @getWhenAdd="SelectGroup" />
+    <JobModal ref="jobModal" class="jobmod" @getWhenAdd="SelectGroup"/>
     <UpLoad ref="uploadModal" class="uploadmod"/>
     <transition name="modal">
       <div v-if="showModal" class="modal-mask">
         <div class="modal-wrapper">
           <div class="modal-container2">
             <div class="modal-body2">
-              <ReplaceTrigger
+              <ReplaceTriggerFromJob
                 :jobinfo="selectedJob"
                 v-if="showModal"
                 @close="closeModal"
@@ -168,14 +168,14 @@
   <script>
   // 回调
 import axios from "axios";
-import ReplaceTrigger from "../components/ReplaceTrigger.vue";
+import ReplaceTriggerFromJob from "../components/ReplaceTriggerFromJob.vue";
 import JobDetail from "../components/JobDetail.vue";
 import UpLoad from "../components/upload.vue";
 import TriggerModal from '../components/onloadtrigger.vue';
 import JobModal from '../components/AddJob.vue';
 export default {
   components: {
-    ReplaceTrigger,
+    ReplaceTriggerFromJob,
     JobDetail,
     UpLoad,
     TriggerModal,
@@ -208,23 +208,28 @@ export default {
   },
   methods: {
     async search() {
+      this.SelectGroup();
       if (this.selected !== "") {
         const searchTerm = this.selected.toLowerCase();
-        let url;
-        if (this.selectGroup) {
-          url =  "/task/Select/FINDjobBYgroup?group=" + this.selectGroup;
-        }
-        else{
-          url =  "/task/Select/jobs";
-        }
-        this.Jobs = (await axios.post(url)).data.data.filter(job => 
+        this.jobs = this.Jobs.filter(job => 
           job.jobname.toLowerCase().includes(searchTerm) ||
           job.jobgroup.toLowerCase().includes(searchTerm) ||
           job.jobclassname.toLowerCase().includes(searchTerm) ||
           job.description.toLowerCase().includes(searchTerm)
         );
-      } else {
-        this.getUsedJob();
+        // let url;
+        // if (this.selectGroup) {
+        //   url =  "/task/Select/FINDjobBYgroup?group=" + this.selectGroup;
+        // }
+        // else{
+        //   url =  "/task/Select/jobs";
+        // }
+        // this.Jobs = (await axios.post(url)).data.data.filter(job => 
+        //   job.jobname.toLowerCase().includes(searchTerm) ||
+        //   job.jobgroup.toLowerCase().includes(searchTerm) ||
+        //   job.jobclassname.toLowerCase().includes(searchTerm) ||
+        //   job.description.toLowerCase().includes(searchTerm)
+        // );
       }
     },
     handleExpandChange(row, expanded) {
@@ -483,7 +488,7 @@ export default {
             message: '任务已删除',
             type: 'success'
           });
-          row = null;
+          this.SelectGroup();
         }else{
           this.$message({
             showClose: true,
@@ -505,6 +510,7 @@ export default {
       this.showModal = true;
     },
     closeModal() {
+      this.SelectGroup();
       // 关闭弹窗
       this.showModal = false;
     },
@@ -1021,7 +1027,7 @@ watch: {
 
 .modal-body2 {
   width: 950px;
-  height: 680px;
+  height: 740px;
   margin: 20px 0;
 }
 

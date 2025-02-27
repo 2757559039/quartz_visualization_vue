@@ -2,7 +2,7 @@
   <div class="container">
     <div class="box">
       <div class="typeselect">
-          <p>触发器类型选择</p>
+          <p>触发器基础信息</p>
           <div class="title">
           <span>触发器类型: </span>
           <el-select v-model="selecttrigger" placeholder="Select" @change="getTrigger()">

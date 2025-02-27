@@ -475,6 +475,7 @@ export default {
             message: "挂载成功",
             type: "success"
           });
+          this.$emit('getWhenAdd');
           this.closeModal()
         }else if(response.data.message === "触发器已存在!"){
           this.$message({

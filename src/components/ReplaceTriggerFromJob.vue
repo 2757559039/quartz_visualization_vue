@@ -2,32 +2,32 @@
   <div class="container">
     <div class="box">
       <div class="typeselect">
-          <p>触发器类型选择</p>
+          <p>触发器基础信息</p>
           <div class="title">
-          <span>需替换的触发器分组: </span>
-          <el-select v-model="oldtriggergroups" placeholder="Select">
+            <span>旧触发器分组</span>
+            <el-select v-model="oldtriggergroup"  placeholder="Select" @change="getTriggerName()">
             <el-option
-              v-for="(trigger, index) in triggers"
+              v-for="(trigger, index) in oldtriggergroups"
               :key="index"
               :label="trigger"
               :value="trigger"
             />
           </el-select>
-        </div>
-        <div class="title">
-          <span>需替换的触发器名称: </span>
-          <el-select v-model="oldtriggernames" placeholder="Select">
+          </div>
+          <div class="title">
+            <span>旧触发器名称</span>
+            <el-select v-model="oldtriggername" placeholder="Select">
             <el-option
-              v-for="(trigger, index) in triggers"
+              v-for="(trigger, index) in oldtriggernames"
               :key="index"
               :label="trigger"
               :value="trigger"
             />
           </el-select>
-        </div>
+          </div>
           <div class="title">
           <span>触发器类型: </span>
-          <el-select v-model="selecttrigger" placeholder="Select">
+          <el-select v-model="selecttrigger" placeholder="Select" @change="getTrigger()">
             <el-option :label="'SimpleTrigger'" :value="'SimpleTrigger'"/>
             <el-option :label="'CronTrigger'" :value="'CronTrigger'"/>
             <el-option :label="'DailyTimeIntervalTrigger'" :value="'DailyTimeIntervalTrigger'"/>
@@ -90,12 +90,12 @@
       <div class="triggerdetail">
         <p>触发器详情</p>
         <div class="detailbox">
-          <div class="detail">
+          <div class="detail" v-if="isCustomTrigger === false">
             <span>触发器名称</span>
             <el-input v-model="triggername" placeholder="请输入触发器名称" />
           </div>
 
-          <div class="detail">
+          <div class="detail" v-if="isCustomTrigger === false">
             <span>触发器分组</span>
             <el-input v-model="triggergroup" placeholder="请输入触发器分组" />
           </div>
@@ -119,7 +119,8 @@
             </el-input>
             <el-dialog v-model="showCron">
               <Vue3CronPlusPicker @hide="closeDialog" @fill="fillValue" :expression="expression"/>
-            </el-dialog>            
+            </el-dialog> 
+            
           </div>
         </div>
 
@@ -176,7 +177,7 @@
           </div>
           <div class="detail">
             <span>当天结束时间</span>
-            <el-time-picker v-model="DayEndTime" placeholder="Arbitrary time" format="HH:mm:ss" value-format="HH:mm:ss" />
+            <el-time-picker v-model="DayEndTime" placeholder="Arbitrary time" format="HH:mm:ss" value-format="HH:mm:ss"/>
           </div>
           <div class="detail1">
             <span>执行日选择(星期)</span>
@@ -210,16 +211,21 @@
   
 <script>
 import axios from 'axios';
-import 'vue3-cron-plus-picker/style.css'
-import {Vue3CronPlusPicker} from 'vue3-cron-plus-picker'
+import { Vue3CronPlusPicker } from 'vue3-cron-plus-picker';
+import 'vue3-cron-plus-picker/style.css';
 import { tr } from 'element-plus/es/locales.mjs';
 
 export default {
-  components : {"Vue3CronPlusPicker":Vue3CronPlusPicker,},
+
+  components: {
+    Vue3CronPlusPicker
+  },
+  props: {
+  },
   data() {
     return {
-      oldtriggergroups: "",
-      oldtriggernames: "",
+      oldtriggergroups: [],
+      oldtriggernames: [],
       oldtriggername:"",
       oldtriggergroup:"",
 
@@ -269,6 +275,26 @@ export default {
   watch: {
   },
   methods: {
+
+    getTriggerGroup(){
+      axios.post("/task/Select/triggergroupall").then((response) => {
+        console.log(response);
+        this.oldtriggergroups = response.data.data;
+      });
+    },
+
+    getTriggerName(){
+      console.log(this.oldtriggergroup);
+      axios.post("/task/Select/Triggername",null,{
+        params: {
+          jobgroup : this.oldtriggergroup,
+        },
+      }).then((response) => {
+        console.log(response);
+        this.oldtriggernames = response.data.data;
+      });
+    },
+
     openDialog () {
 			this.showCron = true;
 			if (this.cronexpression != ""){
@@ -353,7 +379,11 @@ export default {
       },
     async getTrigger() {
       try {
-         const response = await axios.post("/task/Reflect/triggerclass");
+         const response = await axios.post("/task/Reflect/triggerclass",null,{
+          params: {
+            type: this.selecttrigger,
+          },
+         });
         console.log(response);
         this.triggers = response.data.data;
 
@@ -393,7 +423,13 @@ export default {
       
     },
     async checkTrigger(){
-      if(this.isCustomTrigger === "true"){
+
+      if(this.oldtriggergroup === "" || this.oldtriggername === ""){
+        alert("请选择旧触发器");
+        return false;
+      }
+
+      if(this.isCustomTrigger === true){
         if(this.trigger === ""){
           alert("请选择自定义触发器");
           return false;
@@ -448,15 +484,18 @@ export default {
     },
 
     builInfo(){
-      this.Info.triggername = this.triggername;
+      this.Info.oldtriggername = this.oldtriggername;
+      this.Info.oldtriggergroup = this.oldtriggergroup;
+
+      this.Info.type = this.selecttrigger;
+      this.Info.isCustomTrigger = this.isCustomTrigger;
+      if(this.isCustomTrigger === true){
+          this.Info.trigger = this.trigger;
+      }else{
+        this.Info.triggername = this.triggername;
       this.Info.triggergroup = this.triggergroup;
 
       this.Info.priority = this.priority;
-      this.Info.type = this.selecttrigger;
-      this.Info.isCustomTrigger = this.isCustomTrigger;
-      if(this.isCustomTrigger === "true"){
-          this.Info.trigger = this.trigger;
-      }else{
         this.Info.startTime = this.startTime;
         if(this.endTime){
           this.Info.endTime = this.endTime;
@@ -486,6 +525,8 @@ export default {
 },
   created() {
     this.getTrigger();
+    this.getTriggerGroup();
+    console.log(this.jobinfo);
   },
 };
 </script>
@@ -493,7 +534,7 @@ export default {
 <style scoped>
 .container {
   width: 750px;
-  height: 510px;
+  height: 560px;
   padding: 10px;
   flex-direction: column;
   display: flex;
@@ -507,7 +548,7 @@ export default {
 .box {
   display: flex;
   flex-direction: row;
-  height: 510px;
+  height: 600px;
 }
 
 .box p {
