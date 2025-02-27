@@ -63,7 +63,7 @@
 import axios from 'axios';
 
 export default {
-  name: 'UnerectedList',
+  name: 'InstalledList',
   props: {
     showTable: {
       type: Boolean,
