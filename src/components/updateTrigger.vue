@@ -171,7 +171,7 @@
 
     </div>
     <div class="buttonbox"> 
-      <el-button @click="replace">更改触发器</el-button>
+      <el-button @click="replace">更改触发器参数</el-button>
       <el-button @click="back">返回</el-button>
     </div>
   </div>
@@ -288,7 +288,7 @@ export default {
       }
     },
     async replace() {
-      if (this.checkTrigger()) {
+      if (await this.checkTrigger() === true) {
         this.builInfo();
         try {
           const response = await axios.post(
@@ -476,6 +476,12 @@ export default {
     this.selecttrigger = this.jobinfo.type;
     this.startTime = this.jobinfo.startime;
     this.endTime = this.jobinfo.endtime;
+    if(this.jobinfo.trigger === "" || this.jobinfo.trigger === null || this.jobinfo.trigger === undefined){
+      this.isCustomTrigger = false;
+    }else{
+      this.isCustomTrigger = true;
+      this.trigger = this.jobinfo.trigger;
+    }
   },
 };
 </script>

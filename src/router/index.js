@@ -5,6 +5,7 @@ import JobIndex from '../views/JobIndex.vue'
 import TriggerIndex from '../views/TriggerIndex.vue'
 import test from '../components/test.vue'
 import VirtualPlatform from '../views/VirtualPlatform.vue'
+import seeLister from '../views/seeLister.vue'
 
 const routes = [
   {
@@ -31,7 +32,12 @@ const routes = [
     path: '/VirtualPlatform',
     name: 'VirtualPlatform',
     component: VirtualPlatform
-  }
+  },
+  {
+    path: '/seeLister',
+    name: 'seeLister',
+    component: seeLister
+  },
 ]
 
 const router = createRouter({

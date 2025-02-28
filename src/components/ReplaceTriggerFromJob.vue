@@ -410,6 +410,8 @@ export default {
         if(response.data.data == 'success'){
           alert("更改成功");
           this.back();
+        }else{
+          this.$message.error('更改失败,请检查输入及触发器是否已存在');
         }
         // 重置表单
       } catch (error) {

@@ -54,14 +54,14 @@
           <el-table-column type="expand" >
             <template #default="props">
               <div v-if="props.row.triggerList" v-loading="!props.row.loadDetails" element-loading-text="加载中..."  element-loading-background="rgba(255, 255, 255)">
-                <!-- <p>{{ props.row.triggerList }}</p> -->
+                <!-- <p>{{ props.row.triggerList }}</p>
                 <div class="text">
                   <span class="left">是否使用自定义触发器:</span><span class="right">{{ props.row.triggerList.isConcurrentExectionDisallowed }}</span>
                 </div>
                 
                 <div v-if="!props.row.triggerList.isConcurrentExectionDisallowed === 'false'" class="text">
                   <span class="left">自定义触发器:</span><span class="right">{{ props.row.triggerList.trigger }}</span>
-                </div>
+                </div> -->
                 <div v-if="props.row.triggerList.isConcurrentExectionDisallowed === 'false'">
                   <div v-if="props.row.type === 'SimpleTrigger'">
                     <div class="text">

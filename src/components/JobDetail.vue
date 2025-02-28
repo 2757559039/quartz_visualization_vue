@@ -170,8 +170,12 @@ export default {
     this.jobGroup = this.jobinfo.jobgroup;
     this.jobClassName = this.jobinfo.jobclassname;
     this.jobDescription = this.jobinfo.description;
-    this.isCustomJobDetail = this.jobinfo.isCustomJobDetail ? true : false;
-    this.jobDetail = this.jobinfo.jobDetail;
+    if(this.jobinfo.jobDetail === null || this.jobinfo.jobDetail === "" || this.jobinfo.jobDetail === undefined){
+      this.isCustomJobDetail = false;
+    }else{
+      this.isCustomJobDetail = true;
+      this.jobDetail = this.jobinfo.jobDetail;
+    }
   },
 };
 </script>
