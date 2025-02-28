@@ -13,7 +13,7 @@
         </template>
         <!-- bean的内容 -->
         <div class="content">
-          <InstalledList :showTable="activeTab === 'bean'" />
+          <InstalledList :showTable="activeTab === 'bean'" ref="InstalledList"/>
         </div>
       </el-tab-pane>
 
@@ -23,7 +23,7 @@
         </template>
         <!-- 脚本的内容 -->
         <div class="content">
-          <UnerectedList :showTable="activeTab === '脚本'" />
+          <UnerectedList :showTable="activeTab === '脚本'" ref="UnerectedList"/>
         </div>
       </el-tab-pane>
 
@@ -177,7 +177,15 @@ export default {
     },
     handleTabClick(tab) {
       console.log('切换到标签:', tab.props.name);
-      if (tab.props.name === '编辑') {
+      if (tab.props.name === 'bean') { // 切换到 bean 标签
+        this.$nextTick(() => {
+          this.$refs.InstalledList.fetchData(); // 调用 InstalledList 的 fetchData 方法
+        });
+      } else if (tab.props.name === '脚本') { // 切换到 脚本 标签
+        this.$nextTick(() => {
+          this.$refs.UnerectedList.fetchData(); // 调用 UnerectedList 的 fetchData 方法
+        });
+      }else if (tab.props.name === '编辑') {
         // 延迟 0 秒后切换 editType
         setTimeout(() => {
           this.editType = 'config';

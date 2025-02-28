@@ -76,14 +76,17 @@
         </template>
       </el-table-column>
     </el-table>
+    <UpLoad ref="uploadModal" class="uploadmod" :row="row" @update-success="fetchData"/>
   </div>
 </template>
 
 <script>
 import axios from 'axios';
+import UpLoad from './upload.vue';
 
 export default {
   name: 'UnerectedList',
+  components: { UpLoad },
   props: {
     showTable: {
       type: Boolean,
@@ -225,9 +228,9 @@ export default {
           });
         });
     },
-  },
-  handleAlter(row) {
-
+    handleAlter(row) {
+      this.$refs.uploadModal.uploadModal(row);
+    },
   },
   mounted() {
     this.fetchData();
@@ -270,5 +273,15 @@ export default {
 
 :deep(.czbtn .el-button:disabled) {
   background: linear-gradient(to right, rgb(119, 119, 119), rgb(119,119,119));
+}
+
+:deep(.el-dialog.uploadmod ){
+  background-color: #fefefe;
+  border: 1px solid #888;
+  width: 1440px;
+  /* height: 650px; */
+  border-radius: 14px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 4;
 }
 </style>

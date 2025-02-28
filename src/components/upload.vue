@@ -6,7 +6,7 @@
     :before-close="back"
   >
     <div>
-      <CodeEditor :modelValue="editorContent" language="java" @update:modelValue="onCodeChange" />
+      <CodeEditor v-if="killbug !== '0'" :modelValue="editorContent" language="java" @update:modelValue="onCodeChange"  class="bjnr"/>
       <div class="buttonbox"> 
         <el-button type="primary" @click="confirmUpload">更新</el-button>
         <el-button  @click="back" class="back-btn">返回</el-button>
@@ -25,8 +25,8 @@
       CodeEditor,
     },
     props: {
-      id: {
-        type: String,
+      row: {
+        type: Object,
         required: true,
       },
     },
@@ -34,6 +34,8 @@
       return {
         editorContent: '',
         isVisible: false,
+        killbug:'0',
+        id:'0',
       };
     },
     methods: {
@@ -45,8 +47,13 @@
         this.isVisible = false;
         this.$emit('close');
       },
-      uploadModal(){
+      uploadModal(row){
         this.isVisible = true;
+        setTimeout(() => {
+          this.killbug = '1';
+        }, 1);
+        this.id=row.id;
+        this.editorContent=row.script;
       },
       confirmUpload() {
         ElMessageBox.confirm(
@@ -64,7 +71,7 @@
             // 取消上传
           });
       },
-      // handleUpload() {
+      handleUpload() {
       //   // 根据 uploadType 确定接口地址
       //   // const urlMap = {
       //   //   job: '/scriptBuilder/saveJobToDB',
@@ -79,33 +86,35 @@
       //   //   return;
       //   // }
 
-      //   axios.post('/scriptBuilder/updateScript', {
-      //     script: this.editorContent,
-      //   })
-      //   .then(response => {
-      //     if (response.data.code === '200') {
-      //       ElMessage({
-      //         message: `${this.uploadType}代码更新成功`,
-      //         type: 'success',
-      //       });
-      //       this.editorContent = ''; // 清空输入框
-      //       this.back(); // 关闭弹窗
-      //     } else {
-      //       ElMessage({
-      //         message: '代码更新失败',
-      //         type: 'error',
-      //       });
-      //     }
-      //   })
-      //   .catch(error => {
-      //     console.error('代码更新失败:', error);
-      //     ElMessage({
-      //       message: '代码更新失败',
-      //       type: 'error',
-      //     });
-      //   });
-      // },
-    }
+        axios.post('/scriptBuilder/updateScript', {
+          id: this.id,
+          script: this.editorContent,
+        })
+        .then(response => {
+          if (response.data.code === '200') {
+            ElMessage({
+              message: `代码更新成功`,
+              type: 'success',
+            });
+            this.editorContent = ''; // 清空输入框
+            this.back(); // 关闭弹窗
+            this.$emit('update-success'); // 触发自定义事件，通知父组件更新数据
+          } else {
+            ElMessage({
+              message: '代码更新失败',
+              type: 'error',
+            });
+          }
+        })
+        .catch(error => {
+          console.error('代码更新失败:', error);
+          ElMessage({
+            message: '代码更新失败',
+            type: 'error',
+          });
+        });
+      },
+    },
   };
   </script>
   
@@ -174,9 +183,14 @@
   }
   .CodeMirror-gutter-elt{
     left:-30px !important;
-  }.CodeMirror-hints{
+  }*/.CodeMirror-hints{
     z-index: 10111;
-  } */
+  } 
 
-
+  .bjnr{
+    display: flex;
+    justify-content: center;
+    margin: 0 auto;
+    margin-top:20px;
+  }
 </style>
