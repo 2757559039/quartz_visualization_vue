@@ -7,13 +7,13 @@
       stretch
       @tab-click="handleTabClick"
     >
-      <el-tab-pane name="bean">
+      <el-tab-pane name="虚拟类">
         <template #label>
-          <span>bean</span>
+          <span>虚拟类</span>
         </template>
-        <!-- bean的内容 -->
+        <!-- 虚拟类的内容 -->
         <div class="content">
-          <InstalledList :showTable="activeTab === 'bean'" ref="InstalledList"/>
+          <InstalledList :showTable="activeTab === '虚拟类'" ref="InstalledList"/>
         </div>
       </el-tab-pane>
 
@@ -151,7 +151,7 @@ export default {
   data() {
     return {
       // 默认选中的标签
-      activeTab: 'bean',
+      activeTab: '虚拟类',
       // 编辑类型
       editType: 'upload', // 默认为上传类，但是点击编辑会切换成config，解决输入框问题
       // 上传类型
@@ -177,7 +177,7 @@ export default {
     },
     handleTabClick(tab) {
       console.log('切换到标签:', tab.props.name);
-      if (tab.props.name === 'bean') { // 切换到 bean 标签
+      if (tab.props.name === '虚拟类') { // 切换到 虚拟类 标签
         this.$nextTick(() => {
           this.$refs.InstalledList.fetchData(); // 调用 InstalledList 的 fetchData 方法
         });

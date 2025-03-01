@@ -115,22 +115,18 @@ export default {
       ],
       filterOptions2: [
         { label: '状态：全部', value: '' },
-        { label: '状态：已安装', value: 'true' },
-        { label: '状态：未安装', value: 'false' },
+        { label: '状态：已安装', value: true },
+        { label: '状态：未安装', value: false },
       ],
     };
   },
   methods: {
     async fetchData() {
       try {
-        const response = await axios.post(
-          '/scriptBuilder/selectAllScript',
-          {
-            keywords: this.searchKeyword,
-            type: this.filterCriteria,
-            state:this.state
-          }
-        );
+        const className=this.searchKeyword;
+        const type = this.filterCriteria;
+        const beanState = this.filterCriteria2;
+        const response = await axios.post(`/scriptBuilder/selectAllScript?type=${type}&className=${className}&beanState=${beanState}`);
         this.filteredTableData = response.data.data;
       } catch (error) {
         console.error('数据获取失败:', error);
