@@ -287,7 +287,7 @@ export default {
       console.log(this.oldtriggergroup);
       axios.post("/task/Select/Triggername",null,{
         params: {
-          jobgroup : this.oldtriggergroup,
+          triggergroup  : this.oldtriggergroup,
         },
       }).then((response) => {
         console.log(response);
