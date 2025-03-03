@@ -89,6 +89,7 @@
     <div class="bottom-buttons">
       <el-button type="primary" @click="Go('JobIndex')">任务管理<el-icon><Link /></el-icon></el-button>
       <el-button type="danger" @click="Go('TriggerIndex')">触发器管理<el-icon><Link /></el-icon></el-button>
+      <el-button type="danger" @click="Go('sseListener')">监控平台<el-icon><Link /></el-icon></el-button>
     </div>
   </div>
 </template>

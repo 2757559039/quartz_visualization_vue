@@ -5,7 +5,7 @@ import JobIndex from '../views/JobIndex.vue'
 import TriggerIndex from '../views/TriggerIndex.vue'
 import test from '../components/test.vue'
 import VirtualPlatform from '../views/VirtualPlatform.vue'
-import seeLister from '../views/seeLister.vue'
+import sseListener from '../views/sseListener.vue'
 
 const routes = [
   {
@@ -34,9 +34,9 @@ const routes = [
     component: VirtualPlatform
   },
   {
-    path: '/seeLister',
-    name: 'seeLister',
-    component: seeLister
+    path: '/sseListener',
+    name: 'sseListener',
+    component: sseListener
   },
 ]
 

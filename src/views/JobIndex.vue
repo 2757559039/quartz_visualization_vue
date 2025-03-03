@@ -6,6 +6,7 @@
         <el-button @click="jobModal" type="primary" class="addbtn">添加任务</el-button>
         <el-button @click="onloadModal" type="primary" class="addbtn">挂载触发器</el-button>
         <el-button type="primary" @click="Go('VirtualPlatform')">虚拟管理平台</el-button>
+        <el-button type="primary" @click="Go('sseListener')">监控平台</el-button>
       </div>
     </div>
 
