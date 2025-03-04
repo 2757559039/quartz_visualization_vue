@@ -53,7 +53,7 @@
       <div class="box"> 
         <el-table :data="Table" class="JobBox" @expand-change="handleExpandChange" :expand-row-keys="expandedRows" :row-key="getRowKey">
           <el-table-column type="expand">
-            <template #default="props">
+            <template #default="props">                                                                                                                                                                                                                                                                                                                                                                
               <el-table :data="props.row.triggerList" class="c" empty-text="暂时无数据,请确认该任务是否有触发器" v-loading="!props.row.loadDetails" element-loading-text="加载中..."  element-loading-background="rgba(255, 255, 255)">
                 <el-table-column label="触发器分组" sortable prop="triggergroup" min-width="16" align="center"/>
                 <el-table-column label="触发器名" sortable prop="triggername" min-width="16" align="center"/>
@@ -65,12 +65,12 @@
               </el-table>
             </template>
           </el-table-column>
-          <el-table-column label="任务分组" sortable prop="jobgroup" min-width="10" align="center"/>
-          <el-table-column label="任务名" sortable prop="jobname" min-width="10" align="center"/>
-          <el-table-column label="任务类名" sortable prop="jobclassname" min-width="10" align="center"/>
-          <el-table-column label="任务描述" prop="description" min-width="35" align="center"/>
-          <el-table-column label="触发器数" sortable prop="triggersNumbers" min-width="10" align="center"/>
-          <el-table-column label="任务操作" min-width="25" align="center">
+          <el-table-column label="任务分组" sortable prop="jobgroup" min-width="1" align="center"/>
+          <el-table-column label="任务名" sortable prop="jobname" min-width="1" align="center"/>
+          <el-table-column label="任务类名" sortable prop="jobclassname" min-width="1" align="center"/>
+          <el-table-column label="任务描述" prop="description" min-width="3.5" align="center"/>
+          <el-table-column label="触发器数" sortable prop="triggersNumbers" min-width="1" align="center"/>
+          <el-table-column label="任务操作" min-width="2.5" align="center">
             <template #default="scope">
               <div style="display: flex;justify-content: space-between;">
                 <div> 

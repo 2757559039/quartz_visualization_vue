@@ -92,7 +92,8 @@
                   <div> 
                     <div class="text"><span class="left">是否禁止并发执行:</span><span class="right">{{ props.row.triggerList.isConcurrentExectionDisallowed ?props.row.triggerList.isConcurrentExectionDisallowed :'暂无' }}</span></div>
                     <div class="text"><span class="left">上次触发时间:</span><span class="right">{{ props.row.triggerList.previousFireTime ?  props.row.triggerList.previousFireTime : '暂无'}}</span></div>
-                    <div class="text"><span class="left">下次触发时间:</span><span class="right">{{ props.row.triggerList.NextFireTime ? props.row.triggerList.NextFireTime : '暂无'}}</span></div>
+                    <div class="text"><span class="left">下次触发时间:</span><span class="right">{{ props.row.triggerList.nextFireTime ? props.row.triggerList.nextFireTime  : '暂无'}}</span></div>
+                    <div class="text"><span class="left">距离下次触发时间:</span><span class="right">{{ props.row.triggerList.remainingTime ? props.row.triggerList.remainingTime + '秒' : '暂无'}}</span></div>
                     <div class="text"><span class="left">最终触发时间:</span><span class="right">{{  props.row.triggerList.finalFireTime ?props.row.triggerList.finalFireTime :'暂无' }}</span></div>
                     <div class="text"><span class="left">过时策略:</span><span class="right">{{ props.row.triggerList.misfireInstruction }}</span></div>
                   </div>
@@ -100,14 +101,14 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="触发器名" sortable prop="triggername" min-width="90" align="center"/>
-          <el-table-column label="触发器分组" sortable prop="triggergroup" min-width="120" align="center"/>
-            <el-table-column label="触发器类型" sortable prop="type" min-width="120" align="center"/>
-          <el-table-column label="优先级" sortable prop="priority" min-width="80" align="center"/>
-          <el-table-column label="触发器状态" sortable prop="triggers_state" min-width="120" align="center"/>
-          <el-table-column label="开始时间" sortable prop="startime" min-width="120" align="center"/>
-          <el-table-column label="结束时间" sortable prop="endtime" min-width="120" align="center"/>
-          <el-table-column label="触发器操作" min-width="151" >
+          <el-table-column label="触发器名" sortable prop="triggername" min-width="9" align="center"/>
+          <el-table-column label="触发器分组" sortable prop="triggergroup" min-width="12" align="center"/>
+            <el-table-column label="触发器类型" sortable prop="type" min-width="12" align="center"/>
+          <el-table-column label="优先级" sortable prop="priority" min-width="8" align="center"/>
+          <el-table-column label="触发器状态" sortable prop="triggers_state" min-width="12" align="center"/>
+          <el-table-column label="开始时间" sortable prop="startime" min-width="12" align="center"/>
+          <el-table-column label="结束时间" sortable prop="endtime" min-width="12" align="center"/>
+          <el-table-column label="触发器操作" min-width="15" >
             <template #default="scope">
               <div class="buttonBox">
                 <div class="button3Box"> 
@@ -477,17 +478,17 @@ export default {
         checkNextTime: '查询下一次触发时间'
       };
 
-      const isAllPaused = (await axios.post('/task/Select/isAllPaused')).data.data;
-      if(isAllPaused && (action === 'startNow' || action === 'pauseJob')){
-        const message = '所有触发器已冻结,请先解冻再操作';
-      ElMessageBox.confirm(message, '确认操作', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-      })
-      return;
-      }
-      else{
+      // const isAllPaused = (await axios.post('/task/Select/isAllPaused')).data.data;
+      // if(isAllPaused && (action === 'startNow' || action === 'pauseJob')){
+      //   const message = '所有触发器已冻结,请先解冻再操作';
+      // ElMessageBox.confirm(message, '确认操作', {
+      //   confirmButtonText: '确定',
+      //   cancelButtonText: '取消',
+      //   type: 'warning',
+      // })
+      // return;
+      // }
+      // else{
         const message = row
         ? `确定要${actionMap[action]}触发器 "${row.triggername}" 吗？`
         : `确定要${actionMap[action]}吗？`;
@@ -516,7 +517,7 @@ export default {
         // 用户点击“取消”按钮
         console.log('取消操作');
       });
-      }
+      // }
     },
 
     async checkNextTime(row) {

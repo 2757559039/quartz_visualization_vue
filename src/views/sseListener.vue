@@ -6,39 +6,37 @@
     <div class="see-select">
       <div class="selectBox"> 
         <el-select v-model="key" placeholder="请选择key" @focus="getkeys" @change="getRecordDates">
-        <el-option
-          v-for="item in keys"
-          :key="item"
-          :label="item"
-          :value="item"
-        ></el-option>
-      </el-select>
+          <el-option
+            v-for="item in keys"
+            :key="item"
+            :label="item"
+            :value="item"
+          ></el-option>
+        </el-select>
 
-      <el-select v-model="recordDate" placeholder="请选择recordDate" @focus="getRecordDates">
-        <el-option
-          v-for="item in recordDates"
-          :key="item"
-          :label="item"
-          :value="item"
-        ></el-option>
-      </el-select>
+        <el-select v-model="recordDate" placeholder="请选择recordDate" @focus="getRecordDates">
+          <el-option
+            v-for="item in recordDates"
+            :key="item"
+            :label="item"
+            :value="item"
+          ></el-option>
+        </el-select>
       </div>
 
       <div class="buttonBox"> 
         <el-button type="info" @click="replace">确认</el-button>
-      <el-button type="info" @click="clean">清空</el-button>
-      <el-button type="info" @click="close">关闭</el-button>  
+        <el-button type="info" @click="clean">清空</el-button>
+        <el-button type="info" @click="close">关闭</el-button>  
       </div>
     </div>
     <div class="see-text">
-      <!-- <el-table-v2
-        :data="messages"
-      >
-      <el-table-column label="监控信息"/>
-    </el-table-v2> -->
-      <p v-for="(message, index) in messages" :key="index">
-        {{ message }}
-      </p>
+      <vue-virtual-scroll-list
+        :data-key="'message'"
+        :data-sources="formattedMessages"
+        :data-component="VirtualListItem"
+        class="virtual-list"
+      />
     </div>
   </div>
 
@@ -51,23 +49,40 @@
 
 <script>
 import axios from "axios"; // 确保引入 axios
+import { defineComponent } from 'vue';
+import VirtualList from 'vue3-virtual-scroll-list';
 
-export default {
+export default defineComponent({
+  components: {
+    VirtualList,
+    VirtualListItem: {
+      props: ['item'],
+      template: '<div class="virtual-list-item">{{ item.message }}</div>'
+    }
+  },
   data() {
     return {
       keys: [], // 用于存储key
       key: "", // 用于存储当前选中的key
-      recordDates:[],
+      recordDates: [],
       recordDate: "",
-      
       messages: [], // 用于存储接收到的消息
-      source: null // EventSource 实例
+      source: null, // EventSource 实例
+      cancelTokenSource: null // 用于取消 Axios 请求
     };
   },
+  computed: {
+    formattedMessages() {
+      return Array.isArray(this.messages) ? this.messages.map(message => ({ message })) : [];
+    }
+  },
   methods: {
-
-    go(address){
-      this.$router.unshift({ path: '/'+address });
+    go(address) {
+      if (this.source) {
+        this.source.close();
+      }
+      this.messages = [];
+      this.$router.push({ path: '/' + address });
     },
 
     getNowFormatDate() {
@@ -75,100 +90,100 @@ export default {
       const year = date.getFullYear();
       const month = (date.getMonth() + 1).toString().padStart(2, '0');
       const day = date.getDate().toString().padStart(2, '0');
-      const formattedDate = `${year}-${month}-${day}`;
-      // this.recordDate = formattedDate;
-      return formattedDate;
+      return `${year}-${month}-${day}`;
     },
 
-    async getRecordDates(){
-      if(this.key === "") return;
-      try{
-        // const response = await axios.get(`http://172.17.170.107:8002/sse/getLinkRecordDateFromDB?key=123`);
-        const response = await axios.post(`/sse/getLinkRecordDateFromDB?key=`+ this.key);
-
+    async getRecordDates() {
+      if (this.key === "") return;
+      this.cancelTokenSource = axios.CancelToken.source();
+      try {
+        const response = await axios.post(`/sse/getLinkRecordDateFromDB?key=` + this.key, {
+          cancelToken: this.cancelTokenSource.token
+        });
         let res = new Set(response.data.data);
         res.add(this.getNowFormatDate());
-
         this.recordDates = Array.from(res).reverse();
-      }
-      catch (error) {
-        console.error("error!", error);
-        this.$message({
-          showClose: true,
-          message: '获取recordDate失败,请检查网络',
-          type: 'error'
-        });
+      } catch (error) {
+        if (axios.isCancel(error)) {
+          console.log("Request canceled", error.message);
+        } else {
+          console.error("error!", error);
+          this.$message({
+            showClose: true,
+            message: '获取recordDate失败,请检查网络',
+            type: 'error'
+          });
+        }
       }
     },
 
     async replace() {
-      if(this.key === "" || this.recordDate === ""){ 
-      this.$message({
-        showClose: true,
-        message: '请选择key或recordDate',
-        type: 'error'
-      });
-      return;
+      if (this.key === "" || this.recordDate === "") {
+        this.$message({
+          showClose: true,
+          message: '请选择key或recordDate',
+          type: 'error'
+        });
+        return;
       }
       if (this.source) {
-      this.source.close();
-      this.messages.unshift("连接关闭");
+        this.source.close();
+        this.messages.unshift("连接关闭");
       }
 
       try {
-      console.log(this.key);
-      console.log(this.recordDate);
+        console.log(this.key);
+        console.log(this.recordDate);
 
-      const response = await axios.get("/sse/restoreSSEInfoHistory?cacheKey="+ this.key+"&recordDate="+this.recordDate);
-      this.messages = response.data;
-      this.messages.unshift(this.recordDate + "历史如下");
+        const response = await axios.get("/sse/restoreSSEInfoHistory?cacheKey=" + this.key + "&recordDate=" + this.recordDate);
+        this.messages = Array.isArray(response.data) ? response.data : [];
+        this.messages.unshift(this.recordDate + "历史如下");
 
+        if (this.recordDate === this.getNowFormatDate()) {
+          this.source = new EventSource("http://172.17.169.151:8002/sse/definedJobSubscribe?cacheKey=" + this.key);
 
-      console.log(response.data.data);
+          this.source.onmessage = (event) => {
+            this.messages.unshift(event.data);
+          };
 
-      if(this.recordDate === this.getNowFormatDate()){
-        this.source = new EventSource("http://172.17.170.107:8002/sse/definedJobSubscribe?cacheKey="+ this.key);
+          this.source.onerror = (e) => {
+            if (e.target.readyState === EventSource.CLOSED) {
+              this.messages.unshift("连接关闭");
+            }
+          };
 
-        this.source.onmessage = (event) => {
-          this.messages.unshift(event.data);
-        // this.messages.unshift(event.data);
-        //console.log(this.messages);
-        };
-
-        this.source.onerror = (e) => {
-        if (e.target.readyState === EventSource.CLOSED) {
-          this.messages.unshift("连接关闭");
-        } 
-        //else {
-        //   this.messages.unshift("发生错误: " + e.message);
-        //   console.error("发生错误: ", e);
-        // }
-        };
-
-        this.source.onopen = (event) => {
-        this.messages.unshift("连接已开启");
-        };
-      }
-      } catch (error) {
-      console.error("error!", error);
-      this.$message({
-        showClose: true,
-        message: '操作失败,请检查网络',
-        type: 'error'
-      });
-      }
-    },
-    async getkeys() {
-      try {
-        const response = await axios.post("/sse/getLinkingCache");
-        this.keys = response.data.data; // 更新响应式变量
+          this.source.onopen = (event) => {
+            this.messages.unshift("连接已开启");
+          };
+        }
       } catch (error) {
         console.error("error!", error);
         this.$message({
           showClose: true,
-          message: '获取key失败,请检查网络',
+          message: '操作失败,请检查网络',
           type: 'error'
         });
+      }
+    },
+
+    async getkeys() {
+      this.cancelTokenSource = axios.CancelToken.source();
+      try {
+        const response = await axios.post("/sse/getLinkingCache", {
+          cancelToken: this.cancelTokenSource.token
+        });
+        this.keys = response.data.data; // 更新响应式变量
+      } catch (error) {
+        if (axios.isCancel(error)) {
+          console.log("Request canceled", error.message);
+        } else {
+          console.error("error!", error);
+          this.$message({
+            showClose: true,
+            message: '获取key失败,请检查网络',
+            type: 'error'
+          });
+        }
       }
     },
 
@@ -180,19 +195,21 @@ export default {
       if (this.source) {
         this.source.close();
         this.messages.unshift("连接关闭");
-        // this.messages.unshift("连接关闭");
       }
     }
   },
   mounted() {
     this.getkeys();
   },
-  beforeDestroy() {
+  beforeUnmount() {
     if (this.source) {
       this.source.close();
     }
+    if (this.cancelTokenSource) {
+      this.cancelTokenSource.cancel("Component is being destroyed");
+    }
   }
-};
+});
 </script>
 
 <style scoped>
@@ -252,8 +269,6 @@ export default {
   background: linear-gradient(to right, rgb(53,204,255), rgb(4,114,182)); /* 从浅蓝色到深蓝色 */
 }
 
-
-
 .see-text {
   width: 600px;
   height: 650px;
@@ -266,6 +281,16 @@ export default {
   word-wrap: break-word; /* 添加换行 */
   display: flex;
   flex-direction: column-reverse; /* 自动定位到底部 */
+}
+
+.virtual-list {
+  width: 100%;
+  height: 100%;
+}
+
+.virtual-list-item {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
 }
 
 .see-text p {
