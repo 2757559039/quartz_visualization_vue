@@ -30,15 +30,32 @@
         <el-button type="info" @click="close">关闭</el-button>  
       </div>
     </div>
-    <div class="see-text">
-      <vue-virtual-scroll-list
-        :data-key="'message'"
-        :data-sources="formattedMessages"
+    <!-- <div class="see-text"> -->
+      <div class="virtual-list" > 
+        <!-- <p> {{ historyMessages }}</p> -->
+        <p v-for="message in historyMessages" :key="message">{{ message }}</p>
+      </div>
+
+      <div  class="virtual-list1"> 
+        <p v-for="message in messages" :key="message">{{ message }}</p>
+      </div>
+
+    
+
+      <!-- <vue-virtual-scroll-list
+        :data-key="'historyMessages'"
+        :data-sources="formattedHistoryMessages"
         :data-component="VirtualListItem"
         class="virtual-list"
       />
+    <vue-virtual-scroll-list
+        :data-key="'message'"
+        :data-sources="formattedMessages"
+        :data-component="VirtualListItem"
+        class="virtual-list1"
+      /> -->
     </div>
-  </div>
+  <!-- </div> -->
 
   <div class="jumpButtonBox"> 
     <el-button type="info" @click="go('JobIndex')">任务管理</el-button>
@@ -67,6 +84,7 @@ export default defineComponent({
       recordDates: [],
       recordDate: "",
       messages: [], // 用于存储接收到的消息
+      historyMessages: '',
       source: null, // EventSource 实例
       cancelTokenSource: null // 用于取消 Axios 请求
     };
@@ -74,6 +92,9 @@ export default defineComponent({
   computed: {
     formattedMessages() {
       return Array.isArray(this.messages) ? this.messages.map(message => ({ message })) : [];
+    },
+    formattedHistoryMessages() {
+      return Array.isArray(this.historyMessages) ? this.historyMessages.map(message => ({ message })) : [];
     }
   },
   methods: {
@@ -136,15 +157,20 @@ export default defineComponent({
         console.log(this.recordDate);
 
         const response = await axios.get("/sse/restoreSSEInfoHistory?cacheKey=" + this.key + "&recordDate=" + this.recordDate);
-        this.messages = Array.isArray(response.data) ? response.data : [];
-        this.messages.unshift(this.recordDate + "历史如下");
+        console.log(response);
+        this.historyMessages = response.data.data;
+        // this.historyMessages.unshift(this.recordDate + "历史如下");
 
         if (this.recordDate === this.getNowFormatDate()) {
           this.source = new EventSource("http://172.17.169.151:8002/sse/definedJobSubscribe?cacheKey=" + this.key);
 
-          this.source.onmessage = (event) => {
-            this.messages.unshift(event.data);
-          };
+          //this.source.onmessage = (event) => {
+            //this.messages.unshift(event.data);
+          //};
+
+          this.source.addEventListener("message", (event) => {
+            this.messages.unshift(event.data.data);
+          });
 
           this.source.onerror = (e) => {
             if (e.target.readyState === EventSource.CLOSED) {
@@ -284,8 +310,31 @@ export default defineComponent({
 }
 
 .virtual-list {
-  width: 100%;
-  height: 100%;
+  width: 600px;
+  height: 250px;
+  overflow-y: auto;
+  margin-top: 20px;
+  padding: 10px;
+  border: 1px solid #000;
+  border-radius: 5px;
+  background-color: #f5f5f5; /* 添加背景色 */
+  word-wrap: break-word; /* 添加换行 */
+  display: flex;
+  flex-direction: column-reverse; /* 自动定位到底部 */
+}
+
+.virtual-list1 {
+  width: 600px;
+  height: 400px;
+  overflow-y: auto;
+  margin-top: 20px;
+  padding: 10px;
+  border: 1px solid #000;
+  border-radius: 5px;
+  background-color: #f5f5f5; /* 添加背景色 */
+  word-wrap: break-word; /* 添加换行 */
+  display: flex;
+  flex-direction: column-reverse; /* 自动定位到底部 */
 }
 
 .virtual-list-item {
