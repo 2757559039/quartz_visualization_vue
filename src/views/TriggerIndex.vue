@@ -233,6 +233,7 @@ export default {
     JobModal,
     UpLoad,
    },
+
   data() {
     return {
       trigger: [
@@ -642,9 +643,12 @@ export default {
       this.SelectGroup();
       this.showUpdata = false;
     },
-    init() {
-      this.getUsedTrigger();
-      this.getGroups();
+    async init() {
+     await this.getGroups();
+      console.log(this.$route.query.groupForJob);
+      this.selectGroup = this.$route.query.groupForJob || "";
+     await this.SelectGroup();
+     this.selectName = this.$route.query.nameForJob || "";
     },
   },
   beforeRouteEnter(to, from, next) {

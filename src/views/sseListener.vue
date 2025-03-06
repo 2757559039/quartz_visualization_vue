@@ -162,14 +162,18 @@ export default defineComponent({
         // this.historyMessages.unshift(this.recordDate + "历史如下");
 
         if (this.recordDate === this.getNowFormatDate()) {
-          this.source = new EventSource("http://172.17.169.151:8002/sse/definedJobSubscribe?cacheKey=" + this.key);
+          this.source = new EventSource(import.meta.env.VITE_API_BASE_URL+"/sse/definedJobSubscribe?cacheKey=" + this.key);
 
           //this.source.onmessage = (event) => {
             //this.messages.unshift(event.data);
           //};
 
           this.source.addEventListener("message", (event) => {
-            this.messages.unshift(event.data.data);
+            const data = JSON.parse(event.data).data;
+            data.forEach(item => {
+              this.messages.unshift(item);
+            });
+            console.log(this.messages.length)
           });
 
           this.source.onerror = (e) => {

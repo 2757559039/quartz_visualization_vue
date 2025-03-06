@@ -52,19 +52,23 @@
 
       <div class="box"> 
         <el-table :data="Table" class="JobBox" @expand-change="handleExpandChange" :expand-row-keys="expandedRows" :row-key="getRowKey">
-          <el-table-column type="expand">
+            <el-table-column type="expand">
             <template #default="props">                                                                                                                                                                                                                                                                                                                                                                
               <el-table :data="props.row.triggerList" class="c" empty-text="暂时无数据,请确认该任务是否有触发器" v-loading="!props.row.loadDetails" element-loading-text="加载中..."  element-loading-background="rgba(255, 255, 255)">
-                <el-table-column label="触发器分组" sortable prop="triggergroup" min-width="16" align="center"/>
-                <el-table-column label="触发器名" sortable prop="triggername" min-width="16" align="center"/>
-                <el-table-column label="任务类型" sortable prop="type" min-width="16" align="center"/>
-                <el-table-column label="开始时间" sortable prop="startime" min-width="16" align="center"/>
-                <el-table-column label="结束时间" sortable prop="endtime" min-width="16" align="center"/>
-                <el-table-column label="触发器状态" sortable prop="triggers_state" min-width="16" align="center"/>
-                <el-table-column min-width="28" />
+              <el-table-column label="触发器分组" sortable prop="triggergroup" min-width="16" align="center"/>
+              <el-table-column label="触发器名" sortable prop="triggername" min-width="16" align="center"/>
+              <el-table-column label="任务类型" sortable prop="type" min-width="16" align="center"/>
+              <el-table-column label="开始时间" sortable prop="startime" min-width="16" align="center"/>
+              <el-table-column label="结束时间" sortable prop="endtime" min-width="16" align="center"/>
+              <el-table-column label="触发器状态" sortable prop="triggers_state" min-width="16" align="center"/>
+              <el-table-column min-width="28">
+                <template #default="triggerProps">
+                <el-button type="primary" @click="goToTriggerIndex(triggerProps.row)">查看详情</el-button>
+                </template>
+              </el-table-column>
               </el-table>
             </template>
-          </el-table-column>
+            </el-table-column>
           <el-table-column label="任务分组" sortable prop="jobgroup" min-width="1" align="center"/>
           <el-table-column label="任务名" sortable prop="jobname" min-width="1" align="center"/>
           <el-table-column label="任务类名" sortable prop="jobclassname" min-width="1" align="center"/>
@@ -208,6 +212,15 @@ export default {
     }
   },
   methods: {
+
+    async goToTriggerIndex(row) {
+      console.log(row);
+      this.$router.push({ 
+        path: '/TriggerIndex', 
+        query: { nameForJob: row.triggername, groupForJob: row.triggergroup } 
+      });
+    },
+
     async search() {
       this.SelectGroup();
       if (this.selected !== "") {
