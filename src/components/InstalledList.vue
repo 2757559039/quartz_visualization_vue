@@ -38,13 +38,13 @@
       max-height="520"
     >
       <!-- 类名列 -->
-      <el-table-column prop="className" label="类名" width="360" />
+      <el-table-column prop="className" label="类名" min-width="36" />
 
       <!-- 类型列 -->
-      <el-table-column prop="scriptType" label="类型" width="360" />
+      <el-table-column prop="scriptType" label="类型" min-width="36" />
 
       <!-- 操作列 -->
-      <el-table-column label="操作">
+      <el-table-column label="操作" min-width="36">
         <template #header>
           <!-- 操作列不需要表头 -->
           <div></div>

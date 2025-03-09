@@ -128,7 +128,7 @@
                     </el-button>
                   </el-tooltip>
                   <el-tooltip content="查询下一次触发时间" placement="top">
-                    <el-button type="danger" @click="dialogVisible = true; selectrow = scope.row" size="large" circle>
+                    <el-button type="danger" @click="dialogVisible = true; selectrow = scope.row; selectTime = '';" size="large" circle>
                       <el-icon :size="24"><AlarmClock /></el-icon>
                     </el-button>
                   </el-tooltip>

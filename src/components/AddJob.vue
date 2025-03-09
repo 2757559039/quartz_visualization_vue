@@ -1,6 +1,6 @@
 <template>
   <el-dialog v-model="isVisible" title="任务配置" :before-close="closeModal">
-    <el-form label-width="140px" class="two-column-form">
+    <el-form label-width="30%" class="two-column-form">
       <div class="title">
         <div class="left">
           <el-form-item label="任务名">
@@ -109,6 +109,7 @@
           </el-form-item>
           <el-form-item label="结束任务时间" v-if="isCustomTrigger === 'false'">
             <el-date-picker
+            :disabled="startTime === ''"
               v-model="endTime"
               type="date"
               format="YYYY/MM/DD"
@@ -161,9 +162,6 @@
               <el-option label="second" value="second" />
               <el-option label="minute" value="minute" />
               <el-option label="hour" value="hour" />
-              <!-- <el-option label="day" value="day" />
-              <el-option label="month" value="month" />
-              <el-option label="year" value="year" /> -->
             </el-select>
           </el-form-item>
           <el-form-item
@@ -447,6 +445,14 @@ export default {
     return time.getTime() < today.getTime();
   },
   disabledEndDate(time) {
+      // 获取开始时间
+      const startTime = new Date(this.startTime);
+      // 设置时间的时分秒为0，表示当天的开始
+      startTime.setHours(0, 0, 0, 0);
+      // 返回一个布尔值，表示是否禁用该日期
+      return time.getTime() <= startTime.getTime();
+    },
+  disabledEndDate(time) {
       if (!this.startTime) {
         return false; // 如果开始时间未设置，则不进行限制
       }
@@ -526,14 +532,18 @@ export default {
         console.log(this.Info);
         const response = await axios.post("/task/Add/job", this.Info);
         console.log(response);
-        if( response.data.data === "添加任务失败！"){
-          alert("添加任务失败！请检查参数是否正常,组,名是否重复");
-        }else{
+        if(response.data.code === "500" ){
+            this.$message({
+              showClose: true,
+              message: response.data.message,
+              grouping: true,
+              type: 'error'
+            });
+          }
           this.Info = {};
           this.$emit('getWhenAdd');
           this.closeModal();
         }
-      }
     },
     async addfreejob() {
       if (
@@ -559,8 +569,13 @@ export default {
             }
           );
           console.log(response);
-          if(response.data.data === "任务已存在！"){
-            alert("任务已存在！请勿添加重复任务")
+          if(response.data.code === "500" ){
+            this.$message({
+              showClose: true,
+              message: response.data.message,
+              grouping: true,
+              type: 'error'
+            });
           }
           this.Info = {};
           this.$emit('getWhenAdd');
@@ -653,6 +668,15 @@ export default {
     this.getJob();
     this.getJobDetail();
   },
+  watch: {
+    isVisible(val) {
+      if (val) {
+        this.getJob();
+        this.getJobDetail();
+        this.getTrigger();
+      }
+    }
+  }
 };
 </script>
 

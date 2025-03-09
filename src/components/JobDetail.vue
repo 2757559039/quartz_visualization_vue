@@ -11,7 +11,7 @@
       </div>
       <div class="detail">
           <span>任务类名:</span>
-          <el-select v-model="jobClassName">
+          <el-select v-model="jobClassName" @focus="getJob">
               <el-option v-for="(item,index) in jobClassNameGroup" :key="index" :label="item" :value="item"/>
           </el-select>
       </div>
@@ -30,7 +30,7 @@
       </div>
       <div class="detail1">
           <span>请选择自定义的jobDetail</span>
-          <el-select v-model="jobDetail" :disabled = "!isCustomJobDetail">
+          <el-select v-model="jobDetail" :disabled = "!isCustomJobDetail" @focus="getJobDetail">
               <el-option v-for="(item,index) in JobDetails" :key="index" :label="item" :value="item"/>
           </el-select>
       </div>
@@ -143,17 +143,19 @@ export default {
           params: info
         });
         console.log(response);
-        if(response.data.data === 'success'){
+        if(response.data.code === "500" ){
+            this.$message({
+              showClose: true,
+              message: response.data.message,
+              grouping: true,
+              type: 'error'
+            });
+          }else{
           this.$message({
             message: "更新成功",
             type: "success"
             });
           this.$emit('close');
-          }else{
-            this.$message({
-              message: "更新失败",
-              type: "error"
-              });
           }
       } catch (error) {
         // 处理网络错误或其他错误

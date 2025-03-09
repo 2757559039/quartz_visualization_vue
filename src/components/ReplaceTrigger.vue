@@ -19,7 +19,7 @@
         </div>
         <div class="title">
           <span>自定义触发器: </span>
-          <el-select v-model="trigger" :disabled="!isCustomTrigger" placeholder="Select">
+          <el-select v-model="trigger" :disabled="!isCustomTrigger" placeholder="Select" @focus="getTrigger()">
             <el-option
               v-for="(trigger, index) in triggers"
               :key="index"
@@ -47,6 +47,7 @@
           <div class="title" v-if="isCustomTrigger === false">
             <span>结束任务时间: </span>
             <el-date-picker
+            :disabled="startTime === ''"
               v-model="endTime"
               type="date"
               format="YYYY/MM/DD"
@@ -269,6 +270,24 @@ export default {
     }
   },
   methods: {
+    disabledStartDate(time) {
+      // 获取当前日期
+      const today = new Date();
+      // 设置时间的时分秒为0，表示当天的开始
+      today.setHours(0, 0, 0, 0);
+      // 返回一个布尔值，表示是否禁用该日期
+      return time.getTime() < today.getTime();
+    },
+
+    disabledEndDate(time) {
+      // 获取开始时间
+      const startTime = new Date(this.startTime);
+      // 设置时间的时分秒为0，表示当天的开始
+      startTime.setHours(0, 0, 0, 0);
+      // 返回一个布尔值，表示是否禁用该日期
+      return time.getTime() <= startTime.getTime();
+    },
+
     openDialog () {
 			this.showCron = true;
 			if (this.cronexpression != ""){
@@ -381,7 +400,7 @@ export default {
           "/task/Update/updateTrigger?oldtriggername=" +this.oldtriggername+"&oldtriggergroup="+this.oldtriggergroup,this.Info
         );
         console.log(response);
-        if(response.data.data == 'success'){
+        if(response.data.code == "200"){
           alert("更改成功");
           this.back();
         }else{

@@ -1,7 +1,7 @@
 <template>
   <div class="sse-lister">
     <div> 
-      <p>监控器模块</p>
+      <p class="tetle">监控器模块</p>
     </div>
     <div class="see-select">
       <div class="selectBox"> 
@@ -39,23 +39,7 @@
       <div  class="virtual-list1"> 
         <p v-for="message in messages" :key="message">{{ message }}</p>
       </div>
-
-    
-
-      <!-- <vue-virtual-scroll-list
-        :data-key="'historyMessages'"
-        :data-sources="formattedHistoryMessages"
-        :data-component="VirtualListItem"
-        class="virtual-list"
-      />
-    <vue-virtual-scroll-list
-        :data-key="'message'"
-        :data-sources="formattedMessages"
-        :data-component="VirtualListItem"
-        class="virtual-list1"
-      /> -->
     </div>
-  <!-- </div> -->
 
   <div class="jumpButtonBox"> 
     <el-button type="info" @click="go('JobIndex')">任务管理</el-button>
@@ -67,15 +51,9 @@
 <script>
 import axios from "axios"; // 确保引入 axios
 import { defineComponent } from 'vue';
-import VirtualList from 'vue3-virtual-scroll-list';
 
 export default defineComponent({
   components: {
-    VirtualList,
-    VirtualListItem: {
-      props: ['item'],
-      template: '<div class="virtual-list-item">{{ item.message }}</div>'
-    }
   },
   data() {
     return {
@@ -90,19 +68,10 @@ export default defineComponent({
     };
   },
   computed: {
-    formattedMessages() {
-      return Array.isArray(this.messages) ? this.messages.map(message => ({ message })) : [];
-    },
-    formattedHistoryMessages() {
-      return Array.isArray(this.historyMessages) ? this.historyMessages.map(message => ({ message })) : [];
-    }
   },
   methods: {
     go(address) {
-      if (this.source) {
-        this.source.close();
-      }
-      this.messages = [];
+      this.close();
       this.$router.push({ path: '/' + address });
     },
 
@@ -147,9 +116,10 @@ export default defineComponent({
         });
         return;
       }
+
       if (this.source) {
         this.source.close();
-        this.messages.unshift("连接关闭");
+        this.clean();
       }
 
       try {
@@ -218,12 +188,14 @@ export default defineComponent({
     },
 
     clean() {
+      this.historyMessages = [];
       this.messages = [];
     },
 
     close() {
       if (this.source) {
         this.source.close();
+        this.clean();
         this.messages.unshift("连接关闭");
       }
     }
@@ -250,6 +222,13 @@ export default defineComponent({
   justify-content: center;
   height: auto;
   background-color:#fff ; /* 添加背景色 */
+}
+
+.tetle {
+  font-size: 48px;
+  margin-top: 20px;
+  margin-top: 0px;
+  margin-bottom: 0;
 }
 
 .see-select {

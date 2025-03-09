@@ -7,7 +7,6 @@
         v-model="searchKeyword"
         placeholder="搜索类名"
         clearable
-        style="width: 300px; margin-right: 20px;"
         @input="applyFilter"
       >
         <template #append>
@@ -18,7 +17,6 @@
       <el-select
         v-model="filterCriteria"
         placeholder="类型：全部"
-        style="width: 200px;"
         @change="applyFilter"
       >
         <el-option
@@ -32,7 +30,6 @@
       <el-select
         v-model="filterCriteria2"
         placeholder="状态：全部"
-        style="width: 200px;"
         @change="applyFilter"
       >
         <el-option
@@ -53,16 +50,16 @@
       max-height="520"
     >
       <!-- 类名列 -->
-      <el-table-column prop="className" label="类名" width="360" />
+      <el-table-column prop="className" label="类名" min-width="36" />
 
       <!-- 类型列 -->
-      <el-table-column prop="scriptType" label="类型" width="240" />
+      <el-table-column prop="scriptType" label="类型" min-width="24" />
 
       <!-- 状态列 -->
-      <el-table-column prop="beanState" label="状态" width="120" :formatter="formatBeanState"/>
+      <el-table-column prop="beanState" label="状态" min-width="12" :formatter="formatBeanState"/>
 
       <!-- 操作列 -->
-      <el-table-column label="操作">
+      <el-table-column label="操作" min-width="48">
         <template #header>
           <!-- 操作列不需要表头 -->
           <div></div>
@@ -248,6 +245,16 @@ export default {
   display: flex;
   align-items: center;
   gap: 20px;
+}
+
+.search-filter-type .el-input{
+  width: 300px;
+  margin-right: 20px;
+}
+
+.search-filter-type .el-select{
+  width: 200px;
+  margin-right: 20px;
 }
 
 .el-table {

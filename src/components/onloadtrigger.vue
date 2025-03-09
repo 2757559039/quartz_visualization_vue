@@ -1,6 +1,6 @@
 <template>
   <el-dialog v-model="isVisible" title="触发器挂载" :before-close="closeModal">
-    <el-form label-width="140px">
+    <el-form label-width="30%">
       <el-form-item label="任务分组">
         <el-select v-model="jobgroup" @change="select(jobgroup)">
           <el-option
@@ -66,6 +66,7 @@
           </el-form-item>
           <el-form-item label="结束任务时间" v-if="isCustomTrigger === 'false'">
             <el-date-picker
+              :disabled="startTime === ''"
               v-model="endTime"
               type="date"
               format="YYYY/MM/DD"
@@ -284,6 +285,24 @@ export default {
     };
   },
   methods: {
+    disabledStartDate(time) {
+      // 获取当前日期
+      const today = new Date();
+      // 设置时间的时分秒为0，表示当天的开始
+      today.setHours(0, 0, 0, 0);
+      // 返回一个布尔值，表示是否禁用该日期
+      return time.getTime() < today.getTime();
+    },
+
+    disabledEndDate(time) {
+      // 获取开始时间
+      const startTime = new Date(this.startTime);
+      // 设置时间的时分秒为0，表示当天的开始
+      startTime.setHours(0, 0, 0, 0);
+      // 返回一个布尔值，表示是否禁用该日期
+      return time.getTime() <= startTime.getTime();
+    },
+
     onloadModal() {
       this.isVisible = true;
     },
@@ -470,19 +489,21 @@ export default {
         const info = this.initinfo();
         const response = await axios.post("/task/Add/jobTOtri", info);
         console.log(response);
-        if(response.data.data === "success"){
+        if(response.data.code === "200"){
           this.$message({
             message: "挂载成功",
             type: "success"
           });
           this.$emit('getWhenAdd');
           this.closeModal()
-        }else if(response.data.message === "触发器已存在!"){
-          this.$message({
-            message: "触发器已存在,请重新输入触发器名或触发器组名",
-            type: "error"
-          });
-        }
+        }else if(response.data.code === "500" ){
+            this.$message({
+              showClose: true,
+              message: response.data.message,
+              grouping: true,
+              type: 'error'
+            });
+          }
       }catch(error){
         console.error(error);
       }
@@ -563,6 +584,14 @@ export default {
     this.getTrigger();
     this.getjobgroups();
   },
+  watch: {
+    isVisible(val) {
+      if (val) {
+        this.getjobgroups();
+        this.getTrigger();
+      }
+    }
+  }
 };
 </script>
 
