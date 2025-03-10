@@ -5,7 +5,7 @@
           <p>触发器基础信息</p>
           <div class="title">
             <span>旧触发器分组</span>
-            <el-select v-model="oldtriggergroup"  placeholder="Select" @change="getTriggerName()">
+            <el-select v-model="oldtriggergroup"  placeholder="请选择旧触发器分组" @change="getTriggerName()" @focus="getTriggerGroup()">
             <el-option
               v-for="(trigger, index) in oldtriggergroups"
               :key="index"
@@ -16,7 +16,7 @@
           </div>
           <div class="title">
             <span>旧触发器名称</span>
-            <el-select v-model="oldtriggername" placeholder="Select">
+            <el-select v-model="oldtriggername" placeholder="请选择旧触发器名称" @focus="getTriggerName()">
             <el-option
               v-for="(trigger, index) in oldtriggernames"
               :key="index"
@@ -27,7 +27,7 @@
           </div>
           <div class="title">
           <span>触发器类型: </span>
-          <el-select v-model="selecttrigger" placeholder="Select" @change="getTrigger()">
+          <el-select v-model="selecttrigger" placeholder="请选择触发器类型" @change="getTrigger()">
             <el-option :label="'SimpleTrigger'" :value="'SimpleTrigger'"/>
             <el-option :label="'CronTrigger'" :value="'CronTrigger'"/>
             <el-option :label="'DailyTimeIntervalTrigger'" :value="'DailyTimeIntervalTrigger'"/>
@@ -41,7 +41,7 @@
         </div>
         <div class="title">
           <span>自定义触发器: </span>
-          <el-select v-model="trigger" :disabled="!isCustomTrigger" placeholder="Select">
+          <el-select v-model="trigger" :disabled="!isCustomTrigger" placeholder="请选择自定义触发器">
             <el-option
               v-for="(trigger, index) in triggers"
               :key="index"
@@ -251,7 +251,7 @@ export default {
       // CronTrigger 特定属性
       cronexpression: "", // cron 表达式
       showCron:false,
-			expression:"* * * * * * *",
+			expression:"* * * * * ? *",
 
       // CalendarIntervalTrigger 特定属性
       calendartime: "second", // 默认时间单位为秒

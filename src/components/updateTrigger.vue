@@ -222,7 +222,7 @@ export default {
       // CronTrigger 特定属性
       cronexpression: "", // cron 表达式
       showCron:false,
-			expression:"* * * * * * *",
+			expression:"* * * * * ? *",
 
       // CalendarIntervalTrigger 特定属性
       calendartime: "second", // 默认时间单位为秒

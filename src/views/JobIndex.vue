@@ -23,14 +23,14 @@
       <p class="selectedtitle">条件筛选</p>
       <div class="selectBox"> 
         <div style="display: flex; flex-direction: column; align-items: center;"> 
-          <el-select v-model="selectGroup" class="select" @change="SelectGroup" placeholder="任务分组: 全部">
+          <el-select v-model="selectGroup" class="select" @change="SelectGroup" placeholder="任务分组: 全部" @focus="getGroups()">
             <el-option :label="'任务分组: 全部'" :value=null />
             <el-option v-for="item in groups" :key="item" :label="'任务分组: ' + item" :value="item"/>
           </el-select>
         </div>
 
         <div style="display: flex; flex-direction: column; align-items: center;"> 
-          <el-select v-model="selectName" class="select" :placeholder="defaultName">
+          <el-select v-model="selectName" class="select" :placeholder="defaultName" @focus="getJobName()">
             <el-option :label="defaultName" :value=null />
             <el-option v-for="item in names" :key="item" :label="'任务分组: ' + item" :value="item"/>
           </el-select>
@@ -339,6 +339,7 @@ export default {
         const response = await axios.post(
           "/task/Select/jobgroupall"
         );
+        console.log(response)
         this.groups = response.data.data;
         // 重置表单
       } catch (error) {
@@ -366,15 +367,20 @@ export default {
           this.expandedRows = [];
 
         this.selectName = null;
-        const response1 = await axios.post(
-          "/task/Select/jobDetailname?jobgroup=" + this.selectGroup);
-          this.names = response1.data.data;
-          this.defaultName = '请选择任务名';
+        await this.getJobName();
       } catch (error) {
         // 处理网络错误或其他错误
         this.errorMessage = "请求失败，请检查网络连接";
         console.error;
       }
+    },
+
+    async getJobName(){
+      const response = await axios.post(
+          "/task/Select/jobDetailname?jobgroup=" + this.selectGroup);
+          console.log(response)
+          this.names = response.data.data;
+          this.defaultName = '请选择任务名';
     },
 
     async resumeJob(row) {
@@ -399,12 +405,6 @@ export default {
               type: 'error'
             });
           }
-        //   const rowKey = this.getRowKey(row);
-
-        //   console.log(this.expandedRows.includes(rowKey));
-        // if (this.expandedRows.includes(rowKey)) {
-        //   this.load(row);
-        // }
         })
         
         // 重置表单
