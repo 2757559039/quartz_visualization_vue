@@ -24,12 +24,14 @@
       <div class="selectBox"> 
         <div style="display: flex; flex-direction: column; align-items: center;"> 
           <el-select v-model="selectGroup" class="select" @change="SelectGroup" placeholder="任务分组: 全部" @focus="getGroups()">
+          <el-select v-model="selectGroup" class="select" @change="SelectGroup" placeholder="任务分组: 全部" @focus="getGroups()">
             <el-option :label="'任务分组: 全部'" :value=null />
             <el-option v-for="item in groups" :key="item" :label="'任务分组: ' + item" :value="item"/>
           </el-select>
         </div>
 
         <div style="display: flex; flex-direction: column; align-items: center;"> 
+          <el-select v-model="selectName" class="select" :placeholder="defaultName" @focus="getJobName()">
           <el-select v-model="selectName" class="select" :placeholder="defaultName" @focus="getJobName()">
             <el-option :label="defaultName" :value=null />
             <el-option v-for="item in names" :key="item" :label="'任务分组: ' + item" :value="item"/>
@@ -297,6 +299,7 @@ export default {
           showClose: true,
           message: '数据加载成功',
           grouping: true,
+          grouping: true,
           type: 'success'
         });
       }).catch(error => {
@@ -304,6 +307,7 @@ export default {
         this.$message({
           showClose: true,
           message: '数据加载失败',
+          grouping: true,
           grouping: true,
           type: 'error'
         });
@@ -344,6 +348,7 @@ export default {
           "/task/Select/jobgroupall"
         );
         console.log(response)
+        console.log(response)
         this.groups = response.data.data;
         // 重置表单
       } catch (error) {
@@ -371,6 +376,7 @@ export default {
           this.expandedRows = [];
           console.log(response);
         this.selectName = null;
+        await this.getJobName();
         await this.getJobName();
       } catch (error) {
         // 处理网络错误或其他错误
@@ -404,12 +410,14 @@ export default {
               showClose: true,
               message: '任务已执行',
               grouping: true,
+              grouping: true,
               type: 'success'
             });
           }else{
             this.$message({
               showClose: true,
               message: '执行任务失败',
+              grouping: true,
               grouping: true,
               type: 'error'
             });
@@ -437,12 +445,14 @@ export default {
             showClose: true,
             message: '任务已恢复',
             grouping: true,
+            grouping: true,
             type: 'success'
           });
         }else{
           this.$message({
             showClose: true,
             message: '恢复任务失败',
+            grouping: true,
             grouping: true,
             type: 'error'
           });
@@ -477,12 +487,14 @@ export default {
               showClose: true,
               message: '任务已停止',
               grouping: true,
+              grouping: true,
               type: 'success'
             });
           }else{
             this.$message({
               showClose: true,
               message: '停止任务失败',
+              grouping: true,
               grouping: true,
               type: 'error'
             });
@@ -514,6 +526,7 @@ export default {
             showClose: true,
             message: '任务已删除',
             grouping: true,
+            grouping: true,
             type: 'success'
           });
           this.SelectGroup();
@@ -521,6 +534,7 @@ export default {
           this.$message({
             showClose: true,
             message: '删除任务失败',
+            grouping: true,
             grouping: true,
             type: 'error'
           });

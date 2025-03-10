@@ -24,12 +24,14 @@
       <div class="selectBox"> 
         <div style="display: flex; flex-direction: column; align-items: center;"> 
           <el-select v-model="selectGroup" class="select" @change="SelectGroup()" placeholder="触发器分组:全部" @focus="getGroups()">
+          <el-select v-model="selectGroup" class="select" @change="SelectGroup()" placeholder="触发器分组:全部" @focus="getGroups()">
             <el-option :label="'触发器分组: 全部'" :value=null />
             <el-option v-for="item in groups" :key="item" :label="'触发器分组: ' + item" :value="item"/>
           </el-select>
         </div>
 
         <div style="display: flex; flex-direction: column; align-items: center;"> 
+          <el-select v-model="selectName" class="select" :placeholder="defaultName" @focus="getNames()">
           <el-select v-model="selectName" class="select" :placeholder="defaultName" @focus="getNames()">
             <el-option :label="defaultName" :value=null />
             <el-option v-for="item in names" :key="item" :label="'触发器名: ' + item" :value="item"/>
@@ -424,6 +426,7 @@ export default {
           this.expandedRows = [];
 
         this.selectName = null;
+        await this.getNames();
         await this.getNames();
           this.defaultName = '请选择触发器名';
       } catch (error) {
