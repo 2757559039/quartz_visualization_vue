@@ -24,14 +24,14 @@
       <div class="selectBox"> 
         <div style="display: flex; flex-direction: column; align-items: center;"> 
           <el-select v-model="selectGroup" class="select" @change="SelectGroup" placeholder="任务分组: 全部" @focus="getGroups()">
-            <el-option :label="'任务分组: 全部'" :value=null />
+            <el-option :label="'任务分组: 全部'" value='' />
             <el-option v-for="item in groups" :key="item" :label="'任务分组: ' + item" :value="item"/>
           </el-select>
         </div>
 
         <div style="display: flex; flex-direction: column; align-items: center;"> 
           <el-select v-model="selectName" class="select" :placeholder="defaultName" @focus="getJobName()">
-            <el-option :label="defaultName" :value=null />
+            <el-option :label="defaultName" value='' />
             <el-option v-for="item in names" :key="item" :label="'任务分组: ' + item" :value="item"/>
           </el-select>
         </div>
@@ -378,6 +378,9 @@ export default {
     },
 
     async getJobName(){
+      console.log(this.selectGroup)
+      if(this.selectGroup === '' || this.selectGroup)
+        return;
       const response = await axios.post(
           "/task/Select/jobDetailname?jobgroup=" + this.selectGroup);
           console.log(response)

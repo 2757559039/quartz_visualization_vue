@@ -434,6 +434,8 @@ export default {
     },
 
     async getNames(){
+      if(this.selectGroup === '' || this.selectGroup === null)
+        return;
       const response1 = await axios.post(
           "/task/Select/Triggername?triggergroup=" + this.selectGroup);
           console.log(response1);
