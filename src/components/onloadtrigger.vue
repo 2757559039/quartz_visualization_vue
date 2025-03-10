@@ -2,7 +2,7 @@
   <el-dialog v-model="isVisible" title="触发器挂载" :before-close="closeModal">
     <el-form label-width="30%">
       <el-form-item label="任务分组">
-        <el-select v-model="jobgroup" @change="select(jobgroup)">
+        <el-select v-model="jobgroup" @change="select()" @focus="getjobgroups()">
           <el-option
             v-for="(group, index) in jobgroups"
             :key="index"
@@ -12,7 +12,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="任务名">
-        <el-select v-model="jobname">
+        <el-select v-model="jobname" @focus="select()">
           <el-option
             v-for="(jobname, index) in jobnames"
             :key="index"
@@ -45,7 +45,7 @@
         />
       </el-form-item>
       <el-form-item label="自定义触发器"  v-if="isCustomTrigger === 'true'"> 
-        <el-select v-model="selecttrigger">
+        <el-select v-model="selecttrigger" @focus="getTrigger()">
           <el-option
             v-for="(trigger, index) in triggers"
             :key="index"
@@ -313,15 +313,16 @@ export default {
     async getjobgroups() {
       try {
         const response = await axios.post("/task/Select/jobgroupall");
+        console.log(response)
         this.jobgroups = response.data.data;
       } catch (error) {
         console.error("请求失败，请检查网络连接");
       }
     },
-    async select(jobgroup) {
+    async select() {
       try {
         const response = await axios.post(
-          "/task/Select/jobDetailname?jobgroup=" + jobgroup
+          "/task/Select/jobDetailname?jobgroup=" + this.jobgroup
         );
         this.jobnames = response.data.data;
       } catch (error) {
@@ -475,6 +476,7 @@ export default {
         this.$message({
         message: errors.join("<br><br>"),
         dangerouslyUseHTMLString: true,
+        grouping: true,
         type: "error"
         });
         return true;
@@ -492,8 +494,10 @@ export default {
         if(response.data.code === "200"){
           this.$message({
             message: "挂载成功",
+            grouping: true,
             type: "success"
           });
+          this.clean();
           this.$emit('getWhenAdd');
           this.closeModal()
         }else if(response.data.code === "500" ){
@@ -578,6 +582,41 @@ export default {
     fillCronValue(cronValue) {
       this.cronexpression = cronValue;
       this.closeCronDialog();
+    },
+    clean(){
+      this.jobgroup= "";
+      this.jobname= "";
+
+      this.trigger= "";
+      this.isCustomTrigger= "false";
+      this.selecttrigger= "";
+
+      this.priority= 5;
+      this.startTime= "";
+      this.endTime= "";
+      this.timezone= "Asia/Shanghai";
+      this.triggername= "";
+      this.triggergroup= "";
+      
+      this.simpletimesecond= "";
+      this.repeatcount= "";
+
+      this.cronexpression= "";
+      
+      this.calendartime= "second";
+      this.calendarnum= "";
+      this.preserveHourOfDayAcrossDaylightSavings= false;
+      this.skipDayIfHourDoesNotExist= false;
+      
+      this.dailytime= "second";
+      this.dailynum= "";
+      this.dailyrepeatcount= "";
+      this.DayStartTime= ""; // 当天开始时间
+      this.DayEndTime= ""; // 当天结束时间
+      this.dailyworkday= [];
+      this.workday= false;
+      this.weekend= false;
+      this.all= false;
     }
   },
   created() {

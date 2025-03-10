@@ -23,14 +23,14 @@
       <p class="selectedtitle">条件筛选</p>
       <div class="selectBox"> 
         <div style="display: flex; flex-direction: column; align-items: center;"> 
-          <el-select v-model="selectGroup" class="select" @change="SelectGroup" placeholder="任务分组: 全部">
+          <el-select v-model="selectGroup" class="select" @change="SelectGroup" placeholder="任务分组: 全部" @focus="getGroups()">
             <el-option :label="'任务分组: 全部'" :value=null />
             <el-option v-for="item in groups" :key="item" :label="'任务分组: ' + item" :value="item"/>
           </el-select>
         </div>
 
         <div style="display: flex; flex-direction: column; align-items: center;"> 
-          <el-select v-model="selectName" class="select" :placeholder="defaultName">
+          <el-select v-model="selectName" class="select" :placeholder="defaultName" @focus="getJobName()">
             <el-option :label="defaultName" :value=null />
             <el-option v-for="item in names" :key="item" :label="'任务分组: ' + item" :value="item"/>
           </el-select>
@@ -38,9 +38,9 @@
         
         <div class="inputnox" >
           <el-input v-model="selected" class="input1" placeholder="请输入">
-            <template #prefix>
+            <!-- <template #prefix>
               <el-icon class="el-input__icon"><search /></el-icon>
-            </template>
+            </template> -->
           </el-input>
           <el-button type="primary" @click="search()">
             <el-icon style="vertical-align: middle">
@@ -222,29 +222,30 @@ export default {
     },
 
     async search() {
-      this.SelectGroup();
-      if (this.selected !== "") {
+      // await this.SelectGroup();
+
+      // if (this.selected !== "") {
+      //   console.log(this.selected);
         const searchTerm = this.selected.toLowerCase();
-        this.jobs = this.Jobs.filter(job => 
+      //   this.jobs = this.Jobs.filter(job => 
+      //     job.jobname.toLowerCase().includes(searchTerm) ||
+      //     job.jobgroup.toLowerCase().includes(searchTerm) ||
+      //     job.jobclassname.toLowerCase().includes(searchTerm) ||
+      //     job.description.toLowerCase().includes(searchTerm)
+      //   );
+        let url;
+        if (this.selectGroup !== null && this.selectGroup !== "" && this.selectGroup !== undefined) { 
+          url =  "/task/Select/FINDjobBYgroup?group=" + this.selectGroup;
+        }
+        else{
+          url =  "/task/Select/jobs";
+        }
+        this.Jobs = (await axios.post(url)).data.data.filter(job => 
           job.jobname.toLowerCase().includes(searchTerm) ||
           job.jobgroup.toLowerCase().includes(searchTerm) ||
           job.jobclassname.toLowerCase().includes(searchTerm) ||
-          job.description.toLowerCase().includes(searchTerm)
+          (job.description && job.description.toLowerCase().includes(searchTerm))
         );
-        // let url;
-        // if (this.selectGroup) {
-        //   url =  "/task/Select/FINDjobBYgroup?group=" + this.selectGroup;
-        // }
-        // else{
-        //   url =  "/task/Select/jobs";
-        // }
-        // this.Jobs = (await axios.post(url)).data.data.filter(job => 
-        //   job.jobname.toLowerCase().includes(searchTerm) ||
-        //   job.jobgroup.toLowerCase().includes(searchTerm) ||
-        //   job.jobclassname.toLowerCase().includes(searchTerm) ||
-        //   job.description.toLowerCase().includes(searchTerm)
-        // );
-      }
     },
     handleExpandChange(row, expanded) {
       const rowKey = this.getRowKey(row);
@@ -295,6 +296,7 @@ export default {
         this.$message({
           showClose: true,
           message: '数据加载成功',
+          grouping: true,
           type: 'success'
         });
       }).catch(error => {
@@ -302,6 +304,7 @@ export default {
         this.$message({
           showClose: true,
           message: '数据加载失败',
+          grouping: true,
           type: 'error'
         });
       });
@@ -335,10 +338,12 @@ export default {
       }
     },
     async getGroups() {
+      this.selected = "";
       try {
         const response = await axios.post(
           "/task/Select/jobgroupall"
         );
+        console.log(response)
         this.groups = response.data.data;
         // 重置表单
       } catch (error) {
@@ -355,7 +360,7 @@ export default {
         this.expandedRows = [];
         this.names = [];
         this.selectName = null;
-        this.selected = "";
+        
         this.defaultName = '请先选择任务分组';
         return;
       }
@@ -364,17 +369,25 @@ export default {
           "/task/Select/FINDjobBYgroup?group=" + this.selectGroup)
           this.Jobs = response.data.data;
           this.expandedRows = [];
-
+          console.log(response);
         this.selectName = null;
-        const response1 = await axios.post(
-          "/task/Select/jobDetailname?jobgroup=" + this.selectGroup);
-          this.names = response1.data.data;
-          this.defaultName = '请选择任务名';
+        await this.getJobName();
       } catch (error) {
         // 处理网络错误或其他错误
         this.errorMessage = "请求失败，请检查网络连接";
         console.error;
       }
+    },
+
+    async getJobName(){
+      console.log(this.selectGroup)
+      if(this.selectGroup === '' || !this.selectGroup)
+        return;
+      const response = await axios.post(
+          "/task/Select/jobDetailname?jobgroup=" + this.selectGroup);
+          console.log(response)
+          this.names = response.data.data;
+          this.defaultName = '请选择任务名';
     },
 
     async resumeJob(row) {
@@ -390,21 +403,17 @@ export default {
             this.$message({
               showClose: true,
               message: '任务已执行',
+              grouping: true,
               type: 'success'
             });
           }else{
             this.$message({
               showClose: true,
               message: '执行任务失败',
+              grouping: true,
               type: 'error'
             });
           }
-        //   const rowKey = this.getRowKey(row);
-
-        //   console.log(this.expandedRows.includes(rowKey));
-        // if (this.expandedRows.includes(rowKey)) {
-        //   this.load(row);
-        // }
         })
         
         // 重置表单
@@ -427,12 +436,14 @@ export default {
           this.$message({
             showClose: true,
             message: '任务已恢复',
+            grouping: true,
             type: 'success'
           });
         }else{
           this.$message({
             showClose: true,
             message: '恢复任务失败',
+            grouping: true,
             type: 'error'
           });
         }
@@ -465,12 +476,14 @@ export default {
             this.$message({
               showClose: true,
               message: '任务已停止',
+              grouping: true,
               type: 'success'
             });
           }else{
             this.$message({
               showClose: true,
               message: '停止任务失败',
+              grouping: true,
               type: 'error'
             });
           }
@@ -500,6 +513,7 @@ export default {
           this.$message({
             showClose: true,
             message: '任务已删除',
+            grouping: true,
             type: 'success'
           });
           this.SelectGroup();
@@ -507,6 +521,7 @@ export default {
           this.$message({
             showClose: true,
             message: '删除任务失败',
+            grouping: true,
             type: 'error'
           });
         }
