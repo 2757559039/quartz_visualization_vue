@@ -476,6 +476,7 @@ export default {
         this.$message({
         message: errors.join("<br><br>"),
         dangerouslyUseHTMLString: true,
+        grouping: true,
         type: "error"
         });
         return true;
@@ -493,6 +494,7 @@ export default {
         if(response.data.code === "200"){
           this.$message({
             message: "挂载成功",
+            grouping: true,
             type: "success"
           });
           this.clean();

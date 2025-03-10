@@ -119,6 +119,7 @@ export default {
           if(this.jobDetail == null || this.jobDetail == "" || this.jobDetail == undefined){
             this.$message({
               message: "请选择自定义JobDetail",
+              grouping: true,
               type: "error"
               });
             return;
@@ -130,6 +131,7 @@ export default {
         if(this.jobClassName == "" || this.jobClassName == null || this.jobClassName == undefined){
           this.$message({
             message: "请选择任务类名",
+            grouping: true,
             type: "error"
             });
           return;
@@ -153,6 +155,7 @@ export default {
           }else{
           this.$message({
             message: "更新成功",
+            grouping: true,
             type: "success"
             });
           this.$emit('close');

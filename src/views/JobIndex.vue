@@ -295,6 +295,7 @@ export default {
         this.$message({
           showClose: true,
           message: '数据加载成功',
+          grouping: true,
           type: 'success'
         });
       }).catch(error => {
@@ -302,6 +303,7 @@ export default {
         this.$message({
           showClose: true,
           message: '数据加载失败',
+          grouping: true,
           type: 'error'
         });
       });
@@ -396,12 +398,14 @@ export default {
             this.$message({
               showClose: true,
               message: '任务已执行',
+              grouping: true,
               type: 'success'
             });
           }else{
             this.$message({
               showClose: true,
               message: '执行任务失败',
+              grouping: true,
               type: 'error'
             });
           }
@@ -427,12 +431,14 @@ export default {
           this.$message({
             showClose: true,
             message: '任务已恢复',
+            grouping: true,
             type: 'success'
           });
         }else{
           this.$message({
             showClose: true,
             message: '恢复任务失败',
+            grouping: true,
             type: 'error'
           });
         }
@@ -465,12 +471,14 @@ export default {
             this.$message({
               showClose: true,
               message: '任务已停止',
+              grouping: true,
               type: 'success'
             });
           }else{
             this.$message({
               showClose: true,
               message: '停止任务失败',
+              grouping: true,
               type: 'error'
             });
           }
@@ -500,6 +508,7 @@ export default {
           this.$message({
             showClose: true,
             message: '任务已删除',
+            grouping: true,
             type: 'success'
           });
           this.SelectGroup();
@@ -507,6 +516,7 @@ export default {
           this.$message({
             showClose: true,
             message: '删除任务失败',
+            grouping: true,
             type: 'error'
           });
         }
