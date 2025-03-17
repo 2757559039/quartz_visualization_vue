@@ -1,6 +1,8 @@
 <template>
+  <!-- 挂载触发器 弹窗组件 -->
   <el-dialog v-model="isVisible" title="触发器挂载" :before-close="closeModal">
     <el-form label-width="30%">
+      <!-- 挂载目标选择 -->
       <el-form-item label="任务分组">
         <el-select v-model="jobgroup" @change="select()" @focus="getjobgroups()">
           <el-option
@@ -21,6 +23,8 @@
           />
         </el-select>
       </el-form-item>
+
+      <!-- 触发器类型 -->
       <el-form-item label="触发器类型">
         <el-select v-model="trigger" @change="getTrigger()">
           <el-option label="SimpleTrigger" value="SimpleTrigger" />
@@ -53,6 +57,8 @@
             :value="trigger"
           />
         </el-select>
+
+        <!-- 触发器通用类型 -->
       </el-form-item>
           <el-form-item label="开始任务时间" v-if="isCustomTrigger === 'false'">
             <el-date-picker
@@ -91,6 +97,7 @@
         <el-input v-model="triggergroup" />
       </el-form-item>
 
+      <!-- 触发器专属属性 -->
       <!-- SimpleTrigger -->
       <el-form-item
         v-if="trigger === 'SimpleTrigger' && isCustomTrigger === 'false'"
@@ -223,6 +230,8 @@
         />
       </el-form-item>
     </el-form>
+
+    <!-- 底部按钮 -->
     <template #footer>
       <div class="footer">
       <el-button type="primary" @click="replace">挂载触发器</el-button>
@@ -234,6 +243,7 @@
 
 <script>
 import axios from "axios";
+import { mapState } from 'vuex';
 import { ca, el } from "element-plus/es/locales.mjs";
 import { Vue3CronPlusPicker } from 'vue3-cron-plus-picker';
 import 'vue3-cron-plus-picker/style.css';
@@ -244,47 +254,52 @@ export default {
   },
   data() {
     return {
-      isVisible: false,
-      jobgroups: [],
-      jobgroup: "",
-      jobnames: [],
-      jobname: "",
+      isVisible: false, // 是否可见
+      jobgroups: [], // 任务组
+      jobgroup: "", // 选中的任务组
+      jobnames: [], // 任务名称列表
+      jobname: "", // 选中的任务名称
 
-      trigger: "",
-      isCustomTrigger: "false",
-      triggers: [],
-      selecttrigger: "",
+      trigger: "", // 触发器
+      isCustomTrigger: "false", // 是否自定义触发器
+      triggers: [], // 触发器列表
+      selecttrigger: "", // 选中的触发器
 
-      priority: 5,
-      startTime: "",
-      endTime: "",
-      timezone: "Asia/Shanghai",
-      triggername: "",
-      triggergroup: "",
+      priority: 5, // 优先级
+      startTime: "", // 开始时间
+      endTime: "", // 结束时间
+      timezone: "Asia/Shanghai", // 时区
+      triggername: "", // 触发器名称
+      triggergroup: "", // 触发器组
       
-      simpletimesecond: "",
-      repeatcount: "",
+      simpletimesecond: "", // 简单时间秒数
+      repeatcount: "", // 重复次数
 
-      cronexpression: "",
+      cronexpression: "", // Cron 表达式
       
-      calendartime: "second",
-      calendarnum: "",
-      preserveHourOfDayAcrossDaylightSavings: false,
-      skipDayIfHourDoesNotExist: false,
+      calendartime: "second", // 日历时间单位
+      calendarnum: "", // 日历时间数值
+      preserveHourOfDayAcrossDaylightSavings: false, // 跨夏令时保持小时
+      skipDayIfHourDoesNotExist: false, // 如果小时不存在则跳过这一天
       
-      dailytime: "second",
-      dailynum: "",
-      dailyrepeatcount: "",
+      dailytime: "second", // 每日时间单位
+      dailynum: "", // 每日时间数值
+      dailyrepeatcount: "", // 每日重复次数
       DayStartTime: "", // 当天开始时间
       DayEndTime: "", // 当天结束时间
-      dailyworkday: [],
-      workday: false,
-      weekend: false,
-      all: false,
-      showCronDialog: false
+      dailyworkday: [], // 每日工作日
+      workday: false, // 是否工作日
+      weekend: false, // 是否周末
+      all: false, // 是否全部
+      showCronDialog: false // 是否显示第三方Cron表达式组件 
     };
   },
+  computed: {
+    ...mapState(['baseURL']),
+  },
   methods: {
+
+    //设置开始时间禁用项
     disabledStartDate(time) {
       // 获取当前日期
       const today = new Date();
@@ -294,6 +309,7 @@ export default {
       return time.getTime() < today.getTime();
     },
 
+    //设置结束时间禁用项
     disabledEndDate(time) {
       // 获取开始时间
       const startTime = new Date(this.startTime);
@@ -303,6 +319,7 @@ export default {
       return time.getTime() <= startTime.getTime();
     },
 
+    //设置可见性
     onloadModal() {
       this.isVisible = true;
     },
@@ -310,38 +327,44 @@ export default {
       this.isVisible = false;
       },
     
+    //获取任务分组
     async getjobgroups() {
       try {
-        const response = await axios.post("/task/Select/jobgroupall");
-        console.log(response)
+        const response = await axios.post(this.baseURL + "/task/Select/jobgroupall");
         this.jobgroups = response.data.data;
       } catch (error) {
         console.error("请求失败，请检查网络连接");
       }
     },
+
+    //获取任务分组下的任务名
     async select() {
       try {
         const response = await axios.post(
-          "/task/Select/jobDetailname?jobgroup=" + this.jobgroup
+          this.baseURL + "/task/Select/jobDetailname?jobgroup=" + this.jobgroup
         );
         this.jobnames = response.data.data;
       } catch (error) {
         console.error("请求失败，请检查网络连接");
       }
     },
+
+    //获取自定义触发器
     async getTrigger() {
       try {
-        const response = await axios.post("/task/Reflect/triggerclass",null,{
+        const response = await axios.post(this.baseURL + "/task/Reflect/triggerclass",null,{
           params: {
             type: this.trigger
           }
         });
-        console.log(response);
+        
         this.triggers = response.data.data;
       } catch (error) {
         console.error("请求失败，请检查网络连接");
       }
     },
+
+    //构建发送后端信息
     initinfo(){
       let info = {};
       info.jobname = this.jobname;
@@ -399,6 +422,8 @@ export default {
       }
       return info;
     },
+
+    //检查信息
     checkinfo() {
       let errors = [];
       if(this.isCustomTrigger === "true"){
@@ -456,7 +481,6 @@ export default {
         errors.push("执行日选择不能为空");
         }
         if(this.DayStartTime === ""){
-          console.log(this.DayStartTime);
           errors.push("当日开始时间不能为空")
         }
       } else if (this.trigger === "CalendarIntervalTrigger") {
@@ -483,14 +507,16 @@ export default {
       }
       return false;
     },
+
+    //挂载触发器
     async replace() {
       try{
         if(this.checkinfo()){
           return;
         }
         const info = this.initinfo();
-        const response = await axios.post("/task/Add/jobTOtri", info);
-        console.log(response);
+        const response = await axios.post(this.baseURL + "/task/Add/jobTOtri", info);
+        
         if(response.data.code === "200"){
           this.$message({
             message: "挂载成功",
@@ -512,6 +538,8 @@ export default {
         console.error(error);
       }
     },
+
+    //设置DailyTimeIntervalTrigger dailyworkday 全选
     setAllDays() {
       if(this.all){
         this.dailyworkday = ["1","2","3","4","5","6","7"];
@@ -523,6 +551,8 @@ export default {
         this.weekend = false;
       }
     },
+
+    //设置DailyTimeIntervalTrigger dailyworkday的 工作日全选
     setWorkDays() {
       if(this.workday){
         this.dailyworkday.push("1","2","3","4","5");
@@ -540,6 +570,8 @@ export default {
         this.all = false;
       }
     },
+
+    //设置DailyTimeIntervalTrigger dailyworkday的 周日全选
     setWeekendDays() {
       if(this.weekend){
         this.dailyworkday.push("6","7");
@@ -555,8 +587,9 @@ export default {
       this.all = false;
     }
     },
+
+        //检查DailyTimeIntervalTrigger dailyworkday星期选项
     checkday() {
-      console.log('checkday');
       if (this.dailyworkday.includes("1") && this.dailyworkday.includes("2") && this.dailyworkday.includes("3") && this.dailyworkday.includes("4") && this.dailyworkday.includes("5")) {
         this.workday = true;
       } else {
@@ -573,6 +606,8 @@ export default {
         this.all = false;
       }
     },
+
+    //第三方cron表达式组件弹窗可见性及数据传递
     openCronDialog() {
       this.showCronDialog = true;
     },
@@ -583,6 +618,8 @@ export default {
       this.cronexpression = cronValue;
       this.closeCronDialog();
     },
+
+    //初始化数据
     clean(){
       this.jobgroup= "";
       this.jobname= "";

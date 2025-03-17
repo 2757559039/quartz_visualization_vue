@@ -1,5 +1,7 @@
 <template>
+  <!-- 修改任务详情 弹窗组件 -->
   <div class="container">
+    <!-- 任务详情展示 -->
       <div class="detail">
           <span>任务名:</span>
           <span>{{ jobName }}</span>
@@ -46,6 +48,7 @@
 <script>
 import { ElButton } from "element-plus";
 import axios from "axios";
+import { mapState } from 'vuex';
 export default {
   components: {
     ElButton,
@@ -54,38 +57,47 @@ export default {
     jobinfo: {
       type: Object,
       required: true,
-      // 默认值是一个空对象，避免直接修改父组件传递的对象
       default: () => ({}),
     },
   },
   data() {
     return {
-      // 假设任务名、任务分组、任务类名等都是字符串输入
+      // 任务名
       jobName: "",
+      // 任务组
       jobGroup: "",
+      // 任务类名组
       jobClassNameGroup:[],
+      // 任务类名
       jobClassName: "",
+      // 任务描述
       jobDescription: "",
 
-
-      // 触发器类型选择
+      // 是否开启自定义jobDetail
       isCustomJobDetail: false,
-      // 自定义JobDetail输入
+      // 自定义JobDetail项
       JobDetails:[],
+      // 选择的jobDetail
       jobDetail: null,
     };
   },
+  computed: {
+    ...mapState(['baseURL']),
+  },
   methods: {
 
+    //改变弹窗
     back(){
         this.$emit('close');
       },
+
+      //获取任务实现类
     async getJob() {
       try {
         const response = await axios.post(
-          "/task/Reflect/jobclass"
+          this.baseURL + "/task/Reflect/jobclass"
         );
-        console.log(response);
+        
         this.jobClassNameGroup = response.data.data;
 
         // 重置表单
@@ -96,12 +108,11 @@ export default {
       }
     },
     async getJobDetail() {
-      console.log("getJobDetail");
       try {
         const response = await axios.post(
-          "/task/Reflect/jobdetailclass"
+          this.baseURL + "/task/Reflect/jobdetailclass"
         );
-        console.log(response);
+        
         this.JobDetails = response.data.data;
 
         // 重置表单
@@ -112,6 +123,7 @@ export default {
       }
     },
 
+    //更新任务详情
     async update() {
       try {
         let info = {};
@@ -141,10 +153,10 @@ export default {
         info.description = this.jobDescription;
         info.isCustomJobDetail = this.isCustomJobDetail;
 
-        const response = await axios.post("/task/Update/updatejob",null,{
+        const response = await axios.post(this.baseURL + "/task/Update/updatejob",null,{
           params: info
         });
-        console.log(response);
+        
         if(response.data.code === "500" ){
             this.$message({
               showClose: true,
@@ -170,7 +182,6 @@ export default {
   created() {
     this.getJob();
     this.getJobDetail();
-    console.log(this.jobinfo);
     this.jobName = this.jobinfo.jobname;
     this.jobGroup = this.jobinfo.jobgroup;
     this.jobClassName = this.jobinfo.jobclassname;

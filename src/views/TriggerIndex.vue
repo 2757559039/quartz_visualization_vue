@@ -2,6 +2,7 @@
   <div class="container">
     <div class="jumpBox">
       <el-link :underline="false" @click="Go('JobIndex')">前往任务管理页面<el-icon><Link /></el-icon></el-link>
+      <el-link :underline="false" @click="Go('uploadIP')">当前后端地址--{{ baseURL }}</el-link>
       <div class="modalButtonBox">
         <el-button @click="jobModal" type="primary" class="addbtn">添加任务</el-button>
         <el-button @click="onloadModal" type="primary" class="addbtn">挂载触发器</el-button>
@@ -55,14 +56,6 @@
           <el-table-column type="expand" >
             <template #default="props">
               <div v-if="props.row.triggerList" v-loading="!props.row.loadDetails" element-loading-text="加载中..."  element-loading-background="rgba(255, 255, 255)">
-                <!-- <p>{{ props.row.triggerList }}</p>
-                <div class="text">
-                  <span class="left">是否使用自定义触发器:</span><span class="right">{{ props.row.triggerList.isConcurrentExectionDisallowed }}</span>
-                </div>
-                
-                <div v-if="!props.row.triggerList.isConcurrentExectionDisallowed === 'false'" class="text">
-                  <span class="left">自定义触发器:</span><span class="right">{{ props.row.triggerList.trigger }}</span>
-                </div> -->
                 <div v-if="props.row.triggerList.isConcurrentExectionDisallowed === 'false'">
                   <div v-if="props.row.type === 'SimpleTrigger'">
                     <div class="text">
@@ -222,6 +215,7 @@
     
   <script>
 import axios from "axios";
+import { mapState, mapActions } from 'vuex';
 import updateTrigger from "../components/updateTrigger.vue";
 import TriggerModal from '../components/onloadtrigger.vue';
 import UpLoad from "../components/upload.vue";
@@ -259,6 +253,7 @@ export default {
   },
 
   computed: {
+    ...mapState(['baseURL']),
     Table() {
       if (this.selectName && this.trigger !== null && this.trigger !== undefined) {
       return this.trigger.filter(trigger => trigger.triggername === this.selectName) ;
@@ -268,16 +263,15 @@ export default {
   },
   methods: {
     async selectNextTime() {
-      console.log(this.selectrow);
       try {
-        const response = await axios.post("/task/Select/nextFireTime",null,{
+        const response = await axios.post(this.baseURL + "/task/Select/nextFireTime",null,{
           params: {
             triggername: this.selectrow.triggername,
             triggergroup: this.selectrow.triggergroup,
             specifiedtime : this.selectTime
           }
         })
-            console.log(response);
+            
             ElMessageBox.alert(response.data.data, '下一次触发时间', {
             confirmButtonText: '确定',
             type: 'info'
@@ -303,7 +297,7 @@ export default {
         }
           this.expandedRows = [];
         this.trigger = (await axios.post(
-          "/task/Select/triggers" + ex_url)).data.data.filter(trigger => 
+          this.baseURL + "/task/Select/triggers" + ex_url)).data.data.filter(trigger => 
         trigger.triggername.toLowerCase().includes(searchTerm) ||
         trigger.triggergroup.toLowerCase().includes(searchTerm) ||
         trigger.priority.toLowerCase().includes(searchTerm) ||
@@ -324,7 +318,6 @@ export default {
           this.load(row);
         }
         else {
-        console.log(this.expandedRows);
         // 如果行被折叠，则从 expandedRows 数组中移除
         this.expandedRows = this.expandedRows.filter(key => key !== rowKey);
         }
@@ -335,18 +328,17 @@ export default {
       return `${row.triggername}-${row.triggergroup}`;
     },
     load(row) {
-    console.log('load');
     // 动态添加 triggerList 和 loadDetails 属性
     row.triggerList = row.triggerList || [];
     row.loadDetails = false;
 
-    axios.post(`/task/Select/triggerDetail`, null, {
+    axios.post(this.baseURL + `/task/Select/triggerDetail`, null, {
       params: {
         triggername: row.triggername,
         triggergroup: row.triggergroup
       }
     }).then(response => {
-      console.log(response);
+      
         row.triggerList = response.data.data;
         row.loadDetails = true; // 加载成功之后更新标识
 
@@ -371,7 +363,6 @@ export default {
         type: 'error'
       });
     });
-    console.log(row)
   },
 
   replacetrigger(row) {
@@ -406,7 +397,6 @@ export default {
     },
 
     async SelectGroup() {
-      console.log(this.selectGroup);
       if(this.selectGroup == null || this.selectGroup == "" || this.selectGroup == undefined ){ 
         this.getUsedTrigger();
         this.expandedRows = [];
@@ -418,8 +408,8 @@ export default {
       }
       try {
         const response = await axios.post(
-          "/task/Select/triggers?triggergroup=" + this.selectGroup);
-          console.log(response);
+          this.baseURL + "/task/Select/triggers?triggergroup=" + this.selectGroup);
+          
           this.trigger = response.data.data;
           this.expandedRows = [];
 
@@ -438,17 +428,16 @@ export default {
       if(this.selectGroup === '' || !this.selectGroup)
         return;
       const response1 = await axios.post(
-          "/task/Select/Triggername?triggergroup=" + this.selectGroup);
-          console.log(response1);
+          this.baseURL + "/task/Select/Triggername?triggergroup=" + this.selectGroup);
           this.names = response1.data.data;
     },
 
     async getUsedTrigger() {
       try {
         const response = await axios.post(
-          "/task/Select/triggers"
+          this.baseURL + "/task/Select/triggers"
         );
-        console.log(response);
+        
         this.trigger = response.data.data;
 
         // 重置表单
@@ -461,9 +450,9 @@ export default {
     async getGroups() {
       try {
         const response = await axios.post(
-          "/task/Select/triggergroupall"
+          this.baseURL + "/task/Select/triggergroupall"
         );
-        console.log(response);
+        
         this.groups = response.data.data;
 
         // 重置表单
@@ -485,18 +474,6 @@ export default {
         deleteAllJob: '删除所有触发器',
         checkNextTime: '查询下一次触发时间'
       };
-
-      // const isAllPaused = (await axios.post('/task/Select/isAllPaused')).data.data;
-      // if(isAllPaused && (action === 'startNow' || action === 'pauseJob')){
-      //   const message = '所有触发器已冻结,请先解冻再操作';
-      // ElMessageBox.confirm(message, '确认操作', {
-      //   confirmButtonText: '确定',
-      //   cancelButtonText: '取消',
-      //   type: 'warning',
-      // })
-      // return;
-      // }
-      // else{
         const message = row
         ? `确定要${actionMap[action]}触发器 "${row.triggername}" 吗？`
         : `确定要${actionMap[action]}吗？`;
@@ -518,34 +495,26 @@ export default {
           this.pauseAllJob();
         } else if (action === 'deleteAllJob') {
           this.deleteAllJob();
-        } else if (action === 'checkNextTime') {
-          this.checkNextTime(row);
         }
       }).catch(() => {
         // 用户点击“取消”按钮
-        console.log('取消操作');
+        this.$message({
+            showClose: true,
+            message: '操作取消',
+            grouping: true,
+            grouping: true,
+            type: 'info'
+          });
       });
       // }
-    },
-
-    async checkNextTime(row) {
-      try {
-        const response = await axios.post();
-        console.log(response);
-        // 重置表单
-      } catch (error) {
-        // 处理网络错误或其他错误
-        this.errorMessage = "请求失败，请检查网络连接";
-        console.error;
-      }
     },
 
     async resumeAllJob() {
       try {
         const response = await axios.post(
-          "/task/Start/resumeall"
+          this.baseURL + "/task/Start/resumeall"
         );
-        console.log(response);
+        
         // 重置表单
       } catch (error) {
         // 处理网络错误或其他错误
@@ -557,9 +526,9 @@ export default {
     async pauseAllJob() {
       try {
         const response = await axios.post(
-          "/task/Pause/alljob"
+          this.baseURL + "/task/Pause/alljob"
         );
-        console.log(response);
+        
 
         // 重置表单
       } catch (error) {
@@ -572,9 +541,9 @@ export default {
     async deleteAllJob() {
       try {
         const response = await axios.post(
-          "/task/Delete/alljob"
+          this.baseURL + "/task/Delete/alljob"
         );
-        console.log(response);
+        
 
         // 重置表单
       } catch (error) {
@@ -588,12 +557,12 @@ export default {
     async resumeJob(row) {
       try {
         const response = await axios.post(
-          "/task/Start/resumetri?triname=" +
+          this.baseURL + "/task/Start/resumetri?triname=" +
           row.triggername +
             "&trigroup=" +
             row.triggergroup 
         );
-        console.log(response);
+        
 
         // 重置表单
       } catch (error) {
@@ -606,12 +575,12 @@ export default {
     async pauseJob(row) {
       try {
         const response = await axios.post(
-          "/task/Pause/trigger?triname=" +
+          this.baseURL + "/task/Pause/trigger?triname=" +
           row.triggername +
             "&trigroup=" +
             row.triggergroup
         );
-        console.log(response);
+        
 
         // 重置表单
       } catch (error) {
@@ -624,12 +593,12 @@ export default {
     async deleteJob(row) {
       try {
         const response = await axios.post(
-          "/task/Delete/jobUNtri?triggername=" +
+          this.baseURL + "/task/Delete/jobUNtri?triggername=" +
           row.triggername +
             "&triggergroup=" +
             row.triggergroup
         );
-        console.log(response);
+        
 
         // 重置表单
       } catch (error) {
@@ -652,7 +621,6 @@ export default {
     },
     async init() {
      await this.getGroups();
-      console.log(this.$route.query.groupForJob);
       this.selectGroup = this.$route.query.groupForJob || "";
      await this.SelectGroup();
      this.selectName = this.$route.query.nameForJob || "";
@@ -676,9 +644,6 @@ export default {
   margin: 0;
   padding: 0;
   margin-left: 10%;
-  /* display : flex;
-    flex-direction: column;
-    align-items: center; */
   overflow: auto;
   background: rgb(255, 255, 255);
 }
@@ -738,7 +703,6 @@ export default {
 
 .Button3Box{
   display: flex;
-  /* justify-content: flex-end; */
   gap: 10px;
   margin: 0;
 }
@@ -807,13 +771,10 @@ export default {
 
 
 .box {
-  /* width: 1517px; */
   width: auto;
   color: #000;
   margin: 0;
   border-radius: 5px;
-  /* padding-left: 2px;
-  padding-right: 2px; */
 }
 
 .JobBox {
@@ -829,8 +790,6 @@ export default {
   color: #000;
   font-size: 16px;
   padding: 10px;
-  /* display: flex;
-  justify-content: center; */
 }
 
 :deep(.JobBox .el-table__cell){
@@ -857,27 +816,6 @@ export default {
   width: 400px;
   text-align: right;
 }
-
-/* .left {
-  width: 200px;
-  text-align: center;
-  word-wrap: break-word;
-}
-
-.right {
-  width: 200px;
-  text-align: center;
-  word-wrap: break-word;
-} */
-
-/* :deep(.JobBox .cell) {
-  height: auto;
-  color: #000;
-  font-size: 16px;
-  padding: 0;
-  display: flex;
-  justify-content: center;
-} */
 
 :deep(.JobBox .caret-wrapper){
   width: 0px;
@@ -936,7 +874,6 @@ export default {
 
 .buttonBox {
   width: 100%;
-  /* white-space: normal; */
 }
 
 .button-item {
@@ -954,7 +891,6 @@ export default {
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
-  /* display: table; */
   transition: opacity 0.3s ease;
 }
 
@@ -1122,4 +1058,8 @@ export default {
   background: linear-gradient(to right, rgb(53,204,255), rgb(4,114,182)); /* 从浅蓝色到深蓝色 */
 }
 
+
+:deep(.el-link__inner){
+  color:rgb(0,119,194);
+}
 </style>

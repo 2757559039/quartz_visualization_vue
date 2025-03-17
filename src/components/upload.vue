@@ -1,4 +1,5 @@
 <template>
+  <!-- 虚拟管理平台  文件编写-->
   <el-dialog
     v-model="isVisible"
     title="类编辑器"
@@ -6,7 +7,9 @@
     :before-close="back"
   >
     <div>
+      <!-- 代码编辑器导入 -->
       <CodeEditor v-if="killbug !== '0'" :modelValue="editorContent" language="java" @update:modelValue="onCodeChange"  class="bjnr"/>
+      <!-- 底部按钮 -->
       <div class="buttonbox"> 
         <el-button type="primary" @click="confirmUpload">更新</el-button>
         <el-button  @click="back" class="back-btn">返回</el-button>
@@ -18,6 +21,7 @@
   <script>
   import CodeEditor from './CodeEditor.vue';
   import axios from 'axios';
+  import { mapState } from 'vuex';
   import { ElMessage, ElMessageBox } from 'element-plus';
   
   export default {
@@ -38,15 +42,22 @@
         id:'0',
       };
     },
+    computed: {
+    ...mapState(['baseURL']),
+  },
     methods: {
+      //数据接收
       onCodeChange(newVal) {
-        console.log('Updated code:', newVal);
         this.editorContent = newVal;
       },
+
+      //关闭弹窗
       back(){
         this.isVisible = false;
         this.$emit('close');
       },
+
+      //弹窗展示
       uploadModal(row){
         this.isVisible = true;
         setTimeout(() => {
@@ -55,6 +66,8 @@
         this.id=row.id;
         this.editorContent=row.script;
       },
+
+      //更新文件
       confirmUpload() {
         ElMessageBox.confirm(
           `确定要更新吗？`,
@@ -71,22 +84,10 @@
             // 取消上传
           });
       },
+
+      //上传文件
       handleUpload() {
-      //   // 根据 uploadType 确定接口地址
-      //   // const urlMap = {
-      //   //   job: '/scriptBuilder/saveJobToDB',
-      //   //   trigger: '/scriptBuilder/saveTriggerToDB',
-      //   //   jobDetail: '/scriptBuilder/saveJobDetailToDB',
-      //   //   updateTrigger: '/scriptBuilder/saveUpdateTriggerToDB',
-      //   // };
-
-      //   // const url = urlMap[this.uploadType];
-      //   // if (!url) {
-      //   //   ElMessage.error('未知的上传类型');
-      //   //   return;
-      //   // }
-
-        axios.post('/scriptBuilder/updateScript', {
+        axios.post(this.baseURL + '/scriptBuilder/updateScript', {
           id: this.id,
           script: this.editorContent,
         })
@@ -171,19 +172,7 @@
   box-shadow: 0 2px 8px rgba(255, 169, 64, 0.3);
 }
 
-  /* 全局修正对话框行号对齐问题 */
-  /* .el-dialog .CodeMirror-gutters {
-    left: 0 !important;
-    z-index: 1;
-    width: 30px;
-  }
-
-  .el-dialog .CodeMirror-lines {
-    padding-left: 30px !important;
-  }
-  .CodeMirror-gutter-elt{
-    left:-30px !important;
-  }*/.CodeMirror-hints{
+.CodeMirror-hints{
     z-index: 10111;
   } 
 

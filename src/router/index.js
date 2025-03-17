@@ -3,40 +3,46 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import JobIndex from '../views/JobIndex.vue'
 import TriggerIndex from '../views/TriggerIndex.vue'
-import test from '../components/test.vue'
 import VirtualPlatform from '../views/VirtualPlatform.vue'
 import sseListener from '../views/sseListener.vue'
+import uploadIP from '../views/uploadIP.vue'
 
 const routes = [
   {
     path: '/',
-    name: 'Job',
-    component: JobIndex
+    name: 'ip',
+    component: uploadIP,
+    // 首页
   },
   {
-    path: '/test',
-    name: 'test',
-    component: test
+    path: '/uploadIP',
+    name: 'uploadIP',
+    component: uploadIP,
+    // 上传IP页面
   },
   {
     path: '/JobIndex',
     name: 'JobIndex',
-    component: JobIndex
+    component: JobIndex,
+    // 任务索引页面
   },
   {
     path: '/TriggerIndex',
     name: 'TriggerIndex',
-    component: TriggerIndex
+    component: TriggerIndex,
+    // 触发器索引页面
   },
   {
     path: '/VirtualPlatform',
     name: 'VirtualPlatform',
-    component: VirtualPlatform
+    component: VirtualPlatform,
+    // 虚拟平台页面
   },
   {
     path: '/sseListener',
     name: 'sseListener',
-    component: sseListener
+    component: sseListener,
+    // SSE监听器页面
   },
 ]
 

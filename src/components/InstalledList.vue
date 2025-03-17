@@ -1,7 +1,9 @@
 <template>
+  <!-- 虚拟管理平台  虚拟类管理-->
   <div class="unerected-list">
     <!-- 搜索框和筛选框 -->
     <div class="search-filter-type">
+      <!-- 筛选 虚拟类类名输入 -->
       <el-input
         v-model="searchKeyword"
         placeholder="搜索类名"
@@ -14,6 +16,7 @@
         </template>
       </el-input>
 
+      <!-- 筛选 虚拟类类型选择 -->
       <el-select
         v-model="filterCriteria"
         placeholder="类型：全部"
@@ -29,7 +32,7 @@
       </el-select>
     </div>
 
-    <!-- 表格 -->
+    <!-- 表格 虚拟类展示 -->
     <el-table
       :data="filteredTableData"
       stripe
@@ -61,6 +64,7 @@
 
 <script>
 import axios from 'axios';
+import { mapState } from 'vuex';
 
 export default {
   name: 'InstalledList',
@@ -72,10 +76,13 @@ export default {
   },
   data() {
     return {
-      tableData: [],
+      //虚拟类展示数据
       filteredTableData: [],
+      //筛选 虚拟类类名
       searchKeyword: '',
+      //筛选 虚拟类类型
       filterCriteria: '',
+      //筛选 虚拟类类型项
       filterOptions: [
         { label: '类型：全部', value: '' },
         { label: '类型：job', value: 'job' },
@@ -91,10 +98,14 @@ export default {
       ],
     };
   },
+  computed: {
+    ...mapState(['baseURL']),
+  },
   methods: {
+    //获取虚拟类展示项
     async fetchData() {
       try {
-        const response = await axios.post('/groovyBean/selectAllLoadGroovyBean',
+        const response = await axios.post(this.baseURL + '/groovyBean/selectAllLoadGroovyBean',
           {
             keywords: this.searchKeyword,
             filterCriteria: this.filterCriteria,
@@ -104,10 +115,13 @@ export default {
         console.error('数据获取失败:', error);
       }
     },
+
+    //筛选
     applyFilter() {
       this.fetchData();
-      console.log('筛选条件：', this.filterCriteria);
     },
+
+    //卸载虚拟类
     handleUninstall(row) {
       ElMessageBox.confirm(
         `确定要卸载类 ${row.className} 吗？`,
@@ -120,7 +134,7 @@ export default {
       )
         .then(() => {
           const className = row.className;
-          axios.post(`/groovyBean/unloadGroovyBean?className=${className}`)
+          axios.post(this.baseURL + `/groovyBean/unloadGroovyBean?className=${className}`)
             .then(response => {
               if (response.data.code === '200') {
                 ElMessage({
@@ -158,13 +172,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-// .unerected-list {
-//   margin-top: 20px;
-//   padding: 20px;
-//   background-color: #ffffff;
-//   border-radius: 8px;
-//   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-// }
 
 .search-filter-type {
   margin-bottom: 20px;

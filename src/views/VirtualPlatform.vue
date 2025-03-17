@@ -1,5 +1,6 @@
 <template>
   <div class="main-container">
+      <el-link class="title" :underline="false" @click="Go('uploadIP')">当前后端地址--{{ baseURL }}</el-link>
     <!-- 顶部标签页 -->
     <el-tabs
       v-model="activeTab"
@@ -95,6 +96,7 @@
 </template>
 
 <script>
+import { mapState, mapActions } from 'vuex';
 import UnerectedList from '../components/UnerectedList.vue';
 import InstalledList from '../components/InstalledList.vue';
 import UpLoad from '../components/upload.vue';
@@ -120,8 +122,6 @@ export default {
             { label: 'triggerListener', value: 'triggerListener' },
             { label: 'threadPoolProperties', value: 'threadPoolProperties' },
             { label: 'schedulerProperties', value: 'schedulerProperties' },
-            // { label: 'saveQuartzProperties', value: 'saveQuartzProperties' },
-            // { label: 'refresh', value: 'refresh' },
             { label: 'pluginProperties', value: 'pluginProperties' },
             { label: 'jobStoreProperties', value: 'jobStoreProperties' },
             { label: 'jobListener', value: 'jobListener' },
@@ -162,22 +162,28 @@ export default {
       editorContent: '',
     };
   },
+  computed: {
+        ...mapState(['baseURL']),
+    },
   methods: {
+    //修改文件类型
     onCodeChange(newVal) {
         this.editorContent = newVal;
       },
+
+      //跳转页面
     Go(address) {
       this.$router.push({ path: '/' + address });
     },
+
+    //代码编辑器可见性及数据传递
     uploadModal(type) {
       this.uploadType = type;
       this.$refs.uploadModal.uploadModal();
     },
-    handleClick() {
-      console.log('按钮点击事件');
-    },
+
+    //标签切换
     handleTabClick(tab) {
-      console.log('切换到标签:', tab.props.name);
       if (tab.props.name === '虚拟类') { // 切换到 虚拟类 标签
         this.$nextTick(() => {
           this.$refs.InstalledList.fetchData(); // 调用 InstalledList 的 fetchData 方法
@@ -193,6 +199,8 @@ export default {
         }, 0);
       }
     },
+
+    //数据获取与格式化
     fetchConfigData() {
       if (this.editType !== 'config') {
         return;
@@ -217,7 +225,7 @@ export default {
         return;
       }
 
-      return axios.get(selectedUrl) // 返回 axios.get 的 Promise
+      return axios.get(this.baseURL + selectedUrl) // 返回 axios.get 的 Promise
         .then(response => {
           // 如果响应数据是 JSON 格式，将其转换为字符串
           if (typeof response.data === 'object') {
@@ -236,6 +244,8 @@ export default {
           return Promise.reject(); // 返回一个失败的 Promise
         });
     },
+
+    // 提交文件
     submit() {
       // 显示二级弹窗确认提交
       ElMessageBox.confirm(
@@ -266,7 +276,7 @@ export default {
             ElMessage.error('请选择有效类型后提交');
             return;
           }
-          axios.post(selectedUrl, {
+          axios.post(this.baseURL + selectedUrl, {
             code: this.editorContent,
           })
             .then(response => {
@@ -301,6 +311,8 @@ export default {
           });
         });
     },
+
+    //重置文件
     reset() {
     ElMessageBox.confirm(
       '确定要重置为最近一次提交的内容吗？',
@@ -325,13 +337,9 @@ export default {
             console.error('重置失败, 数据获取失败');
           });
       })
-      // .catch(() => {
-      //   ElMessage({
-      //     message: '已取消重置',
-      //     type: 'info',
-      //   });
-      // });
     },
+
+    //清空
     clear() {
       ElMessageBox.confirm(
         '确定要清空输入框内容吗？',
@@ -367,6 +375,13 @@ export default {
   padding: 20px;
   background-color: #f0f2f5;
   min-height: 90vh;
+}
+
+.title {
+  display: flex;
+  justify-content: center;
+  font-size: 24px;
+  margin-bottom: 0;
 }
 
 .custom-tabs {
@@ -488,5 +503,9 @@ export default {
 
 :deep(.el-overlay-dialog) {
   overflow: hidden;
+}
+
+:deep(.el-link__inner){
+  color:rgb(0,119,194);
 }
 </style>

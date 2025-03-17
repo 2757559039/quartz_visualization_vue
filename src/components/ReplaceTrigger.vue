@@ -1,7 +1,9 @@
 <template>
+  <!-- 替换触发器 弹窗组件 触发器页面 -->
   <div class="container">
     <div class="box">
       <div class="typeselect">
+        <!-- 新触发器通用属性 -->
           <p>触发器基础信息</p>
           <div class="title">
           <span>触发器类型: </span>
@@ -67,6 +69,7 @@
       <div class="fg"></div>
 
       <div class="triggerdetail">
+        <!-- 新触发器专属信息 -->
         <p>触发器详情</p>
         <div class="detailbox">
           <div class="detail" v-if="isCustomTrigger === false">
@@ -190,6 +193,7 @@
   
 <script>
 import axios from 'axios';
+import { mapState } from 'vuex';
 import { Vue3CronPlusPicker } from 'vue3-cron-plus-picker';
 import 'vue3-cron-plus-picker/style.css';
 import { tr } from 'element-plus/es/locales.mjs';
@@ -209,14 +213,14 @@ export default {
   },
   data() {
     return {
-      oldtriggername:"",
-      oldtriggergroup:"",
+      oldtriggername:"", // 旧触发器名称
+      oldtriggergroup:"", // 旧触发器分组
 
       priority: "", // 任务优先级
       startTime: "", // 开始时间
       endTime: "", // 结束时间
 
-      selecttrigger: "",
+      selecttrigger: "", // 选择的触发器类型
       // 是否使用自定义触发器的选项
       isCustomTrigger: false,
       triggers: [], // 触发器列表
@@ -232,14 +236,14 @@ export default {
 
       // CronTrigger 特定属性
       cronexpression: "", // cron 表达式
-      showCron:false,
-			expression:"* * * * * ? *",
+      showCron:false, // 是否显示 Cron 表达式选择器
+      expression:"* * * * * ? *", // 默认 Cron 表达式
 
       // CalendarIntervalTrigger 特定属性
       calendartime: "second", // 默认时间单位为秒
       calendarnum: "", // 间隔次数
-      preserveHourOfDayAcrossDaylightSavings: "false",
-      skipDayIfHourDoesNotExist: "false",
+      preserveHourOfDayAcrossDaylightSavings: "false", // 是否在夏令时期间保持小时不变
+      skipDayIfHourDoesNotExist: "false", // 当小时不存在时是否跳过这一天
       timezone: "Asia/Shanghai", // 时区
 
       // DailyTimeIntervalTrigger 特定属性
@@ -249,11 +253,15 @@ export default {
       DayStartTime: "", // 当天开始时间
       DayEndTime: "", // 当天结束时间
       dailyworkday: [], // 工作日选择, 数组因为是多选框
-      all: false,
-      workday: false,
-      weekend: false,
-      Info:{},
+      all: false, // 是否选择每一天
+      workday: false, // 是否选择工作日
+      weekend: false, // 是否选择周末
+
+      Info:{}, // 触发器信息对象
     };
+  },
+  computed: {
+    ...mapState(['baseURL']),
   },
   watch: {
     jobinfo: {
@@ -270,6 +278,8 @@ export default {
     }
   },
   methods: {
+
+    //设置开始时间禁用项
     disabledStartDate(time) {
       // 获取当前日期
       const today = new Date();
@@ -279,6 +289,7 @@ export default {
       return time.getTime() < today.getTime();
     },
 
+    //设置结束时间禁用项
     disabledEndDate(time) {
       // 获取开始时间
       const startTime = new Date(this.startTime);
@@ -288,6 +299,7 @@ export default {
       return time.getTime() <= startTime.getTime();
     },
 
+    //设置第三方cron组件可见性及数据传递
     openDialog () {
 			this.showCron = true;
 			if (this.cronexpression != ""){
@@ -300,10 +312,8 @@ export default {
 		fillValue(cronValue){
 			this.cronexpression = cronValue;
 		},
-    filterInput(value) {
-      // 使用正则表达式替换所有非数字字符为空字符串
-      this.priority = value.replace(/\D/g, '');
-    },
+
+    //设置DailyTimeIntervalTrigger dailyworkday 全选
     checkall(){
       if(this.all){
         this.dailyworkday = ["1","2","3","4","5","6","7"];
@@ -315,8 +325,9 @@ export default {
         this.weekend = false;
       }
     },
+
+    //设置DailyTimeIntervalTrigger dailyworkday的 工作日全选
     checkworkday(){
-      console.log('checkday4');
       if(this.workday){
         this.dailyworkday.push("1","2","3","4","5");
         this.dailyworkday = [...new Set(this.dailyworkday)];
@@ -333,6 +344,8 @@ export default {
         this.all = false;
       }
     },
+
+    //设置DailyTimeIntervalTrigger dailyworkday的 周日全选
     checkweekend(){
       if(this.weekend){
         this.dailyworkday.push("6","7");
@@ -348,8 +361,9 @@ export default {
       this.all = false;
     }
     },
+
+        //检查DailyTimeIntervalTrigger dailyworkday星期选项
     checkday() {
-      console.log('checkday');
       if (this.dailyworkday.includes("1") && this.dailyworkday.includes("2") && this.dailyworkday.includes("3") && this.dailyworkday.includes("4") && this.dailyworkday.includes("5")) {
         this.workday = true;
       } else {
@@ -366,18 +380,21 @@ export default {
         this.all = false;
       }
     },
+
+    //关闭弹窗
     back(){
-      console.log('111')
         this.$emit('close');
       },
+
+    //获取自定义触发器
     async getTrigger() {
       try {
-         const response = await axios.post("/task/Reflect/triggerclass",null,{
+         const response = await axios.post(this.baseURL + "/task/Reflect/triggerclass",null,{
           params: {
             type: this.selecttrigger,
           },
          });
-        console.log(response);
+        
         this.triggers = response.data.data;
 
         // 重置表单
@@ -387,19 +404,16 @@ export default {
         console.error;
       }
     },
-    async replace(){
-      console.log(this.oldtriggername);
-      console.log(this.oldtriggergroup);
 
-      console.log(this.checkTrigger());
+    //替换触发器
+    async replace(){
       if(await this.checkTrigger() === true){
         this.builInfo();
-        console.log(this.Info);
         try {
         const response = await axios.post(
-          "/task/Update/updateTrigger?oldtriggername=" +this.oldtriggername+"&oldtriggergroup="+this.oldtriggergroup,this.Info
+          this.baseURL + "/task/Update/updateTrigger?oldtriggername=" +this.oldtriggername+"&oldtriggergroup="+this.oldtriggergroup,this.Info
         );
-        console.log(response);
+        
         if(response.data.code == "200"){
           alert("更改成功");
           this.back();
@@ -417,6 +431,8 @@ export default {
 
       
     },
+
+    //检查触发器信息
     async checkTrigger(){
       if(this.isCustomTrigger === true){
         if(this.trigger === ""){
@@ -449,10 +465,10 @@ export default {
         }
         if (this.cronexpression !== "") {
           const response = await axios.post(
-            "/task/Util/cron-check?cron=" +
+            this.baseURL + "/task/Util/cron-check?cron=" +
               this.cronexpression
           );
-          console.log(response);
+          
           if (response.data.message === "cron表达式格式错误！") {
             alert("cron表达式不合法");
             return false;
@@ -472,6 +488,7 @@ export default {
       return true;
     },
 
+    //构建发送后端的信息
     builInfo(){
 
       this.Info.type = this.selecttrigger;
@@ -512,7 +529,6 @@ export default {
 },
   created() {
     this.getTrigger();
-    console.log(this.jobinfo);
     this.oldtriggername = this.jobinfo.triggername;
     this.oldtriggergroup = this.jobinfo.triggergroup;
     this.triggername = this.jobinfo.triggername;

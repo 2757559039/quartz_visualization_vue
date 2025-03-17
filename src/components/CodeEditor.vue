@@ -1,6 +1,6 @@
 <template>
+  <!-- 第三方代码编辑器 引用 -->
     <div class="code-editor">
-    <!-- <div class="code-editor"  :class="{ 'multi-line': lineten >= 1 }"> -->
       <Codemirror
         v-model:value="code"
         :options="cmOptions"
@@ -14,6 +14,7 @@
   
   <script>
   import Codemirror from 'codemirror-editor-vue3';
+  import { mapState } from 'vuex';
   // 引入基本样式和主题
   import 'codemirror/lib/codemirror.css';
   import 'codemirror/theme/idea.css';
@@ -26,8 +27,8 @@
   // 引入代码折叠相关资源
   import 'codemirror/addon/fold/foldcode.js';
   import 'codemirror/addon/fold/foldgutter.js';
-  import 'codemirror/addon/fold/brace-fold.js'; // 或者其他适合的折叠模式
-  
+  import 'codemirror/addon/fold/brace-fold.js'; 
+
   export default {
     name: 'CodeEditor',
     components: {
@@ -47,11 +48,10 @@
       return {
         code: this.modelValue || '',
         editorInstance: null, // 保存编辑器实例
-        // lineCount: 0,
-        // lineten:0,
       };
     },
     computed: {
+      
       cmOptions() {
         return {
           mode: this.getMode(this.language),
@@ -91,12 +91,6 @@
             cm.showHint();
           }
         });
-        // editor.on('change', () => {// 监听内容变化
-        //   this.lineCount = editor.lineCount();
-        //   if(this.lineCount>=10){
-        //     this.lineten = 1;
-        //   }
-        // });
       },
     },
     watch: {
@@ -120,29 +114,14 @@
   .code-editor {
     width: 90%;
     height: 500px;
-    /* overflow: auto; */
     border: 1px solid #ddd;
-    /* border-radius: 5px; */
-    /* margin-top: 20px; */
     font-size: 20px;
   }
 
   :deep(.CodeMirror-gutters){
     width: 30px;
   }
-  /* :deep(.CodeMirror-lines) {
-    padding-left: 30px;
-  }
 
-  .code-editor.multi-line :deep(.CodeMirror-lines) {
-    padding-left: 0px;
-  }
-  :deep(.CodeMirror-gutter-elt){
-    left:-30px !important;
-  }
-  .code-editor.multi-line :deep(.CodeMirror-gutter-elt) {
-    left:0px !important;
-  } */
   :deep(.CodeMirror-hints){
     z-index: 10111;
   }

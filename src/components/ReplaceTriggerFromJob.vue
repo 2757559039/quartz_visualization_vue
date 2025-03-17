@@ -1,8 +1,10 @@
 <template>
+    <!-- 替换触发器 弹窗组件 任务页面 -->
   <div class="container">
     <div class="box">
       <div class="typeselect">
           <p>触发器基础信息</p>
+          <!-- 选择将要替换的触发器 -->
           <div class="title">
             <span>旧触发器分组</span>
             <el-select v-model="oldtriggergroup"  placeholder="请选择旧触发器分组" @change="getTriggerName()" @focus="getTriggerGroup()">
@@ -25,6 +27,8 @@
             />
           </el-select>
           </div>
+
+          <!-- 触发器通用信息 -->
           <div class="title">
           <span>触发器类型: </span>
           <el-select v-model="selecttrigger" placeholder="请选择触发器类型" @change="getTrigger()">
@@ -88,6 +92,7 @@
 
       <div class="fg"></div>
 
+      <!-- 触发器专属信息 -->
       <div class="triggerdetail">
         <p>触发器详情</p>
         <div class="detailbox">
@@ -212,6 +217,7 @@
   
 <script>
 import axios from 'axios';
+import { mapState } from 'vuex';
 import { Vue3CronPlusPicker } from 'vue3-cron-plus-picker';
 import 'vue3-cron-plus-picker/style.css';
 import { tr } from 'element-plus/es/locales.mjs';
@@ -225,24 +231,24 @@ export default {
   },
   data() {
     return {
-      oldtriggergroups: [],
-      oldtriggernames: [],
-      oldtriggername:"",
-      oldtriggergroup:"",
+      oldtriggergroups: [], // 旧触发器分组列表
+      oldtriggernames: [], // 旧触发器名称列表
+      oldtriggername:"", // 选中的旧触发器名称
+      oldtriggergroup:"", // 选中的旧触发器分组
 
       priority: "", // 任务优先级
       startTime: "", // 开始时间
       endTime: "", // 结束时间
 
-      selecttrigger: "",
+      selecttrigger: "", // 选中的触发器类型
       // 是否使用自定义触发器的选项
       isCustomTrigger: false,
       triggers: [], // 触发器列表
       trigger: "", // 自定义触发器
 
       // 触发器名称和组名
-      triggername: "",
-      triggergroup: "",
+      triggername: "", // 新触发器名称
+      triggergroup: "", // 新触发器分组
 
       // SimpleTrigger 特定属性
       simpletimesecond: "", // 时间间隔秒数
@@ -250,14 +256,14 @@ export default {
 
       // CronTrigger 特定属性
       cronexpression: "", // cron 表达式
-      showCron:false,
-			expression:"* * * * * ? *",
+      showCron:false, // 是否显示 cron 表达式选择器
+      expression:"* * * * * ? *", // 默认 cron 表达式
 
       // CalendarIntervalTrigger 特定属性
       calendartime: "second", // 默认时间单位为秒
       calendarnum: "", // 间隔次数
-      preserveHourOfDayAcrossDaylightSavings: "false",
-      skipDayIfHourDoesNotExist: "false",
+      preserveHourOfDayAcrossDaylightSavings: "false", // 是否跨夏令时保留小时
+      skipDayIfHourDoesNotExist: "false", // 当小时不存在时是否跳过这一天
       timezone: "Asia/Shanghai", // 时区
 
       // DailyTimeIntervalTrigger 特定属性
@@ -267,16 +273,20 @@ export default {
       DayStartTime: "", // 当天开始时间
       DayEndTime: "", // 当天结束时间
       dailyworkday: [], // 工作日选择, 数组因为是多选框
-      all: false,
-      workday: false,
-      weekend: false,
-      Info:{},
+      all: false, // 是否选择每一天
+      workday: false, // 是否选择工作日
+      weekend: false, // 是否选择周末
+      Info:{}, // 触发器信息对象
     };
+  },
+  computed: {
+    ...mapState(['baseURL']),
   },
   watch: {
   },
   methods: {
 
+    //设置开始时间禁用项
     disabledStartDate(time) {
       // 获取当前日期
       const today = new Date();
@@ -286,6 +296,7 @@ export default {
       return time.getTime() < today.getTime();
     },
 
+    //设置结束时间禁用项
     disabledEndDate(time) {
       // 获取开始时间
       const startTime = new Date(this.startTime);
@@ -295,26 +306,27 @@ export default {
       return time.getTime() <= startTime.getTime();
     },
 
-
+    //获取触发器分组列表
     getTriggerGroup(){
-      axios.post("/task/Select/triggergroupall").then((response) => {
-        console.log(response);
+      axios.post(this.baseURL + "/task/Select/triggergroupall").then((response) => {
+        
         this.oldtriggergroups = response.data.data;
       });
     },
 
+    //获取触发器名列表
     getTriggerName(){
-      console.log(this.oldtriggergroup);
-      axios.post("/task/Select/Triggername",null,{
+      axios.post(this.baseURL + "/task/Select/Triggername",null,{
         params: {
           triggergroup  : this.oldtriggergroup,
         },
       }).then((response) => {
-        console.log(response);
+        
         this.oldtriggernames = response.data.data;
       });
     },
 
+    //第三方cron表达式组件可见性及数据传递
     openDialog () {
 			this.showCron = true;
 			if (this.cronexpression != ""){
@@ -327,10 +339,8 @@ export default {
 		fillValue(cronValue){
 			this.cronexpression = cronValue;
 		},
-    filterInput(value) {
-      // 使用正则表达式替换所有非数字字符为空字符串
-      this.priority = value.replace(/\D/g, '');
-    },
+
+    //设置DailyTimeIntervalTrigger dailyworkday 全选
     checkall(){
       if(this.all){
         this.dailyworkday = ["1","2","3","4","5","6","7"];
@@ -342,8 +352,9 @@ export default {
         this.weekend = false;
       }
     },
+
+    //设置DailyTimeIntervalTrigger dailyworkday的 工作日全选
     checkworkday(){
-      console.log('checkday4');
       if(this.workday){
         this.dailyworkday.push("1","2","3","4","5");
         this.dailyworkday = [...new Set(this.dailyworkday)];
@@ -360,6 +371,8 @@ export default {
         this.all = false;
       }
     },
+
+    //设置DailyTimeIntervalTrigger dailyworkday的 周日全选
     checkweekend(){
       if(this.weekend){
         this.dailyworkday.push("6","7");
@@ -375,8 +388,9 @@ export default {
       this.all = false;
     }
     },
+
+    //检查DailyTimeIntervalTrigger dailyworkday星期选项
     checkday() {
-      console.log('checkday');
       if (this.dailyworkday.includes("1") && this.dailyworkday.includes("2") && this.dailyworkday.includes("3") && this.dailyworkday.includes("4") && this.dailyworkday.includes("5")) {
         this.workday = true;
       } else {
@@ -393,18 +407,21 @@ export default {
         this.all = false;
       }
     },
+
+    //关闭弹窗
     back(){
-      console.log('111')
         this.$emit('close');
       },
+
+      //获取自定义触发器
     async getTrigger() {
       try {
-         const response = await axios.post("/task/Reflect/triggerclass",null,{
+         const response = await axios.post(this.baseURL + "/task/Reflect/triggerclass",null,{
           params: {
             type: this.selecttrigger,
           },
          });
-        console.log(response);
+        
         this.triggers = response.data.data;
 
         // 重置表单
@@ -414,19 +431,16 @@ export default {
         console.error;
       }
     },
-    async replace(){
-      console.log(this.oldtriggername);
-      console.log(this.oldtriggergroup);
 
-      console.log(this.checkTrigger());
+    //替换触发器
+    async replace(){
       if(await this.checkTrigger() === true){
         this.builInfo();
-        console.log(this.Info);
         try {
         const response = await axios.post(
-          "/task/Update/updateTrigger?oldtriggername=" +this.oldtriggername+"&oldtriggergroup="+this.oldtriggergroup,this.Info
+          this.baseURL + "/task/Update/updateTrigger?oldtriggername=" +this.oldtriggername+"&oldtriggergroup="+this.oldtriggergroup,this.Info
         );
-        console.log(response);
+        
         if(response.data.data == 'success'){
           alert("更改成功");
           this.back();
@@ -440,10 +454,10 @@ export default {
         console.error;
       }
       }
-      // const 一个设计 jobinfo
-
-      
     },
+
+
+    //检查触发器信息
     async checkTrigger(){
 
       if(this.oldtriggergroup === "" || this.oldtriggername === ""){
@@ -482,10 +496,10 @@ export default {
         }
         if (this.cronexpression !== "") {
           const response = await axios.post(
-            "/task/Util/cron-check?cron=" +
+            this.baseURL + "/task/Util/cron-check?cron=" +
               this.cronexpression
           );
-          console.log(response);
+          
           if (response.data.message === "cron表达式格式错误！") {
             alert("cron表达式不合法");
             return false;
@@ -505,6 +519,7 @@ export default {
       return true;
     },
 
+    //构建发送后端的信息
     builInfo(){
       this.Info.oldtriggername = this.oldtriggername;
       this.Info.oldtriggergroup = this.oldtriggergroup;
@@ -548,7 +563,6 @@ export default {
   created() {
     this.getTrigger();
     this.getTriggerGroup();
-    console.log(this.jobinfo);
   },
 };
 </script>

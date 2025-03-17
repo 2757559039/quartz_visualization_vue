@@ -1,18 +1,28 @@
 <template>
+  <!-- 任务管理页面 -->
   <div class="container">
+    <!-- 顶部 -->
     <div class="jumpBox">
+      <!-- 页面跳转链接 -->
       <el-link :underline="false" @click="Go('TriggerIndex')">前往触发器管理页面<el-icon><Link /></el-icon></el-link>
+      <el-link :underline="false" @click="Go('uploadIP')">当前后端地址--{{ baseURL }}</el-link>
+
       <div class="modalButtonBox">
+        <!-- 功能弹窗按钮 -->
         <el-button @click="jobModal" type="primary" class="addbtn">添加任务</el-button>
         <el-button @click="onloadModal" type="primary" class="addbtn">挂载触发器</el-button>
+
+        <!-- 页面跳转按钮 -->
         <el-button type="primary" @click="Go('VirtualPlatform')">虚拟管理平台</el-button>
         <el-button type="primary" @click="Go('sseListener')">监控平台</el-button>
       </div>
     </div>
 
     <div class="topbox">
+      <!-- 页面标题 -->
       <p class="title">任务管理</p>
       <div class="Button3Box">
+        <!-- 任务全局管理 -->
         <el-button type="success" @click="showConfirm('resumeAllJob')" class="jobbtn">恢复所有任务</el-button>
         <el-button type="warning" @click="showConfirm('pauseAllJob')" class="jobbtn">停止所有任务</el-button>
         <el-button type="danger" @click="showConfirm('deleteAllJob')" class="jobbtn">删除所有任务</el-button>
@@ -20,8 +30,10 @@
     </div>
 
     <div class="conterBox"> 
+      <!-- 任务展示列表 筛选 -->
       <p class="selectedtitle">条件筛选</p>
       <div class="selectBox"> 
+        <!-- 选择任务分组 -->
         <div style="display: flex; flex-direction: column; align-items: center;"> 
           <el-select v-model="selectGroup" class="select" @change="SelectGroup" placeholder="任务分组: 全部" @focus="getGroups()">
             <el-option :label="'任务分组: 全部'" :value=null />
@@ -29,18 +41,17 @@
           </el-select>
         </div>
 
+        <!-- 选择任务名 -->
         <div style="display: flex; flex-direction: column; align-items: center;"> 
           <el-select v-model="selectName" class="select" :placeholder="defaultName" @focus="getJobName()">
             <el-option :label="defaultName" :value=null />
-            <el-option v-for="item in names" :key="item" :label="'任务分组: ' + item" :value="item"/>
+            <el-option v-for="item in names" :key="item" :label="'任务名: ' + item" :value="item"/>
           </el-select>
         </div>
         
+        <!-- 上述条件下的模胡搜索 -->
         <div class="inputnox" >
           <el-input v-model="selected" class="input1" placeholder="请输入">
-            <!-- <template #prefix>
-              <el-icon class="el-input__icon"><search /></el-icon>
-            </template> -->
           </el-input>
           <el-button type="primary" @click="search()">
             <el-icon style="vertical-align: middle">
@@ -51,13 +62,15 @@
       </div>
 
       <div class="box"> 
+        <!-- 任务列表展示 -->
         <el-table :data="Table" class="JobBox" @expand-change="handleExpandChange" :expand-row-keys="expandedRows" :row-key="getRowKey">
             <el-table-column type="expand">
+              <!-- 二级展示表单 展示该任务下属的触发器 -->
             <template #default="props">                                                                                                                                                                                                                                                                                                                                                                
               <el-table :data="props.row.triggerList" class="c" empty-text="暂时无数据,请确认该任务是否有触发器" v-loading="!props.row.loadDetails" element-loading-text="加载中..."  element-loading-background="rgba(255, 255, 255)">
               <el-table-column label="触发器分组" sortable prop="triggergroup" min-width="16" align="center"/>
               <el-table-column label="触发器名" sortable prop="triggername" min-width="16" align="center"/>
-              <el-table-column label="任务类型" sortable prop="type" min-width="16" align="center"/>
+              <el-table-column label="触发器类型" sortable prop="type" min-width="16" align="center"/>
               <el-table-column label="开始时间" sortable prop="startime" min-width="16" align="center"/>
               <el-table-column label="结束时间" sortable prop="endtime" min-width="16" align="center"/>
               <el-table-column label="触发器状态" sortable prop="triggers_state" min-width="16" align="center"/>
@@ -69,11 +82,13 @@
               </el-table>
             </template>
             </el-table-column>
+            <!-- 任务属性 -->
           <el-table-column label="任务分组" sortable prop="jobgroup" min-width="1" align="center"/>
           <el-table-column label="任务名" sortable prop="jobname" min-width="1" align="center"/>
           <el-table-column label="任务类名" sortable prop="jobclassname" min-width="1" align="center"/>
           <el-table-column label="任务描述" prop="description" min-width="3.5" align="center"/>
           <el-table-column label="触发器数" sortable prop="triggersNumbers" min-width="1" align="center"/>
+          <!-- 任务操作 -->
           <el-table-column label="任务操作" min-width="2.5" align="center">
             <template #default="scope">
               <div style="display: flex;justify-content: space-between;">
@@ -121,7 +136,6 @@
     
     <TriggerModal ref="triggerModal" class="trmod" @getWhenAdd="SelectGroup" />
     <JobModal ref="jobModal" class="jobmod" @getWhenAdd="SelectGroup"/>
-    <UpLoad ref="uploadModal" class="uploadmod"/>
     <transition name="modal">
       <div v-if="showModal" class="modal-mask">
         <div class="modal-wrapper">
@@ -153,50 +167,37 @@
         </div>
       </div>
     </transition>
-
-    <transition name="modal">
-      <div v-if="showupload" class="modal-mask">
-        <div class="modal-wrapper">
-          <div class="modal-container1">
-
-            <div class="modal-body1">
-              <UpLoad v-if="showupload"
-              @close="closeshowupload"></UpLoad>
-          </div>
-            </div>
-          </div>
-        </div>
-    </transition>
   </div>
 </template>
     
   <script>
-  // 回调
 import axios from "axios";
+import { mapState, mapActions } from 'vuex';
 import ReplaceTriggerFromJob from "../components/ReplaceTriggerFromJob.vue";
 import JobDetail from "../components/JobDetail.vue";
-import UpLoad from "../components/upload.vue";
 import TriggerModal from '../components/onloadtrigger.vue';
 import JobModal from '../components/AddJob.vue';
 export default {
   components: {
     ReplaceTriggerFromJob,
     JobDetail,
-    UpLoad,
     TriggerModal,
     JobModal,
   },
   data() {
   return {
-    Jobs: [],
+    Jobs: [], //任务列表
     expandedRows: [], // 用于存储当前展开的行的唯一标识
-    groups: [],
-    names: [],
-    selectedJob: {},
-    selectGroup: "",
-    defaultName:'请先选择任务分组',
-    selectName: null,
-    selected: "",
+    selectedJob: {}, //当前选择任务
+
+    groups: [], //任务分组列表
+    names: [],  //任务名列表
+    selectGroup: "", //当前选择分组
+    selectName: null, //当前选择任务名
+    defaultName:'请先选择任务分组', //任务名选择器提示
+    selected: "",  //模胡搜索条件
+
+    //各个弹窗可见性控制
     showModal: false,
     showjobDetail: false,
     showupload: false,
@@ -204,35 +205,30 @@ export default {
   };
 },
   computed: {
+    ...mapState(['baseURL']),
+    
+    //任务实际展示属性
     Table() {
       if (this.selectName) {
       return this.Jobs.filter(job => job.jobname === this.selectName);
       }
       return this.Jobs;
-    }
+    },
+
   },
   methods: {
 
+    //跳转到触发器页面,展示选定的触发器
     async goToTriggerIndex(row) {
-      console.log(row);
       this.$router.push({ 
         path: '/TriggerIndex', 
         query: { nameForJob: row.triggername, groupForJob: row.triggergroup } 
       });
     },
 
+    //模胡搜索
     async search() {
-      // await this.SelectGroup();
-
-      // if (this.selected !== "") {
-      //   console.log(this.selected);
         const searchTerm = this.selected.toLowerCase();
-      //   this.jobs = this.Jobs.filter(job => 
-      //     job.jobname.toLowerCase().includes(searchTerm) ||
-      //     job.jobgroup.toLowerCase().includes(searchTerm) ||
-      //     job.jobclassname.toLowerCase().includes(searchTerm) ||
-      //     job.description.toLowerCase().includes(searchTerm)
-      //   );
         let url;
         if (this.selectGroup !== null && this.selectGroup !== "" && this.selectGroup !== undefined) { 
           url =  "/task/Select/FINDjobBYgroup?group=" + this.selectGroup;
@@ -240,13 +236,15 @@ export default {
         else{
           url =  "/task/Select/jobs";
         }
-        this.Jobs = (await axios.post(url)).data.data.filter(job => 
+        this.Jobs = (await axios.post(this.baseURL + url)).data.data.filter(job => 
           job.jobname.toLowerCase().includes(searchTerm) ||
           job.jobgroup.toLowerCase().includes(searchTerm) ||
           job.jobclassname.toLowerCase().includes(searchTerm) ||
           (job.description && job.description.toLowerCase().includes(searchTerm))
         );
     },
+
+    //行的收展操作
     handleExpandChange(row, expanded) {
       const rowKey = this.getRowKey(row);
 
@@ -257,33 +255,30 @@ export default {
           this.load(row);
         }
         else {
-        console.log(this.expandedRows);
         // 如果行被折叠，则从 expandedRows 数组中移除
         this.expandedRows = this.expandedRows.filter(key => key !== rowKey);
         }
        }
-
-      // if (expanded) {  // 根据loadDetails判定是否已经加载了数据，并且只有在展开时才加载数据
-      //   this.load(row);
-      // }
     },
+
+    //获取行的唯一标识
     getRowKey(row) {
       // 返回行的唯一标识，可以是任意唯一的字段
       return `${row.jobname}-${row.jobgroup}`;
     },
+
+    //获取二级展示数据
     load(row) {
-      console.log('load')
       // 动态添加 triggerList 和 loadDetails 属性
       row.triggerList = row.triggerList || [];
       row.loadDetails = false;
 
-      axios.post(`/task/Select/FINDtriBYjob`, null, {
+      axios.post(this.baseURL + `/task/Select/FINDtriBYjob`, null, {
         params: {
           jobname: row.jobname,
           jobgroup: row.jobgroup
         }
       }).then(response => {
-        console.log(response)
         row.triggerList = response.data.data;
         row.loadDetails = true; // 加载成功之后更新标识
 
@@ -312,24 +307,26 @@ export default {
       });
     },
 
+    //跳转页面
     Go(address){
       this.$router.push({ path: '/'+address });
     },
+
+    //添加任务,挂载触发器弹窗可见性
     onloadModal() {
       this.$refs.triggerModal.onloadModal();
     },
     jobModal() {
       this.$refs.jobModal.jobModal();
     },
-    uploadModal() {
-      this.$refs.uploadModal.uploadModal();
-    },
+
+    //获取全部任务信息
     async getUsedJob() {
       try {
         const response = await axios.post(
-          "/task/Select/jobs"
+          this.baseURL + "/task/Select/jobs"
         );
-        console.log(response);
+        
         this.Jobs = response.data.data;
 
         // 重置表单
@@ -339,14 +336,14 @@ export default {
         console.error;
       }
     },
+
+    //获取任务分组
     async getGroups() {
       this.selected = "";
       try {
         const response = await axios.post(
-          "/task/Select/jobgroupall"
+          this.baseURL + "/task/Select/jobgroupall"
         );
-        console.log(response)
-        console.log(response)
         this.groups = response.data.data;
         // 重置表单
       } catch (error) {
@@ -356,8 +353,8 @@ export default {
       }
     },
 
+    //按分组获取任务
     async SelectGroup() {
-      console.log(this.selectGroup);
       if(this.selectGroup == null || this.selectGroup == "" || this.selectGroup == undefined){
         this.getUsedJob();
         this.expandedRows = [];
@@ -369,10 +366,10 @@ export default {
       }
       try {
         const response = await axios.post(
-          "/task/Select/FINDjobBYgroup?group=" + this.selectGroup)
+          this.baseURL + "/task/Select/FINDjobBYgroup?group=" + this.selectGroup)
           this.Jobs = response.data.data;
           this.expandedRows = [];
-          console.log(response);
+          
         this.selectName = null;
         await this.getJobName();
         await this.getJobName();
@@ -383,26 +380,26 @@ export default {
       }
     },
 
+    //按分组获取任务名
     async getJobName(){
-      console.log(this.selectGroup)
       if(this.selectGroup === '' || !this.selectGroup)
         return;
       const response = await axios.post(
-          "/task/Select/jobDetailname?jobgroup=" + this.selectGroup);
-          console.log(response)
+          this.baseURL + "/task/Select/jobDetailname?jobgroup=" + this.selectGroup);
           this.names = response.data.data;
           this.defaultName = '请选择任务名';
     },
 
+    //立即执行一次任务
     async resumeJob(row) {
       try {
         const response = await axios.post(
-          "/task/Start/resumeNow?name=" +
+          this.baseURL + "/task/Start/resumeNow?name=" +
           row.jobname +
             "&group=" +
           row.jobgroup
         ).then(response => {
-          console.log(response);
+          
           if(response.data.data == 'success'){
             this.$message({
               showClose: true,
@@ -429,15 +426,17 @@ export default {
         console.error;
       }
     },
+
+    //恢复任务
     async startNow(row) {
       try {
         const response = await axios.post(
-          "/task/Start/resume?name=" +
+          this.baseURL + "/task/Start/resume?name=" +
           row.jobname +
             "&group=" +
           row.jobgroup
         ).then(response => {
-          console.log(response);
+          
           if(response.data.data == 'success'){
           this.$message({
             showClose: true,
@@ -460,9 +459,6 @@ export default {
           this.load(row);
         }
         });
-
-
-
         // 重置表单
       } catch (error) {
         // 处理网络错误或其他错误
@@ -470,15 +466,17 @@ export default {
         console.error;
       }
     },
+
+    //暂停任务
     async pauseJob(row) {
       try {
         const response = await axios.post(
-          "/task/Pause/job?jobname=" +
+          this.baseURL + "/task/Pause/job?jobname=" +
           row.jobname +
             "&jobgroup=" +
           row.jobgroup
         ).then(response => {
-          console.log(response);
+          
 
           if(response.data.data == 'success'){
             this.$message({
@@ -510,15 +508,17 @@ export default {
         console.error;
       }
     },
+
+    // 删除任务
     async deleteJob(row) {
       try {
         const response = await axios.post(
-          "/task/Delete/job?name=" +
+          this.baseURL + "/task/Delete/job?name=" +
           row.jobname +
             "&group=" +
           row.jobgroup
         );
-        console.log(response);
+        
         if(response.data.data == 'success'){
           this.$message({
             showClose: true,
@@ -545,8 +545,9 @@ export default {
       }
     },
 
+
+    //替换触发器弹窗可见性及数据传递
     replacetrigger(row) {
-      // 设置要恢复的作业信息
       this.selectedJob = row;
       this.showModal = true;
     },
@@ -556,8 +557,8 @@ export default {
       this.showModal = false;
     },
 
+    //更新任务详情弹窗可见性及数据传递
     updatejob(row) {
-      // 设置要恢复的作业信息
       this.selectedJob = row;
       this.showjobDetail = true;
     },
@@ -567,15 +568,7 @@ export default {
       this.showjobDetail = false;
     },
 
-    upload() {
-      this.showupload = true;
-    },
-
-    closeshowupload() {
-      // 关闭弹窗
-      this.showupload = false;
-    },
-    //二级弹窗
+    //任务操作二级确认弹窗
     showConfirm(action, row = null) {
       const actionMap = {
         resumeJob: '立即执行一次',
@@ -612,15 +605,23 @@ export default {
         }
       }).catch(() => {
         // 用户点击“取消”按钮
-        console.log('取消操作');
+        this.$message({
+            showClose: true,
+            message: '操作取消',
+            grouping: true,
+            grouping: true,
+            type: 'info'
+          });
       });
     },
+
+    //恢复所有任务
     async resumeAllJob() {
       try {
         const response = await axios.post(
-          "/task/Start/resumeall"
+          this.baseURL + "/task/Start/resumeall"
         );
-        console.log(response);
+        
         //this.getUsedJob();
         this.expandedRows = [];
         this.resumeall = [];
@@ -632,12 +633,14 @@ export default {
         console.error;
       }
     },
+
+    //暂停所有任务
     async pauseAllJob() {
       try {
         const response = await axios.post(
-          "/task/Pause/alljob"
+          this.baseURL + "/task/Pause/alljob"
         );
-        console.log(response);
+        
         //this.getUsedJob();
         this.expandedRows = [];
         this.resumeall = [];
@@ -649,12 +652,14 @@ export default {
         console.error;
       }
     },
+
+    // 删除所有任务
     async deleteAllJob() {
       try {
         const response = await axios.post(
-          "/task/Delete/alljob"
+          this.baseURL + "/task/Delete/alljob"
         );
-        console.log(response);
+        
         this.getUsedJob();
         this.resumeall = [];
         this.checkAllPaused()
@@ -665,12 +670,14 @@ export default {
         console.error;
       }
     },
+
+    //获取是否处于所有任务暂停状态
     async checkAllPaused() {
   try {
     const response = await axios.post(
-      "/task/Select/isAllPaused"
+      this.baseURL + "/task/Select/isAllPaused"
     );
-    console.log(response);
+    
     this.isAllPaused = response.data.data; 
   } catch (error) {
     console.error("请求失败，请检查网络连接", error);
@@ -690,6 +697,7 @@ watch: {
   },
 },
 
+  // 初始化
   init(){
     this.getUsedJob();
     this.expandedRows = [];
@@ -705,12 +713,6 @@ watch: {
       vm.init();
     });
   }
-  // mounted() {
-  //   this.getUsedJob();
-  //   this.expandedRows = [];
-  //   this.getGroups();
-  //   this.checkAllPaused();
-  // },
 };
 </script>
   
@@ -721,9 +723,6 @@ watch: {
   margin: 0;
   padding: 0;
   margin-left: 10%;
-  /* display : flex;
-    flex-direction: column;
-    align-items: center; */
   overflow: auto;
   background: rgb(255, 255, 255);
 }

@@ -1,8 +1,10 @@
 <!-- 脚本控制 -->
 <template>
+   <!-- 虚拟管理平台  脚本管理-->
   <div class="unerected-list">
     <!-- 搜索框和筛选框 -->
     <div class="search-filter-type">
+      <!-- 筛选 脚本类名输入 -->
       <el-input
         v-model="searchKeyword"
         placeholder="搜索类名"
@@ -13,7 +15,7 @@
           <el-button type="primary" icon="Search" @click="applyFilter"></el-button>
         </template>
       </el-input>
-
+    <!-- 筛选 脚本类型选择 -->
       <el-select
         v-model="filterCriteria"
         placeholder="类型：全部"
@@ -27,6 +29,7 @@
         />
       </el-select>
 
+      <!-- 筛选 脚本状态选择 -->
       <el-select
         v-model="filterCriteria2"
         placeholder="状态：全部"
@@ -41,7 +44,7 @@
       </el-select>
     </div>
 
-    <!-- 表格 -->
+    <!-- 表格 脚本管理 -->
     <el-table
       :data="filteredTableData"
       stripe
@@ -79,6 +82,7 @@
 
 <script>
 import axios from 'axios';
+import { mapState } from 'vuex';
 import UpLoad from './upload.vue';
 
 export default {
@@ -92,50 +96,58 @@ export default {
   },
   data() {
     return {
-      tableData: [],
-      filteredTableData: [],
-      searchKeyword: '',
-      filterCriteria: '',
-      filterCriteria2: '',
+      filteredTableData: [], // 脚本列表
+      searchKeyword: '', // 搜索关键词
+      filterCriteria: '', // 筛选类型
+      filterCriteria2: '', // 筛选状态
       filterOptions: [
-        { label: '类型：全部', value: '' },
-        { label: '类型：job', value: 'job' },
-        { label: '类型：job_detail', value: 'job_detail' },
-        { label: '类型：SimpleTrigger', value: 'SimpleTrigger' },
-        { label: '类型：CalendarIntervalTrigger', value: 'CalendarIntervalTrigger' },
-        { label: '类型：DailyTimeIntervalTrigger', value: 'DailyTimeIntervalTrigger' },
-        { label: '类型：CronTrigger', value: 'CronTrigger' },
-        { label: '类型：SimpleUpdateTrigger', value: 'SimpleUpdateTrigger' },
-        { label: '类型：CalendarUpdateIntervalTrigger', value: 'CalendarUpdateIntervalTrigger' },
-        { label: '类型：DailyUpdateTimeIntervalTrigger', value: 'DailyUpdateTimeIntervalTrigger' },
-        { label: '类型：CronUpdateTrigger', value: 'CronUpdateTrigger' },
+      { label: '类型：全部', value: '' }, // 筛选选项1：全部类型
+      { label: '类型：job', value: 'job' }, // 筛选选项1：job类型
+      { label: '类型：job_detail', value: 'job_detail' }, // 筛选选项1：job_detail类型
+      { label: '类型：SimpleTrigger', value: 'SimpleTrigger' }, // 筛选选项1：SimpleTrigger类型
+      { label: '类型：CalendarIntervalTrigger', value: 'CalendarIntervalTrigger' }, // 筛选选项1：CalendarIntervalTrigger类型
+      { label: '类型：DailyTimeIntervalTrigger', value: 'DailyTimeIntervalTrigger' }, // 筛选选项1：DailyTimeIntervalTrigger类型
+      { label: '类型：CronTrigger', value: 'CronTrigger' }, // 筛选选项1：CronTrigger类型
+      { label: '类型：SimpleUpdateTrigger', value: 'SimpleUpdateTrigger' }, // 筛选选项1：SimpleUpdateTrigger类型
+      { label: '类型：CalendarUpdateIntervalTrigger', value: 'CalendarUpdateIntervalTrigger' }, // 筛选选项1：CalendarUpdateIntervalTrigger类型
+      { label: '类型：DailyUpdateTimeIntervalTrigger', value: 'DailyUpdateTimeIntervalTrigger' }, // 筛选选项1：DailyUpdateTimeIntervalTrigger类型
+      { label: '类型：CronUpdateTrigger', value: 'CronUpdateTrigger' }, // 筛选选项1：CronUpdateTrigger类型
       ],
       filterOptions2: [
-        { label: '状态：全部', value: '' },
-        { label: '状态：已安装', value: true },
-        { label: '状态：未安装', value: false },
+      { label: '状态：全部', value: '' }, // 筛选选项2：全部状态
+      { label: '状态：已安装', value: true }, // 筛选选项2：已安装状态
+      { label: '状态：未安装', value: false }, // 筛选选项2：未安装状态
       ],
     };
   },
+  computed: {
+    ...mapState(['baseURL']),
+  },
   methods: {
+    //获取脚本列表
     async fetchData() {
       try {
         const className=this.searchKeyword;
         const type = this.filterCriteria;
         const beanState = this.filterCriteria2;
-        const response = await axios.post(`/scriptBuilder/selectAllScript?type=${type}&className=${className}&beanState=${beanState}`);
+        const response = await axios.post(this.baseURL + `/scriptBuilder/selectAllScript?type=${type}&className=${className}&beanState=${beanState}`);
         this.filteredTableData = response.data.data;
       } catch (error) {
         console.error('数据获取失败:', error);
       }
     },
+
+    //筛选
     applyFilter() {
       this.fetchData();
-      console.log(this.searchKeyword);
     },
+
+    //格式化状态
     formatBeanState(row, column, cellValue) {
       return cellValue ? '已安装' : '未安装';
     },
+
+    //安装脚本
     handleInstall(row) {
       ElMessageBox.confirm(
         `确定要安装类 ${row.className} 吗？`,
@@ -148,9 +160,9 @@ export default {
       )
         .then(() => {
           const className = row.className;
-          axios.post(`/groovyBean/loadGroovyBean?className=${className}`)
+          axios.post(this.baseURL + `/groovyBean/loadGroovyBean?className=${className}`)
             .then(response => {
-              console.log(response);
+              
               if (response.data.code === '200') {
                 ElMessage({
                   message: '安装成功',
@@ -179,6 +191,8 @@ export default {
           });
         });
     },
+
+    //删除脚本
     handleDelete(row) {
       ElMessageBox.confirm(
         `确定要删除类 ${row.className} 吗？`,
@@ -191,7 +205,7 @@ export default {
       )
         .then(() => {
           const id = row.id;
-          axios.post(`/scriptBuilder/deleteScript?id=${id}`)
+          axios.post(this.baseURL + `/scriptBuilder/deleteScript?id=${id}`)
             .then(response => {
               if (response.data.code === '200') {
                 ElMessage({
@@ -221,6 +235,8 @@ export default {
           });
         });
     },
+
+    //跳转脚本详情
     handleAlter(row) {
       this.$refs.uploadModal.uploadModal(row);
     },
@@ -232,13 +248,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-// .unerected-list {
-//   margin-top: 20px;
-//   padding: 20px;
-//   background-color: #ffffff;
-//   border-radius: 8px;
-//   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-// }
 
 .search-filter-type {
   margin-bottom: 20px;

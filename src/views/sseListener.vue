@@ -1,10 +1,13 @@
 <template>
+  <!-- 监控器模块页面 -->
   <div class="sse-lister">
     <div> 
       <p class="tetle">监控器模块</p>
+      <el-link class="title" :underline="false" @click="go('uploadIP')">当前后端地址--{{ baseURL }}</el-link>
     </div>
     <div class="see-select">
-      <div class="selectBox"> 
+      <div class="selectBox">
+         <!--选择key  -->
         <el-select v-model="key" placeholder="请选择key" @focus="getkeys" @change="getRecordDates">
           <el-option
             v-for="item in keys"
@@ -14,6 +17,7 @@
           ></el-option>
         </el-select>
 
+        <!-- 选择recordDate -->
         <el-select v-model="recordDate" placeholder="请选择recordDate" @focus="getRecordDates">
           <el-option
             v-for="item in recordDates"
@@ -24,24 +28,26 @@
         </el-select>
       </div>
 
+      <!-- 操作按钮 -->
       <div class="buttonBox"> 
         <el-button type="info" @click="replace">确认</el-button>
         <el-button type="info" @click="clean">清空</el-button>
         <el-button type="info" @click="close">关闭</el-button>  
       </div>
     </div>
-    <!-- <div class="see-text"> -->
+    <!-- 监控数据展示 -->
+      <p class="text">历史监控如下</p>
       <div class="virtual-list" > 
-        <!-- <p> {{ historyMessages }}</p> -->
         <p v-for="message in historyMessages" :key="message">{{ message }}</p>
       </div>
-
+      <p class="text">实时监控如下</p>
       <div  class="virtual-list1"> 
         <p v-for="message in messages" :key="message">{{ message }}</p>
       </div>
     </div>
 
   <div class="jumpButtonBox"> 
+    <!-- 页面跳转按钮 -->
     <el-button type="info" @click="go('JobIndex')">任务管理</el-button>
     <el-button type="info" @click="go('TriggerIndex')">触发器管理</el-button>
     <el-button type="info" @click="go('VirtualPlatform')">虚拟管理平台</el-button>  
@@ -50,6 +56,7 @@
 
 <script>
 import axios from "axios"; // 确保引入 axios
+import { mapState, mapActions } from 'vuex';
 import { defineComponent } from 'vue';
 
 export default defineComponent({
@@ -59,22 +66,26 @@ export default defineComponent({
     return {
       keys: [], // 用于存储key
       key: "", // 用于存储当前选中的key
-      recordDates: [],
-      recordDate: "",
-      messages: [], // 用于存储接收到的消息
-      historyMessages: '',
+      recordDates: [], //recordDates列表
+      recordDate: "", //选择的recordDates
+      messages: [], // 用于存储接收到的实时监控信息`
+      historyMessages: '', // 用于存储接收到的历史监控信息
       source: null, // EventSource 实例
       cancelTokenSource: null // 用于取消 Axios 请求
     };
   },
   computed: {
+    ...mapState(['baseURL']),
   },
   methods: {
+
+    //页面跳转
     go(address) {
       this.close();
       this.$router.push({ path: '/' + address });
     },
 
+    //时间格式 yyyy-mm-dd
     getNowFormatDate() {
       const date = new Date();
       const year = date.getFullYear();
@@ -83,11 +94,12 @@ export default defineComponent({
       return `${year}-${month}-${day}`;
     },
 
+    //获取recordDates
     async getRecordDates() {
       if (this.key === "") return;
       this.cancelTokenSource = axios.CancelToken.source();
       try {
-        const response = await axios.post(`/sse/getLinkRecordDateFromDB?key=` + this.key, {
+        const response = await axios.post(this.baseURL + `/sse/getLinkRecordDateFromDB?key=` + this.key, {
           cancelToken: this.cancelTokenSource.token
         });
         let res = new Set(response.data.data);
@@ -107,6 +119,7 @@ export default defineComponent({
       }
     },
 
+    //监控链接
     async replace() {
       if (this.key === "" || this.recordDate === "") {
         this.$message({
@@ -123,27 +136,21 @@ export default defineComponent({
       }
 
       try {
-        console.log(this.key);
-        console.log(this.recordDate);
 
-        const response = await axios.get("/sse/restoreSSEInfoHistory?cacheKey=" + this.key + "&recordDate=" + this.recordDate);
-        console.log(response);
+        //历史监控信息
+        const response = await axios.get(this.baseURL + "/sse/restoreSSEInfoHistory?cacheKey=" + this.key + "&recordDate=" + this.recordDate);
+        
         this.historyMessages = response.data.data;
-        // this.historyMessages.unshift(this.recordDate + "历史如下");
 
         if (this.recordDate === this.getNowFormatDate()) {
-          this.source = new EventSource(import.meta.env.VITE_API_BASE_URL+"/sse/definedJobSubscribe?cacheKey=" + this.key);
-
-          //this.source.onmessage = (event) => {
-            //this.messages.unshift(event.data);
-          //};
+          //实时监控链接
+          this.source = new EventSource(this.baseURL +"/sse/definedJobSubscribe?cacheKey=" + this.key);
 
           this.source.addEventListener("message", (event) => {
             const data = JSON.parse(event.data).data;
             data.forEach(item => {
               this.messages.unshift(item);
             });
-            console.log(this.messages.length)
           });
 
           this.source.onerror = (e) => {
@@ -166,10 +173,11 @@ export default defineComponent({
       }
     },
 
+    //获取key
     async getkeys() {
       this.cancelTokenSource = axios.CancelToken.source();
       try {
-        const response = await axios.post("/sse/getLinkingCache", {
+        const response = await axios.post(this.baseURL + "/sse/getLinkingCache", {
           cancelToken: this.cancelTokenSource.token
         });
         this.keys = response.data.data; // 更新响应式变量
@@ -187,11 +195,13 @@ export default defineComponent({
       }
     },
 
+    //清空监控数据
     clean() {
       this.historyMessages = [];
       this.messages = [];
     },
 
+    //关闭链接
     close() {
       if (this.source) {
         this.source.close();
@@ -225,9 +235,18 @@ export default defineComponent({
 }
 
 .tetle {
+  display: flex;
+  justify-content: center;
   font-size: 48px;
   margin-top: 20px;
   margin-top: 0px;
+  margin-bottom: 0;
+}
+
+.title {
+  display: flex;
+  justify-content: center;
+  font-size: 24px;
   margin-bottom: 0;
 }
 
@@ -278,25 +297,12 @@ export default defineComponent({
   background: linear-gradient(to right, rgb(53,204,255), rgb(4,114,182)); /* 从浅蓝色到深蓝色 */
 }
 
-.see-text {
-  width: 600px;
-  height: 650px;
-  overflow-y: auto;
-  margin-top: 20px;
-  padding: 10px;
-  border: 1px solid #000;
-  border-radius: 5px;
-  background-color: #f5f5f5; /* 添加背景色 */
-  word-wrap: break-word; /* 添加换行 */
-  display: flex;
-  flex-direction: column-reverse; /* 自动定位到底部 */
-}
 
 .virtual-list {
   width: 600px;
-  height: 250px;
+  height: 200px;
   overflow-y: auto;
-  margin-top: 20px;
+  margin-top: 0px;
   padding: 10px;
   border: 1px solid #000;
   border-radius: 5px;
@@ -308,9 +314,9 @@ export default defineComponent({
 
 .virtual-list1 {
   width: 600px;
-  height: 400px;
+  height: 350px;
   overflow-y: auto;
-  margin-top: 20px;
+  margin-top: 0px;
   padding: 10px;
   border: 1px solid #000;
   border-radius: 5px;
@@ -325,10 +331,11 @@ export default defineComponent({
   border-bottom: 1px solid #ddd;
 }
 
-.see-text p {
+.text {
   margin: 0;
   padding: 5px;
-  font-size: 16px;
+  margin-bottom: 0;
+  font-size: 24px;
 }
 
 .jumpButtonBox{
@@ -350,5 +357,9 @@ export default defineComponent({
 }
 .jumpButtonBox  button:hover{
   background: linear-gradient(to right, rgb(53,204,255), rgb(4,114,182)); /* 从浅蓝色到深蓝色 */
+}
+
+:deep(.el-link__inner){
+  color:rgb(0,119,194);
 }
 </style>

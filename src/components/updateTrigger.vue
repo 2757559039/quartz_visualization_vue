@@ -1,4 +1,5 @@
 <template>
+  <!-- 更新触发器信息 -->
   <div class="container">
     <div class="box">
       <div class="trigger">
@@ -14,6 +15,8 @@
         <p>触发器类型:</p>
         <p style="text-align: right;">{{ selecttrigger }}</p>
       </div>
+
+      <!-- 可修改项 -->
       <div class="title">
         <span>任务优先级:</span>
         <el-input-number v-model="priority" :min="0" :max="999" />
@@ -65,13 +68,10 @@
     </div>
 
     <div class="fg"></div>
-
+    <!-- 修改触发器专属信息--按触发器类型 -->
     <div class="triggerDetail">
         <div v-if="isCustomTrigger === false" class="detailbox">
-
-
-          
-
+          <!-- SimpleTrigger -->
         <div v-show="selecttrigger === 'SimpleTrigger' && this.isCustomTrigger === false " class="detailbox">
           <div class="detail">
             <span>触发时间间隔</span>
@@ -82,7 +82,7 @@
             <el-input v-model="repeatcount"/>
           </div>
         </div>
-
+          <!--CronTrigger  -->
         <div v-show="selecttrigger === 'CronTrigger' && this.isCustomTrigger === false" class="detailbox">
           <div class="detail">
             <span>cron字段</span>
@@ -94,6 +94,7 @@
           </div>
         </div>
 
+        <!-- CalendarIntervalTrigger -->
         <div v-show="selecttrigger === 'CalendarIntervalTrigger' && this.isCustomTrigger === false" class="detailbox">
           <div class="detail">
             <span>触发器时间间隔单位</span>
@@ -121,6 +122,7 @@
           </div>
         </div>
 
+        <!-- DailyTimeIntervalTrigger -->
         <div v-show="selecttrigger === 'DailyTimeIntervalTrigger' && this.isCustomTrigger === false" class="detailbox">
           <div class="detail">
             <span>触发器时间间隔单位</span>
@@ -128,9 +130,6 @@
               <el-option :label="'秒钟'" :value="'second'"/>
               <el-option :label="'分钟'" :value="'minute'"/>
               <el-option :label="'小时'" :value="'hour'"/>
-              <!-- <el-option :label="'天'" :value="'day'"/>
-              <el-option :label="'月'" :value="'month'"/>
-              <el-option :label="'年'" :value="'year'"/> -->
             </el-select>
           </div>
           <div class="detail">
@@ -182,6 +181,7 @@
 //? 自定义禁用逻辑
 
 import axios from "axios";
+import { mapState } from 'vuex';
 import { Vue3CronPlusPicker } from 'vue3-cron-plus-picker';
 import 'vue3-cron-plus-picker/style.css';
 import { tr } from "element-plus/es/locales.mjs";
@@ -246,6 +246,9 @@ export default {
       Info: {},
     };
   },
+  computed: {
+    ...mapState(['baseURL']),
+  },
   methods: {
 
     disabledStartDate(time) {
@@ -292,13 +295,13 @@ export default {
           type = "CalendarUpdateIntervalTrigger";
         }
         const response = await axios.post(
-          "/task/Reflect/updatetriggerclass",null,{
+          this.baseURL + "/task/Reflect/updatetriggerclass",null,{
             params: {
               type: type
             },
           }
         );
-        console.log(response);
+        
         this.triggers = response.data.data;
 
         // 重置表单
@@ -313,10 +316,10 @@ export default {
         this.builInfo();
         try {
           const response = await axios.post(
-            "/task/Update/updatetrigeerargument",
+            this.baseURL + "/task/Update/updatetrigeerargument",
             this.Info
           );
-          console.log(response);
+          
           this.$emit('close');
 
           // 重置表单
@@ -362,10 +365,10 @@ export default {
         } else if (this.selecttrigger === "CronTrigger") {
           if (this.cronexpression !== "") {
             const response = await axios.post(
-              "/task/Util/cron-check?cron=" +
+              this.baseURL + "/task/Util/cron-check?cron=" +
                 this.cronexpression
             );
-            console.log(response);
+            
             if (response.data.message === "cron表达式格式错误！") {
               alert("cron表达式不合法");
               return false;
@@ -434,7 +437,6 @@ export default {
       }
     },
     checkworkday(){
-      console.log('checkday4');
       if(this.workday){
         this.dailyworkday.push("1","2","3","4","5");
         this.dailyworkday = [...new Set(this.dailyworkday)];
@@ -467,7 +469,6 @@ export default {
     }
     },
     checkday() {
-      console.log('checkday');
       if (this.dailyworkday.includes("1") && this.dailyworkday.includes("2") && this.dailyworkday.includes("3") && this.dailyworkday.includes("4") && this.dailyworkday.includes("5")) {
         this.workday = true;
       } else {
@@ -490,7 +491,6 @@ export default {
   },
   created() {
     this.getTrigger();
-    console.log(this.jobinfo);
     this.triggername = this.jobinfo.triggername;
     this.triggergroup = this.jobinfo.triggergroup;
     this.priority = this.jobinfo.priority;
