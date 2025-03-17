@@ -1,4 +1,5 @@
 <template>
+  <!-- 触发器管理页面 -->
   <div class="container">
     <div class="jumpBox">
       <el-link :underline="false" @click="Go('JobIndex')">前往任务管理页面<el-icon><Link /></el-icon></el-link>

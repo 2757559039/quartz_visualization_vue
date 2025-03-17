@@ -1,4 +1,5 @@
 <template>
+  <!-- 虚拟类管理页面 -->
   <div class="main-container">
       <el-link class="title" :underline="false" @click="Go('uploadIP')">当前后端地址--{{ baseURL }}</el-link>
     <!-- 顶部标签页 -->
