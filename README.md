@@ -86,17 +86,17 @@
 
     *   提供页面间的导航支持。
     *   展示当前连接的后端地址，便于用户了解当前环境配置。
-!\[image\]\( https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/通用跳转后端地址.png)
-!\[image\]\( https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/通用跳转任务展示.png)
-!\[image\]\( https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/通用跳转触发器展示.png)
-!\[image\]\( https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/通用跳转虚拟类管理平台.png)
-!\[image\]\( https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/通用跳转监控平台.png)
+![image](https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/通用跳转后端地址.png)
+![image](https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/通用跳转任务展示.png)
+![image](https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/通用跳转触发器展示.png)
+![image](https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/通用跳转虚拟类管理平台.png)
+![image](https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/通用跳转监控平台.png)
 
 ## 后端地址控制页面
 
 *   **主要功能:** 修改当前后端地址。
 *   **功能介绍:** 用户需选择协议（如HTTP或HTTPS），并填写IP地址和端口号来修改后端地址。也可以通过修改`.env`文件来设置默认的后端地址。
-!\[image\]\( https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/后端地址.png)
+![image](https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/后端地址.png)
 
 
 ## 任务及触发器管理页面
@@ -104,27 +104,27 @@
 *   **基于分组和名称的筛选及模糊搜索功能:**
 
     *   支持按任务或触发器的分组和名称进行筛选，并提供模糊搜索功能，方便快速定位所需的任务或触发器。
-!\[image\]\( https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/任务筛选.png)
-!\[image\]\( https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/触发器筛选.png)
+![image](https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/任务筛选.png)
+![image](https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/触发器筛选.png)
 
 *   **所有任务操作按钮:**
 
     *   包含恢复、暂停、删除等按钮，点击后会有确认弹窗以确保用户确实希望执行该操作。
 
-!\[image\]\( https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/all任务展示.png)
-!\[image\]\( https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/all触发器展示.png)
-!\[image\]\( https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/all恢复.png)
+![image](https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/all任务展示.png)
+![image](https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/all触发器展示.png)
+![image](https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/all恢复.png)
 
 *   **添加任务及挂载触发器:**
-!\[image\]\( https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/tg任务展示.png)
-!\[image\]\( https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/tg触发器二级展示.png)
+![image](https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/tg任务展示.png)
+![image](https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/tg触发器二级展示.png)
 
     *   **添加任务功能弹窗:** 填写完整任务信息可以增加一个新任务。若同时填写了触发器属性，则可以直接挂载触发器。
-!\[image\]\( https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/添加任务.png)
+![image](https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/添加任务.png)
 
 
     *   **挂载触发器功能弹窗:** 选择已有任务并填写完整的触发器属性，可将该触发器挂载到所选任务上。
-!\[image\]\( https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/挂载任务.png)
+![image](https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/挂载任务.png)
 
 
 ## 任务管理页面
@@ -136,26 +136,26 @@
 *   **当前任务展示:**
 
     *   显示任务的分组、名称、任务类、描述以及下属触发器的数量和详细信息（如分组、名称、触发器类型、开始时间、结束时间和状态）。
-!\[image\]\( https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/任务展示.png)
+![image](https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/任务展示.png)
 
 
 *   **当前任务操作:**
 
     *   操作包括立即执行任务、恢复任务、暂停任务、删除任务等，每项操作前都有确认弹窗以避免误操作。
 
-!\[image\]\( https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/操作任务展示.png)
-!\[image\]\( https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/任务操作确认弹窗.png)
+![image](https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/操作任务展示.png)
+![image](https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/任务操作确认弹窗.png)
 
 
 *   **替换触发器功能弹窗:**
 
     *   可选择触发器进行替换，填写具体属性后执行替换操作。注意，当触发器组名与其他非选择的触发器组名相同时，旧触发器会被删除且不会自动挂载新触发器。
-!\[image\]\( https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/替换触发器.png)
+![image](https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/替换触发器.png)
 
 *   **更改任务属性功能弹窗:**
 
     *   允许修改任务描述、任务类和自定义JobDetail。如果选择的任务类或JobDetail不符合要求，相应属性的更改将失效。
-!\[image\]\( https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/更新任务属性.png)
+![image](https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/更新任务属性.png)
 
 
 ## 触发器管理页面
@@ -167,13 +167,13 @@
 *   **展示触发器基本信息:**
 
     *   包括分组、名称、类型、优先级、状态、开始时间、结束时间,及专有属性及运行时属性等。
-!\[image\]\( https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/触发器二级展示.png)
+![image](https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/触发器二级展示.png)
 
 
 *   **当前触发器操作按钮:**
 
     *   类似于任务的操作按钮，包含恢复、暂停、删除等，每个操作都需要确认。
-!\[image\]\( https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/触发器操作确认弹窗.png)
+![image](https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/触发器操作确认弹窗.png)
 
 
 
@@ -181,19 +181,19 @@
 *   **查看下次触发时间功能弹窗:**
 
     *   用户指定某个时间点后，系统会计算并显示该触发器在指定时间点后的下一次触发时间。
-!\[image\]\( https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/下一次触发时间查询弹窗.png)
-!\[image\]\( https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/下一次触发时间结果弹窗.png)
+![image](https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/下一次触发时间查询弹窗.png)
+![image](https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/下一次触发时间结果弹窗.png)
 
 
 *   **替换当前触发器功能弹窗:**
 
     *   通过填写完整的触发器属性，将现有触发器替换为新的触发器，但新触发器挂载的任务与旧触发器相同。
-!\[image\]\( https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/触发器页面替换触发器.png)
+![image](https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/触发器页面替换触发器.png)
 
 *   **更改触发器属性功能弹窗:**
 
     *   允许修改触发器的部分属性，但不能修改其分组、名称和类型。
-!\[image\]\( https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/更改触发器属性.png)
+![image](https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/更改触发器属性.png)
 
 
 ## 虚拟类管理平台
@@ -205,37 +205,37 @@
 *   **虚拟类的查找功能:**
 
     *   通过虚拟类类型进行筛选，并在此基础上通过类名进行模糊查询。
-!\[image\]\( https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/虚拟类筛选.png)
+![image](https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/虚拟类筛选.png)
 
 
 *   **虚拟类的卸载按钮:**
 
     *   点击出现确认弹窗，确认后执行卸载操作。
-!\[image\]\( https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/虚拟类卸载.png)
+![image](https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/虚拟类卸载.png)
 
 
 *   **脚本的查找功能:**
 
     *   根据脚本类型及状态进行查询，并支持模糊查询。
-!\[image\]\( https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/脚本筛选.png)
+![image](https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/脚本筛选.png)
 
 
 *   **脚本的安装与删除按钮:**
 
     *   点击后出现确认弹窗，确认后执行具体操作。
-!\[image\]\( https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/脚本安装.png)
-!\[image\]\( https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/脚本删除.png)
+![image](https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/脚本安装.png)
+![image](https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/脚本删除.png)
 
 *   **脚本的修改弹窗:**
 
     *   支持对脚本代码进行查看或编辑。
-!\[image\]\( https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/脚本查看与修改.png)
+![image](https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/脚本查看与修改.png)
 
 
 *   **配置文件或类的编写与上传:**
 
     *   提供界面用于编写配置文件或类，并支持上传至服务器。
-!\[image\]\( https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/配置文件及类的上传.png)
+![image](https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/配置文件及类的上传.png)
 
 
 ## 监控平台
@@ -247,5 +247,5 @@
 *   **查询监控历史信息和链接实时监控:**
 
     *   选择key和recordDate后,点击确认按钮
-!\[image\]\( https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/监控平台.png)
-!\[image\]\( https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/监控平台展示.png)
+![image](https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/监控平台.png)
+![image](https://github.com/2757559039/quartz_visualization_vue/blob/前端/public/介绍图片/监控平台展示.png)
