@@ -5,6 +5,7 @@ import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 
 export default defineConfig({
+  base: '/quartz_visualization',//设置基础路径
   plugins: [vue(),
     AutoImport({
       resolvers: [ElementPlusResolver()],

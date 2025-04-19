@@ -1,6 +1,6 @@
 
 // router/index.js
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, createWebHashHistory } from 'vue-router'
 import JobIndex from '../views/JobIndex.vue'
 import TriggerIndex from '../views/TriggerIndex.vue'
 import VirtualPlatform from '../views/VirtualPlatform.vue'
@@ -47,7 +47,7 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory('/quartz_visualization'),
   routes,
 });
 
