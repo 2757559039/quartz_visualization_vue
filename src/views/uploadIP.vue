@@ -35,19 +35,30 @@
                 <label for="port">端口:</label>
                 <el-input-number class="number2" v-model="port" id="port"/>
             </div>
+            <div class="updateButton">
+                <el-button type="info" @click="updateStore">更新并使用后端IP</el-button>
+            </div>
+        </div>
+        <div class="domain">
+            <div class="domainspead">
+                <label for="域名">域名:</label>
+                <el-input v-model="domain" id="域名"/>
+            </div>
+            <div class="updateButton">
+                <el-button type="info" @click="updateDomain">更新并使用后端域名</el-button>
+            </div>
         </div>
         <div>
             <p>当前选择的后端地址:</p>
             <p> {{ address }}</p>
+            <p>当前选择的后端域名:</p>
+            <p>{{ protocol }}://{{ domain }}</p>
             <p>当前后端地址: </p>
             <p>{{ baseURL }}</p>
         </div>
-            
-        <div class="updateButton">
-            <el-button type="info" @click="updateStore">更新后端地址</el-button>
-        </div>
 
-        <div class="jumpButtonBox"> 
+
+        <div class="jumpButtonBox">
             <el-button type="info" @click="go('JobIndex')">任务管理</el-button>
             <el-button type="info" @click="go('TriggerIndex')">触发器管理</el-button>
             <el-button type="info" @click="go('VirtualPlatform')">虚拟管理平台</el-button>
@@ -67,7 +78,8 @@ export default {
             ip2: '',
             ip3: '',
             ip4: '',
-            port: ''
+            port: '',
+            domain: '',
         };
     },
     computed: {
@@ -79,7 +91,18 @@ export default {
     methods: {
         ...mapActions(['updateBaseURL']),
         updateStore() {
-            this.updateBaseURL(this.address);
+            if (this.ip1 && this.ip2 && this.ip3 && this.ip4 && this.port) {
+                this.updateBaseURL(this.address);
+            } else {
+                this.$message.error('请填写完整的IP地址和端口');
+            }
+        },
+        updateDomain() {
+            if (this.domain) {
+                this.updateBaseURL(this.protocol + '://' + this.domain);
+            } else {
+                this.$message.error('域名不能为空');
+            }
         },
         go(address) {
             this.$router.push({ path: '/' + address });
@@ -129,11 +152,12 @@ export default {
 
 .updateButton{
     margin-top: 20px;
+    margin-left: 40px;
 }
 
 .updateButton  button{
   font-size: 18px;
-  width: 200px;
+  width: 250px;
   height: 50px;
   font-size: 24px;
   background: linear-gradient(to left, rgb(53,204,255), rgb(4,114,182)); /* 从浅蓝色到深蓝色 */
@@ -164,5 +188,33 @@ export default {
 }
 .jumpButtonBox  button:hover{
   background: linear-gradient(to right, rgb(53,204,255), rgb(4,114,182)); /* 从浅蓝色到深蓝色 */
+}
+
+.domain{
+    width: 1000px;
+    margin-top: 5px;
+    display: flex;
+	justify-items: center;
+	/* justify-content: space-between; */
+	align-items: center;
+    /* margin-right: 200px;; */
+}
+
+.domain .el-input{
+    width: 680px;
+    margin-top: 5px;
+    height: 60px;
+}
+
+:deep(.el-input__wrapper) {
+    font-size: 20px;
+    height: 40px;
+}
+
+.domainspead{
+    padding-top: 20px;
+    margin-left: 120px;
+    /* margin-right: 380px; */
+
 }
 </style>
