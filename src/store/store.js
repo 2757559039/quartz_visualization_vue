@@ -2,7 +2,7 @@ import { createStore } from 'vuex';
 
 const state = {
     // 动态后端地址,页面刷新防丢失
-    baseURL: sessionStorage.getItem('baseURL') || import.meta.env.VITE_API_BASE_URL
+    baseURL: localStorage.getItem('baseURL') || import.meta.env.VITE_API_BASE_URL
 };
 
 const getters = {
@@ -12,7 +12,7 @@ const getters = {
 const mutations = {
     setBaseURL: (state, newIP) => {
         state.baseURL = newIP;
-        sessionStorage.setItem('baseURL', newIP);
+        localStorage.setItem('baseURL', newIP);
     }
 };
 
