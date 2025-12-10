@@ -1,7 +1,7 @@
 <template>
   <!-- 挂载触发器 弹窗组件 -->
   <el-dialog v-model="isVisible" title="触发器挂载" :before-close="closeModal">
-    <el-form label-width="30%">
+    <el-form id="tour-mount-form" label-width="30%">
       <!-- 挂载目标选择 -->
       <el-form-item label="任务分组">
         <el-select v-model="jobgroup" @change="select()" @focus="getjobgroups()">
@@ -234,7 +234,7 @@
     <!-- 底部按钮 -->
     <template #footer>
       <div class="footer">
-      <el-button type="primary" @click="replace">挂载触发器</el-button>
+      <el-button id="tour-mount-confirm-btn" type="primary" @click="replace">挂载触发器</el-button>
       <el-button @click="closeModal">取消</el-button>
       </div>
     </template>

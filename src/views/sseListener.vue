@@ -1,12 +1,16 @@
 <template>
   <!-- 监控器模块页面 -->
   <div class="sse-lister">
-    <div> 
+    <div style="width:100%; display: flex; justify-content: flex-end; padding-right: 40px;">
+       <el-button id="tour-sse-docs-btn" type="primary" plain @click="openDocs">文档</el-button>
+       <el-button id="tour-sse-guide-btn" type="info" @click="startTour">新手引导</el-button>
+    </div>
+    <div>
       <p class="tetle">监控器模块</p>
-      <el-link class="title" :underline="false" @click="go('uploadIP')">当前后端地址--{{ baseURL }}</el-link>
+      <el-link id="tour-sse-backend" class="title" :underline="false" @click="go('uploadIP')">当前后端地址--{{ baseURL }}</el-link>
     </div>
     <div class="see-select">
-      <div class="selectBox">
+      <div id="tour-sse-selects" class="selectBox">
          <!--选择key  -->
         <el-select v-model="key" placeholder="请选择key" @focus="getkeys" @change="getRecordDates">
           <el-option
@@ -29,38 +33,43 @@
       </div>
 
       <!-- 操作按钮 -->
-      <div class="buttonBox"> 
+      <div id="tour-sse-ops" class="buttonBox">
         <el-button type="info" @click="replace">确认</el-button>
         <el-button type="info" @click="clean">清空</el-button>
-        <el-button type="info" @click="close">关闭</el-button>  
+        <el-button type="info" @click="close">关闭</el-button>
       </div>
     </div>
     <!-- 监控数据展示 -->
       <p class="text">历史监控如下</p>
-      <div class="virtual-list" > 
+      <div id="tour-sse-history" class="virtual-list" >
         <p v-for="message in historyMessages" :key="message">{{ message }}</p>
       </div>
       <p class="text">实时监控如下</p>
-      <div  class="virtual-list1"> 
+      <div id="tour-sse-realtime" class="virtual-list1">
         <p v-for="message in messages" :key="message">{{ message }}</p>
       </div>
     </div>
 
-  <div class="jumpButtonBox"> 
+  <HelpDrawer ref="helpDrawer" />
+  <div id="tour-sse-nav-btns" class="jumpButtonBox">
     <!-- 页面跳转按钮 -->
     <el-button type="info" @click="go('JobIndex')">任务管理</el-button>
     <el-button type="info" @click="go('TriggerIndex')">触发器管理</el-button>
-    <el-button type="info" @click="go('VirtualPlatform')">虚拟管理平台</el-button>  
+    <el-button type="info" @click="go('VirtualPlatform')">虚拟管理平台</el-button>
   </div>
 </template>
 
 <script>
 import axios from "axios"; // 确保引入 axios
 import { mapState, mapActions } from 'vuex';
+import { driver } from "driver.js";
+import "driver.js/dist/driver.css";
 import { defineComponent } from 'vue';
+import HelpDrawer from '../components/HelpDrawer.vue';
 
 export default defineComponent({
   components: {
+    HelpDrawer,
   },
   data() {
     return {
@@ -208,10 +217,62 @@ export default defineComponent({
         this.clean();
         this.messages.unshift("连接关闭");
       }
+    },
+    // 打开文档
+    openDocs() {
+      this.$refs.helpDrawer.open();
+    },
+    // 新手引导
+    startTour() {
+      const driverObj = driver({
+        showProgress: true,
+        allowClose: false, // 禁止点击空白关闭
+        allowKeyboardControl: false, // 禁用默认键盘控制
+        overlayClickNext: false, // 点击遮罩层不跳转
+        doneBtnText: '完成',
+        nextBtnText: '下一步',
+        prevBtnText: '上一步',
+        steps: [
+          { element: '#tour-sse-backend', popover: { title: '后端地址', description: '显示当前连接的后端服务器地址。' } },
+          { element: '#tour-sse-selects', popover: { title: '监控选择', description: '选择要监控的Key和日期。' } },
+          { element: '#tour-sse-ops', popover: { title: '操作按钮', description: '确认开始监控，或清空、关闭当前监控。' } },
+          { element: '#tour-sse-history', popover: { title: '历史监控', description: '显示选定日期的历史监控数据。' } },
+          { element: '#tour-sse-realtime', popover: { title: '实时监控', description: '如果是当天日期，会实时显示接收到的监控消息。' } },
+          { element: '#tour-sse-nav-btns', popover: { title: '快速导航', description: '快速跳转到其他管理页面。' } },
+          { element: '#tour-sse-docs-btn', popover: { title: '文档', description: '点击查看详细使用文档。' } },
+          { element: '#tour-sse-guide-btn', popover: { title: '新手引导', description: '点击这里可以再次查看本指引。' } },
+        ],
+        onDestroyed: () => {
+           localStorage.setItem('hasSeenSseTour', 'true');
+           document.removeEventListener('keydown', keyHandler);
+        }
+      });
+      
+      const keyHandler = (e) => {
+        if (!driverObj.isActive()) return;
+        if (e.key === 'Enter' || e.key === 'ArrowRight') {
+          driverObj.moveNext();
+        } else if (e.key === 'ArrowLeft') {
+          driverObj.movePrevious();
+        } else if (e.key === 'Escape') {
+          driverObj.destroy();
+        }
+      };
+
+      document.addEventListener('keydown', keyHandler);
+      driverObj.drive();
     }
   },
   mounted() {
     this.getkeys();
+
+      // 检查是否需要启动新手引导
+     this.$nextTick(() => {
+        const hasSeenTour = localStorage.getItem('hasSeenSseTour');
+        if (!hasSeenTour) {
+          this.startTour();
+        }
+      });
   },
   beforeUnmount() {
     if (this.source) {

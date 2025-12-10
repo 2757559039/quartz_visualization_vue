@@ -2,29 +2,31 @@
   <!-- 触发器管理页面 -->
   <div class="container">
     <div class="jumpBox">
-      <el-link :underline="false" @click="Go('JobIndex')">前往任务管理页面<el-icon><Link /></el-icon></el-link>
-      <el-link :underline="false" @click="Go('uploadIP')">当前后端地址--{{ baseURL }}</el-link>
+      <el-link id="tour-trigger-job-link" :underline="false" @click="Go('JobIndex')">前往任务管理页面<el-icon><Link /></el-icon></el-link>
+      <el-link id="tour-trigger-backend-link" :underline="false" @click="Go('uploadIP')">当前后端地址--{{ baseURL }}</el-link>
       <div class="modalButtonBox">
-        <el-button @click="jobModal" type="primary" class="addbtn">添加任务</el-button>
-        <el-button @click="onloadModal" type="primary" class="addbtn">挂载触发器</el-button>
-        <el-button type="primary" @click="Go('VirtualPlatform')">虚拟管理平台</el-button>
-        <el-button type="primary" @click="Go('sseListener')">监控平台</el-button>
+        <el-button id="tour-trigger-docs-btn" type="primary" plain @click="openDocs">文档</el-button>
+        <el-button id="tour-trigger-guide-btn" type="info" @click="startTour">新手引导</el-button>
+        <el-button id="tour-trigger-add-job" @click="jobModal" type="primary" class="addbtn">添加任务</el-button>
+        <el-button id="tour-trigger-mount" @click="onloadModal" type="primary" class="addbtn">挂载触发器</el-button>
+        <el-button id="tour-trigger-virtual" type="primary" @click="Go('VirtualPlatform')">虚拟管理平台</el-button>
+        <el-button id="tour-trigger-monitor" type="primary" @click="Go('sseListener')">监控平台</el-button>
       </div>
     </div>
 
     <div class="topbox">
       <p class="title">触发器管理</p>
-      <div class="Button3Box">
+      <div id="tour-trigger-global-ops" class="Button3Box">
         <el-button type="success" @click="showConfirm('resumeAllJob')" class="jobbtn">恢复所有任务</el-button>
         <el-button type="warning" @click="showConfirm('pauseAllJob')" class="jobbtn">停止所有任务</el-button>
         <el-button type="danger" @click="showConfirm('deleteAllJob')" class="jobbtn">删除所有任务</el-button>
       </div>
     </div>
 
-    <div class="conterBox"> 
+    <div class="conterBox">
       <p class="selectedtitle">条件筛选</p>
-      <div class="selectBox"> 
-        <div style="display: flex; flex-direction: column; align-items: center;"> 
+      <div id="tour-trigger-filters" class="selectBox">
+        <div style="display: flex; flex-direction: column; align-items: center;">
           <el-select v-model="selectGroup" class="select" @change="SelectGroup()" placeholder="触发器分组:全部" @focus="getGroups()">
           <el-option :label="'触发器分组: 全部'" :value=null />
             <el-option v-for="item in groups" :key="item" :label="'触发器分组: ' + item" :value="item"/>
@@ -53,7 +55,7 @@
       </div>
 
       <div class="box"> 
-        <el-table :data="Table" class="JobBox" @expand-change="handleExpandChange" :expand-row-keys="expandedRows" :row-key="getRowKey">
+        <el-table id="tour-trigger-table" :data="Table" class="JobBox" @expand-change="handleExpandChange" :expand-row-keys="expandedRows" :row-key="getRowKey">
           <el-table-column type="expand" >
             <template #default="props">
               <div v-if="props.row.triggerList" v-loading="!props.row.loadDetails" element-loading-text="加载中..."  element-loading-background="rgba(255, 255, 255)">
@@ -165,6 +167,7 @@
     <TriggerModal ref="triggerModal" class="trmod"  @getWhenAdd="SelectGroup"/>
     <JobModal ref="jobModal" class="jobmod"  @getWhenAdd="SelectGroup"/>
     <UpLoad ref="uploadModal" class="uploadmod"/>
+    <HelpDrawer ref="helpDrawer" />
     <transition name="modal">
       <div v-if="showUpdata" class="modal-mask">
         <div class="modal-wrapper">
@@ -216,17 +219,22 @@
     
   <script>
 import axios from "axios";
+import { driver } from "driver.js";
+import "driver.js/dist/driver.css";
 import { mapState, mapActions } from 'vuex';
 import updateTrigger from "../components/updateTrigger.vue";
 import TriggerModal from '../components/onloadtrigger.vue';
 import UpLoad from "../components/upload.vue";
 import JobModal from '../components/AddJob.vue';
+import HelpDrawer from '../components/HelpDrawer.vue';
+
 export default {
-  components: { 
+  components: {
     updateTrigger,
     TriggerModal,
     JobModal,
     UpLoad,
+    HelpDrawer,
    },
 
   data() {
@@ -625,7 +633,95 @@ export default {
       this.selectGroup = this.$route.query.groupForJob || "";
      await this.SelectGroup();
      this.selectName = this.$route.query.nameForJob || "";
+
+     // 检查是否需要启动新手引导
+     this.$nextTick(() => {
+        const hasSeenTour = localStorage.getItem('hasSeenTriggerTour');
+        if (!hasSeenTour) {
+          this.startTour();
+        }
+      });
     },
+    // 打开文档
+    openDocs() {
+        this.$refs.helpDrawer.open();
+    },
+    // 新手引导
+    startTour() {
+      const driverObj = driver({
+        showProgress: true,
+        allowClose: false, // 禁止点击空白关闭
+        allowKeyboardControl: false, // 禁用默认键盘控制
+        overlayClickNext: false, // 点击遮罩层不跳转
+        doneBtnText: '完成',
+        nextBtnText: '下一步',
+        prevBtnText: '上一步',
+        steps: [
+          { element: '#tour-trigger-job-link', popover: { title: '任务管理', description: '点击这里可以返回任务管理页面。' } },
+          { element: '#tour-trigger-backend-link', popover: { title: '后端地址', description: '显示当前连接的后端服务器地址。' } },
+          {
+            element: '#tour-trigger-add-job',
+            popover: { title: '添加任务', description: '创建一个新的定时任务。' },
+            onHighlightStarted: () => {
+               // 模拟点击打开弹窗
+               if(!this.$refs.jobModal.isVisible) {
+                   this.jobModal();
+               }
+            },
+          },
+          // 这里可以添加更多任务详情步骤，类似JobIndex
+          {
+            element: '#tour-trigger-mount',
+            popover: { title: '挂载触发器', description: '将现有的触发器挂载到任务上。' },
+            onHighlightStarted: () => {
+               // 确保之前的弹窗已关闭
+               if(this.$refs.jobModal.isVisible) {
+                   this.$refs.jobModal.closeModal();
+               }
+               // 模拟点击打开弹窗
+               if(!this.$refs.triggerModal.isVisible) {
+                   this.onloadModal();
+               }
+            },
+          },
+          // 这里可以添加挂载详情步骤
+          {
+            element: '#tour-trigger-virtual',
+            popover: { title: '虚拟管理平台', description: '前往虚拟类管理平台。' },
+            onHighlightStarted: () => {
+               // 确保之前的弹窗已关闭
+               if(this.$refs.triggerModal.isVisible) {
+                   this.$refs.triggerModal.closeModal();
+               }
+            }
+          },
+          { element: '#tour-trigger-monitor', popover: { title: '监控平台', description: '查看系统运行状态和日志监控。' } },
+          { element: '#tour-trigger-global-ops', popover: { title: '全局操作', description: '对所有任务和触发器进行批量操作。' } },
+          { element: '#tour-trigger-filters', popover: { title: '筛选条件', description: '可以通过分组、触发器名或模糊搜索来查找特定的触发器。' } },
+          { element: '#tour-trigger-table', popover: { title: '触发器列表', description: '展示所有触发器的详细信息。点击行首箭头可以查看触发器参数详情。' } },
+          { element: '#tour-trigger-docs-btn', popover: { title: '文档', description: '点击查看详细使用文档。' } },
+          { element: '#tour-trigger-guide-btn', popover: { title: '新手引导', description: '点击这里可以再次查看本指引。' } },
+        ],
+        onDestroyed: () => {
+           localStorage.setItem('hasSeenTriggerTour', 'true');
+           document.removeEventListener('keydown', keyHandler);
+        }
+      });
+      
+      const keyHandler = (e) => {
+        if (!driverObj.isActive()) return;
+        if (e.key === 'Enter' || e.key === 'ArrowRight') {
+          driverObj.moveNext();
+        } else if (e.key === 'ArrowLeft') {
+          driverObj.movePrevious();
+        } else if (e.key === 'Escape') {
+          driverObj.destroy();
+        }
+      };
+
+      document.addEventListener('keydown', keyHandler);
+      driverObj.drive();
+    }
   },
   beforeRouteEnter(to, from, next) {
     // 注意：在 beforeRouteEnter 守卫中，组件实例还未被创建，

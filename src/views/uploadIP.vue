@@ -2,8 +2,12 @@
 <template>
   <!-- 更改后端地址页面 -->
   <div class="container">
+    <div style="width:100%; display: flex; justify-content: flex-end; padding-right: 40px;">
+       <el-button id="tour-ip-docs-btn" type="primary" plain @click="openDocs">文档</el-button>
+       <el-button id="tour-ip-guide-btn" type="info" @click="startTour">新手引导</el-button>
+    </div>
     <!-- IP 配置卡片 -->
-    <div class="card">
+    <div id="tour-ip-config" class="card">
       <h3>后端 IP 配置</h3>
       <div class="form-row">
         <div class="form-item">
@@ -80,7 +84,7 @@
     </div>
 
     <!-- 域名配置卡片 -->
-    <div class="card">
+    <div id="tour-domain-config" class="card">
         <h3>后端域名配置</h3>
         <div class="form-row">
             <!-- 新增：协议选择器（与IP区域同步） -->
@@ -106,7 +110,7 @@
     </div>
 
     <!-- 当前地址展示卡片 -->
-    <div class="card current-info">
+    <div id="tour-current-info" class="card current-info">
       <h3>当前后端地址信息</h3>
       <div class="info-row">
         <span class="label">当前选择的后端地址:</span>
@@ -123,7 +127,8 @@
     </div>
 
     <!-- 底部导航 -->
-    <div class="nav-buttons">
+    <HelpDrawer ref="helpDrawer" />
+    <div id="tour-ip-nav-btns" class="nav-buttons">
       <el-button
         v-for="item in navItems"
         :key="item.name"
@@ -140,8 +145,14 @@
 
 <script>
 import { mapState, mapActions } from 'vuex';
+import { driver } from "driver.js";
+import "driver.js/dist/driver.css";
+import HelpDrawer from '../components/HelpDrawer.vue';
 
 export default {
+  components: {
+    HelpDrawer,
+  },
   data() {
     return {
       protocol: 'http',
@@ -189,7 +200,59 @@ export default {
     go(address) {
       this.$router.push({ path: '/' + address });
     },
+    // 打开文档
+    openDocs() {
+      this.$refs.helpDrawer.open();
+    },
+    // 新手引导
+    startTour() {
+      const driverObj = driver({
+        showProgress: true,
+        allowClose: false, // 不允许点击关闭
+        allowKeyboardControl: false, // 禁用默认键盘控制，改用自定义
+        overlayClickNext: false, // 点击遮罩层不跳转
+        doneBtnText: '完成',
+        nextBtnText: '下一步',
+        prevBtnText: '上一步',
+        steps: [
+          { element: '#tour-ip-config', popover: { title: '后端IP配置', description: '手动输入IP和端口来配置后端服务器地址。' } },
+          { element: '#tour-domain-config', popover: { title: '后端域名配置', description: '或者，通过输入域名来配置后端地址。' } },
+          { element: '#tour-current-info', popover: { title: '当前信息', description: '查看当前正在使用的后端地址和域名信息。' } },
+          { element: '#tour-ip-nav-btns', popover: { title: '快速导航', description: '快速跳转到其他管理页面。' } },
+          { element: '#tour-ip-docs-btn', popover: { title: '文档', description: '点击查看详细使用文档。' } },
+          { element: '#tour-ip-guide-btn', popover: { title: '新手引导', description: '点击这里可以再次查看本指引。' } },
+        ],
+        onDestroyed: () => {
+           localStorage.setItem('hasSeenIpTour', 'true');
+           document.removeEventListener('keydown', keyHandler);
+        }
+      });
+
+      const keyHandler = (e) => {
+        if (!driverObj.isActive()) return;
+        if (e.key === 'Enter' || e.key === 'ArrowRight') {
+          driverObj.moveNext();
+        } else if (e.key === 'ArrowLeft') {
+          driverObj.movePrevious();
+        } else if (e.key === 'Escape') {
+          // driverObj.destroy(); // 严格模式下，或许不应该允许ESC退出，或者弹窗确认。这里暂时保持原样。
+          driverObj.destroy();
+        }
+      };
+
+      driverObj.drive();
+      document.addEventListener('keydown', keyHandler);
+    }
   },
+  mounted() {
+      // 检查是否需要启动新手引导
+     this.$nextTick(() => {
+        const hasSeenTour = localStorage.getItem('hasSeenIpTour');
+        if (!hasSeenTour) {
+          this.startTour();
+        }
+      });
+  }
 };
 </script>
 

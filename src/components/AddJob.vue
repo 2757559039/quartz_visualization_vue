@@ -4,7 +4,7 @@
     <el-form label-width="30%" class="two-column-form">
       <div class="title">
         <!-- 任务属性 -->
-        <div class="left">
+        <div id="tour-addjob-left" class="left">
           <el-form-item label="任务名">
             <el-input v-model="jobName" />
           </el-form-item>
@@ -53,7 +53,7 @@
         </div>
 
         <!-- 触发器属性 -->
-        <div class="right">
+        <div id="tour-addjob-right" class="right">
           <!-- 选择触发器类型 -->
           <el-form-item label="选择触发器">
             <el-select v-model="trigger" @change="getTrigger()">
@@ -272,8 +272,8 @@
     <!-- 底部按钮 -->
     <template #footer>
       <div class="button-container">
-        <el-button @click="addjob">增加任务</el-button>
-        <el-button @click="addfreejob">增加空闲任务</el-button>
+        <el-button id="tour-addjob-btn" @click="addjob">增加任务</el-button>
+        <el-button id="tour-addfreejob-btn" @click="addfreejob">增加空闲任务</el-button>
       </div>
     </template>
   </el-dialog>
